@@ -29,4 +29,7 @@ public class Category {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
+
+    //冗余字段
+    private Integer articleCount;
 }

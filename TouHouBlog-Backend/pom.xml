@@ -55,6 +55,12 @@
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>4.1.0</version>
         </dependency>
+<!--        显示指定依赖防止不兼容-->
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.9</version>
+        </dependency>
 
     </dependencies>
 

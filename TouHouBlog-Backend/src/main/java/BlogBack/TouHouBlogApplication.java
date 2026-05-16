@@ -10,6 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TouHouBlogApplication {
     public static void main(String[] args){
         SpringApplication.run(TouHouBlogApplication.class,args);
-        log.info("TouHouBlog项目启动成功");
+        log.info("TouHouBlog项目启动成功!");
     }
 }

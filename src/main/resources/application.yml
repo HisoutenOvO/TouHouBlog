@@ -1,0 +1,17 @@
+spring:
+  profiles:
+    active: dev
+  # MySQL 驱动
+  datasource:
+    driver-class-name: ${datasource.driver-class-name}
+    url: jdbc:mysql://${datasource.host}:${datasource.port}/${datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${datasource.username}
+    password: ${datasource.password}
+knife4j:
+  setting:
+    language: zh_cn
+server:
+  port: 8080
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

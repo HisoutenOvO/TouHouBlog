@@ -1,0 +1,13 @@
+# 前端文件统一使用 LF
+*.vue lf
+*.js lf
+*.ts lf
+*.jsx lf
+*.tsx lf
+*.css lf
+*.scss lf
+*.html lf
+
+# 配置文件使用 CRLF
+*.bat eol=crlf
+*.cmd eol=crlf

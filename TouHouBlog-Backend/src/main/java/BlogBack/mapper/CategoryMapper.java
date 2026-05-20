@@ -13,4 +13,11 @@ public interface CategoryMapper extends BaseMapper<Category> {
      * @return
      */
     Page<Category> pageQuery();
+
+    /**
+     * 根据分类名称查询分类
+     * @return
+     */
+    @Select("select * from category where name = #{name}")
+    Category selectByName(String name);
 }

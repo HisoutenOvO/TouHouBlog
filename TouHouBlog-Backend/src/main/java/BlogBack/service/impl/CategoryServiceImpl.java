@@ -6,6 +6,7 @@ import BlogBack.mapper.CategoryMapper;
 import BlogBack.pojo.dto.CategoryDTO;
 import BlogBack.pojo.dto.CategoryPageQueryDTO;
 import BlogBack.pojo.entity.Category;
+import BlogBack.pojo.vo.CategoryUpdateVO;
 import BlogBack.service.CategoryService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -61,5 +62,18 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryMapper.selectById(id);
         BeanUtils.copyProperties(categoryDTO,category);
         categoryMapper.updateById(category);
+    }
+
+    /**
+     * 根据id查询分类信息
+     * @param id
+     * @return
+     */
+    @Override
+    public CategoryUpdateVO getById(Long id) {
+        Category category = categoryMapper.selectById(id);
+        CategoryUpdateVO categoryUpdateVO = new CategoryUpdateVO();
+        BeanUtils.copyProperties(category,categoryUpdateVO);
+        return categoryUpdateVO;
     }
 }

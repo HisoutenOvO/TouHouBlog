@@ -4,6 +4,7 @@ import BlogBack.common.result.PageResult;
 import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.CategoryDTO;
 import BlogBack.pojo.dto.CategoryPageQueryDTO;
+import BlogBack.pojo.vo.CategoryUpdateVO;
 import BlogBack.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,12 +54,24 @@ public class CategoryController {
      * @param id
      * @return
      */
-
     @PutMapping("/{id}")
     @Operation(summary = "修改分类")
     public Result update(@RequestBody CategoryDTO categoryDTO, @PathVariable Integer id){
         log.info("修改分类");
         categoryService.update(categoryDTO,id);
         return Result.success();
+    }
+
+    /**
+     * 根据id查询分类信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @Operation(summary = "根据id查询分类信息")
+    public Result<CategoryUpdateVO> getByCategoryId(@PathVariable Long id){
+        log.info("根据id查询分类信息");
+        CategoryUpdateVO categoryUpdateVO = categoryService.getById(id);
+        return Result.success(categoryUpdateVO);
     }
 }

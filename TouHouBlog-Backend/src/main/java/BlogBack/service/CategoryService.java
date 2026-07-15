@@ -3,6 +3,7 @@ package BlogBack.service;
 import BlogBack.common.result.PageResult;
 import BlogBack.pojo.dto.CategoryDTO;
 import BlogBack.pojo.dto.CategoryPageQueryDTO;
+import BlogBack.pojo.vo.CategoryUpdateVO;
 
 public interface CategoryService {
     /**
@@ -24,4 +25,11 @@ public interface CategoryService {
      * @param id
      */
     void update(CategoryDTO categoryDTO, Integer id);
+
+    /**
+     * 根据id查询分类信息
+     * @param id
+     * @return
+     */
+    CategoryUpdateVO getById(Long id);
 }

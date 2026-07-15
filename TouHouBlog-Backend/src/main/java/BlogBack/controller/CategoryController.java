@@ -74,4 +74,17 @@ public class CategoryController {
         CategoryUpdateVO categoryUpdateVO = categoryService.getById(id);
         return Result.success(categoryUpdateVO);
     }
+
+    /**
+     * 删除分类
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除分类")
+    public Result delete(@PathVariable Long id){
+        log.info("删除分类");
+        categoryService.delete(id);
+        return Result.success();
+    }
 }

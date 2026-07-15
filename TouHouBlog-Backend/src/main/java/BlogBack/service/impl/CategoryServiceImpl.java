@@ -1,10 +1,13 @@
 package BlogBack.service.impl;
 
+import BlogBack.common.exception.CategoryNotExistException;
 import BlogBack.common.exception.NameHasBeenUsedException;
 import BlogBack.common.result.PageResult;
+import BlogBack.mapper.ArticleMapper;
 import BlogBack.mapper.CategoryMapper;
 import BlogBack.pojo.dto.CategoryDTO;
 import BlogBack.pojo.dto.CategoryPageQueryDTO;
+import BlogBack.pojo.entity.Article;
 import BlogBack.pojo.entity.Category;
 import BlogBack.pojo.vo.CategoryUpdateVO;
 import BlogBack.service.CategoryService;
@@ -16,10 +19,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static BlogBack.common.constant.MessageConstant.CATEGORY_NOT_EXIST;
+import static BlogBack.common.constant.MessageConstant.NAME_HAS_BEEN_USED;
+import static BlogBack.common.constant.NumberConstant.ElseCategoryId;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryMapper categoryMapper;
+    private final ArticleMapper articleMapper;
 
     /**
      * 分类分页查询
@@ -46,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         Category c = categoryMapper.selectByName(categoryDTO.getName());
         if(c != null){
-            throw new NameHasBeenUsedException("已有该分类啦，换个名字吧~");
+            throw new NameHasBeenUsedException(NAME_HAS_BEEN_USED);
         }
         BeanUtils.copyProperties(categoryDTO,category);
         categoryMapper.insert(category);
@@ -75,5 +84,26 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryUpdateVO categoryUpdateVO = new CategoryUpdateVO();
         BeanUtils.copyProperties(category,categoryUpdateVO);
         return categoryUpdateVO;
+    }
+
+    /**
+     * 删除分类
+     * @param id
+     */
+    @Override
+    public void delete(Long id) {
+        if(categoryMapper.selectById(id) == null){
+            //先判断该分类下是否有文章
+            List<Article> articles = articleMapper.selectByCategoryId(id);
+            if(articles == null){
+                //先把分类下的各个文章全部转移给“其他”分类
+                articleMapper.updateArticleCategoryIdBatch(id,ElseCategoryId);
+            }
+            categoryMapper.deleteById(id);
+            //再删除该文章
+        }
+        else {
+            throw new CategoryNotExistException(CATEGORY_NOT_EXIST);
+        }
     }
 }

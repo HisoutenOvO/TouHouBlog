@@ -46,4 +46,19 @@ public class CategoryController {
         categoryService.add(categoryDTO);
         return Result.success();
     }
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     * @param id
+     * @return
+     */
+
+    @PutMapping("/{id}")
+    @Operation(summary = "修改分类")
+    public Result update(@RequestBody CategoryDTO categoryDTO, @PathVariable Integer id){
+        log.info("修改分类");
+        categoryService.update(categoryDTO,id);
+        return Result.success();
+    }
 }

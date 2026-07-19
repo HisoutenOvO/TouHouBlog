@@ -67,7 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @param id
      */
     @Override
-    public void update(CategoryDTO categoryDTO, Integer id) {
+    public void update(CategoryDTO categoryDTO, Long id) {
         Category category = categoryMapper.selectById(id);
         BeanUtils.copyProperties(categoryDTO,category);
         categoryMapper.updateById(category);

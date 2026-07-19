@@ -24,7 +24,7 @@ public interface CategoryService {
      * @param categoryDTO
      * @param id
      */
-    void update(CategoryDTO categoryDTO, Integer id);
+    void update(CategoryDTO categoryDTO, Long id);
 
     /**
      * 根据id查询分类信息

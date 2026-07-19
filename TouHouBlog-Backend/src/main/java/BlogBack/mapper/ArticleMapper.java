@@ -1,10 +1,11 @@
 package BlogBack.mapper;
 
+import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.entity.Article;
+import BlogBack.pojo.vo.ArticleVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -25,4 +26,11 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param NewCategoryId
      */
     void updateArticleCategoryIdBatch(Long OldCategoryId,Long NewCategoryId);
+
+    /**
+     * 对文章的条件分页查询
+     * @param articlePageQueryDTO
+     * @return
+     */
+    List<ArticleVO> getArticlesWithCategoryAndTags(ArticlePageQueryDTO articlePageQueryDTO);
 }

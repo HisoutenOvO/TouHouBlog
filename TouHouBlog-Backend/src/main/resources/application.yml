@@ -4,7 +4,7 @@ spring:
   # MySQL 驱动
   datasource:
     driver-class-name: ${datasource.driver-class-name}
-    url: jdbc:mysql://${datasource.host}:${datasource.port}/${datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${datasource.host}:${datasource.port}/${datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&useGeneratedKeys=true
     username: ${datasource.username}
     password: ${datasource.password}
 knife4j:
@@ -15,3 +15,6 @@ server:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto

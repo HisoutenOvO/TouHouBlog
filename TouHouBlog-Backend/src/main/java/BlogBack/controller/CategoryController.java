@@ -56,8 +56,8 @@ public class CategoryController {
      */
     @PutMapping("/{id}")
     @Operation(summary = "修改分类")
-    public Result update(@RequestBody CategoryDTO categoryDTO, @PathVariable Integer id){
-        log.info("修改分类");
+    public Result update(@RequestBody CategoryDTO categoryDTO, @PathVariable Long id){
+        log.info("修改分类:{}",id);
         categoryService.update(categoryDTO,id);
         return Result.success();
     }
@@ -70,7 +70,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     @Operation(summary = "根据id查询分类信息")
     public Result<CategoryUpdateVO> getByCategoryId(@PathVariable Long id){
-        log.info("根据id查询分类信息");
+        log.info("根据id查询分类信息:{}",id);
         CategoryUpdateVO categoryUpdateVO = categoryService.getById(id);
         return Result.success(categoryUpdateVO);
     }
@@ -83,7 +83,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除分类")
     public Result delete(@PathVariable Long id){
-        log.info("删除分类");
+        log.info("删除分类:{}",id);
         categoryService.delete(id);
         return Result.success();
     }

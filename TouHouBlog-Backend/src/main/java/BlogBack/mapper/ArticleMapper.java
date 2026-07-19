@@ -33,4 +33,10 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @return
      */
     List<ArticleVO> getArticlesWithCategoryAndTags(ArticlePageQueryDTO articlePageQueryDTO);
+
+    /**
+     * 根据id修改文章（重写mp方法）
+     * @param id
+     */
+    void updateById(Long id,Article article);
 }

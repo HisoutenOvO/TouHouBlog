@@ -6,6 +6,21 @@
         set category_id = #{NewCategoryId}
         where category_id = #{OldCategoryId}
     </update>
+    <update id="updateById">
+        update article
+        <set>
+            <if test="article.title != null and article.title != ''">
+                title = #{article.title},
+            </if>
+            <if test="article.content != null and article.content != ''">
+                content = #{article.content},
+            </if>
+            <if test="article.categoryId != null">
+                category_id = #{article.categoryId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
     <resultMap id="ArticlePageQueryVO" type="BlogBack.pojo.vo.ArticleVO">
         <id property="id" column="id"/>
         <result property="title" column="title"/>

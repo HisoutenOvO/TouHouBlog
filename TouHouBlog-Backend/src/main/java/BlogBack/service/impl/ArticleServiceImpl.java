@@ -1,5 +1,6 @@
 package BlogBack.service.impl;
 
+import BlogBack.common.exception.ArticleNotExistException;
 import BlogBack.common.result.PageResult;
 import BlogBack.mapper.ArticleMapper;
 import BlogBack.mapper.CategoryMapper;
@@ -17,6 +18,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static BlogBack.common.constant.MessageConstant.ARTICLE_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -69,8 +72,17 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public void update(ArticleUpdateDTO articleUpdateDTO, Long id) {
+        //先修改文章
         Article article = articleMapper.selectById(id);
+        if(article == null){
+            throw new ArticleNotExistException(ARTICLE_NOT_EXIST);
+        }
         BeanUtils.copyProperties(articleUpdateDTO,article);
-
+        articleMapper.updateById(id,article);
+        if(articleUpdateDTO.getTagIds() != null && !articleUpdateDTO.getTagIds().isEmpty()) {
+            //再修改文章相关的标签（先删再加）
+            tagMapper.deleteBatch(id);
+            tagMapper.insertBatch(id, articleUpdateDTO.getTagIds());
+        }
     }
 }

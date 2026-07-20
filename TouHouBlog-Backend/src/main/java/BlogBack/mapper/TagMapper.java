@@ -1,7 +1,10 @@
 package BlogBack.mapper;
 
+import BlogBack.pojo.dto.TagPageQueryDTO;
 import BlogBack.pojo.entity.Tag;
+import BlogBack.pojo.vo.TagPageQueryVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -22,4 +25,11 @@ public interface TagMapper extends BaseMapper<Tag> {
      */
     @Delete("delete from article_tag where article_id = #{articleId}")
     void deleteBatch(Long articleId);
+
+    /**
+     * 标签分页查询
+     * @param tagPageQueryDTO
+     * @return
+     */
+    Page<TagPageQueryVO> pageQuery(TagPageQueryDTO tagPageQueryDTO);
 }

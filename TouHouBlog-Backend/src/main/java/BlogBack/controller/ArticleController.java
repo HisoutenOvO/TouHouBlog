@@ -72,4 +72,16 @@ public class ArticleController {
         articleService.update(articleUpdateDTO,id);
         return Result.success();
     }
+
+    /**
+     * 删除文章
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除文章")
+    public Result delete(@PathVariable Long id){
+        log.info("删除文章:{}",id);
+        articleService.delete(id);
+        return Result.success();
+    }
 }

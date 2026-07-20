@@ -85,4 +85,16 @@ public class ArticleServiceImpl implements ArticleService {
             tagMapper.insertBatch(id, articleUpdateDTO.getTagIds());
         }
     }
+
+    /**
+     * 删除文章
+     * @param id
+     */
+    @Override
+    public void delete(Long id) {
+        //先删除文章
+        articleMapper.deleteById(id);
+        //再删除相关联的标签
+        tagMapper.deleteBatch(id);
+    }
 }

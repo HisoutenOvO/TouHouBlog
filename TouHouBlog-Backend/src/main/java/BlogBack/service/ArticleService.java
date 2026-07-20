@@ -33,4 +33,10 @@ public interface ArticleService {
      * @param id
      */
     void update(ArticleUpdateDTO articleUpdateDTO, Long id);
+
+    /**
+     * 删除文章
+     * @param id
+     */
+    void delete(Long id);
 }

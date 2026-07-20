@@ -32,4 +32,10 @@ public interface TagService {
      * @param id
      */
     void update(TagDTO tagDTO, Long id);
+
+    /**
+     * 删除标签
+     * @param id
+     */
+    void delete(Long id);
 }

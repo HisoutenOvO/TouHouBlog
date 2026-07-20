@@ -71,4 +71,16 @@ public class TagController {
         tagService.update(tagDTO,id);
         return Result.success();
     }
+
+    /**
+     * 删除标签
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除标签")
+    public Result delete(@PathVariable Long id){
+        log.info("删除标签:{}",id);
+        tagService.delete(id);
+        return Result.success();
+    }
 }

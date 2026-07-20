@@ -8,4 +8,6 @@ public class MessageConstant {
 
     public static final String ARTICLE_NOT_EXIST = "文章不见啦～";
 
+    public static final String TAG_RELATIVE_ARTICLE = "标签被某个文章用啦，不可以删除哦～";
+
 }

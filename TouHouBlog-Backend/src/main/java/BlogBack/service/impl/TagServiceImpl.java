@@ -1,5 +1,6 @@
 package BlogBack.service.impl;
 
+import BlogBack.common.exception.TagRelativeArticleException;
 import BlogBack.common.result.PageResult;
 import BlogBack.mapper.TagMapper;
 import BlogBack.pojo.dto.TagDTO;
@@ -13,6 +14,8 @@ import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import static BlogBack.common.constant.MessageConstant.TAG_RELATIVE_ARTICLE;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +69,21 @@ public class TagServiceImpl implements TagService {
         tag.setName(tagDTO.getName());
         tagMapper.updateById(tag);
     }
+
+    /**
+     * 删除标签
+     * @param id
+     */
+    @Override
+    public void delete(Long id) {
+        //先判断是否有文章关联
+        Integer relation = tagMapper.getRelativeArticleNumById(id);
+        if(relation >= 0){
+            throw new TagRelativeArticleException(TAG_RELATIVE_ARTICLE);
+        }
+        //删除标签
+        tagMapper.deleteById(id);
+    }
+
 
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -32,4 +33,12 @@ public interface TagMapper extends BaseMapper<Tag> {
      * @return
      */
     Page<TagPageQueryVO> pageQuery(TagPageQueryDTO tagPageQueryDTO);
+
+    /**
+     * 根据标签id查询是否有关联文章
+     * @param id
+     * @return
+     */
+    @Select("select count(*) from article_tag where tag_id = #{id}")
+    Integer getRelativeArticleNumById(Long id);
 }

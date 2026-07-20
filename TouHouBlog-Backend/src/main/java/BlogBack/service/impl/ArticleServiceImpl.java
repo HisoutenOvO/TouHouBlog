@@ -16,6 +16,7 @@ import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -57,6 +58,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @param articleAddDTO
      */
     @Override
+    @Transactional
     public void addArticle(ArticleAddDTO articleAddDTO) {
         Article article = new Article();
         BeanUtils.copyProperties(articleAddDTO,article);

@@ -1,6 +1,7 @@
 package BlogBack.service;
 
 import BlogBack.common.result.PageResult;
+import BlogBack.pojo.dto.TalkAddDTO;
 import BlogBack.pojo.dto.TalkPageQueryDTO;
 
 public interface TalkService {
@@ -10,4 +11,10 @@ public interface TalkService {
      * @return
      */
     PageResult pageQuery(TalkPageQueryDTO talkPageQueryDTO);
+
+    /**
+     * 新增杂谈
+     * @param talkAddDTO
+     */
+    void add(TalkAddDTO talkAddDTO);
 }

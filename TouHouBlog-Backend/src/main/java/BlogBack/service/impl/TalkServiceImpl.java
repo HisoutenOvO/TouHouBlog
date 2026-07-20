@@ -2,6 +2,7 @@ package BlogBack.service.impl;
 
 import BlogBack.common.result.PageResult;
 import BlogBack.mapper.TalkMapper;
+import BlogBack.pojo.dto.TalkAddDTO;
 import BlogBack.pojo.dto.TalkPageQueryDTO;
 import BlogBack.pojo.entity.Talk;
 import BlogBack.service.TalkService;
@@ -25,5 +26,16 @@ public class TalkServiceImpl implements TalkService {
         PageHelper.startPage(talkPageQueryDTO.getPage(),talkPageQueryDTO.getPageSize());
         Page<Talk> page = talkMapper.pageQuery(talkPageQueryDTO);
         return new PageResult(page.getTotal(),page.getResult());
+    }
+
+    /**
+     * 新增杂谈
+     * @param talkAddDTO
+     */
+    @Override
+    public void add(TalkAddDTO talkAddDTO) {
+        Talk talk = new Talk();
+        talk.setContent(talkAddDTO.getContent());
+        talkMapper.insert(talk);
     }
 }

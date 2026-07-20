@@ -4,6 +4,7 @@ import BlogBack.common.result.PageResult;
 import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.TalkAddDTO;
 import BlogBack.pojo.dto.TalkPageQueryDTO;
+import BlogBack.pojo.vo.TalkDetailVO;
 import BlogBack.service.TalkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,6 +44,31 @@ public class TalkController {
     public Result add(@RequestBody TalkAddDTO talkAddDTO){
         log.info("新增杂谈");
         talkService.add(talkAddDTO);
+        return Result.success();
+    }
+
+    /**
+     * 根据id查看杂谈详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @Operation(summary = "根据id查看杂谈详情")
+    public Result<TalkDetailVO> getById(@PathVariable Long id){
+        log.info("根据id查看杂谈详情:{}",id);
+        TalkDetailVO talkDetailVO = talkService.getById(id);
+        return Result.success(talkDetailVO);
+    }
+
+    /**
+     * 删除杂谈
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除杂谈")
+    public Result delete(@PathVariable Long id){
+        log.info("删除杂谈:{}",id);
+        talkService.delete(id);
         return Result.success();
     }
 }

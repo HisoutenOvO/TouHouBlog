@@ -17,7 +17,7 @@ const articles = ref([]);
 const loading = ref(true);
 onMounted(async () => {
   try{
-    const res = await axios.get('http://localhost:8080/articles/list?page=1&pageSize=5');
+    const res = await axios.get('/api/articles/list?page=1&pageSize=5');
     articles.value = res.data.data.records;
   }catch (e) {
     console.error('获取文章失败', e);

@@ -1,0 +1,26 @@
+---
+const siteTitle = "TouHouBlog"
+---
+
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{siteTitle}}</title>
+</head>
+<body class="ng-gray-100 text-gray-900">
+    <!--顶部导航栏-->
+    <header class="bg-white shadow-sm p-4">
+        <nav class="max-w-4l mx-auto justify-between flex items-center">
+            <a href="/" class="text-xl font-bold">TouHouBlog</a>
+        <div class="flex gap-4">
+         <a href="/" class="hover:text-blue-500">首页</a>
+         <a href="/articles" class="hover:text-blue-500">归档</a>
+        </div>
+     </nav>
+    </header>
+    <main class="max-w-4xl mx-auto px-6">
+        <slot />
+    </main>
+</body>
+</html>

@@ -28,7 +28,7 @@ public class ArticleController {
      * 文章列表条件查询
      * @return
      */
-    @GetMapping
+    @GetMapping("/list")
     @Operation(summary = "文章列表条件查询")
     public Result<PageResult> listQuery(ArticlePageQueryDTO articlePageQueryDTO) {
         log.info("分页查询文章列表");

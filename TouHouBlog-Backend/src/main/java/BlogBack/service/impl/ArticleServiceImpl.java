@@ -35,7 +35,7 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public PageResult pageQuery(ArticlePageQueryDTO articlePageQueryDTO) {
-        PageHelper.startPage(articlePageQueryDTO.getPage(),articlePageQueryDTO.getPageSize());
+        PageHelper.startPage(articlePageQueryDTO.getPage(),articlePageQueryDTO.getPageSize()*2);
         List<ArticleVO> articles = articleMapper.getArticlesWithCategoryAndTags(articlePageQueryDTO);
         Page<ArticleVO> articleVOS = (Page) articles;
         return new PageResult(articleVOS.getTotal(), articleVOS.getResult());

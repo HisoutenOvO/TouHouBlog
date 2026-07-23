@@ -4,22 +4,26 @@ const siteTitle = "TouHouBlog"
 
 <html lang="zh-CN">
 <head>
+    <link rel="stylesheet" href="/src/styles/global.css" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{siteTitle}}</title>
 </head>
 <body class="ng-gray-100 text-gray-900">
     <!--顶部导航栏-->
-    <header class="bg-white shadow-sm p-4">
-        <nav class="max-w-4l mx-auto justify-between flex items-center">
-            <a href="/" class="text-xl font-bold">TouHouBlog</a>
-        <div class="flex gap-4">
-         <a href="/" class="hover:text-blue-500">首页</a>
-         <a href="/articles" class="hover:text-blue-500">归档</a>
-        </div>
-     </nav>
+    <header class="bg-white shadow-sm p-4 fixed top-0 w-full z-50 ">
+        <nav class="max-w-4xl mx-auto flex justify-between items-center">
+            <a href="/" class="text-xl font-bold text-gray-900 no-underline">TouHouBlog</a>
+            <div class="flex gap-4">
+                <a href="/" class="text-gray-600 hover:text-gray-900 no-underline">首页</a>
+                <a href="/archive" class="text-gray-600 hover:text-gray-900 no-underline">归档</a>
+                <a href="/about" class="text-gray-600 hover:text-gray-900 no-underline">杂谈</a>
+                <a href="/talks" class="text-gray-600 hover:text-gray-900 no-underline">关于</a>
+
+            </div>
+        </nav>
     </header>
-    <main class="max-w-4xl mx-auto px-6">
+    <main class="max-w-4xl mx-auto p-6 pt-20">
         <slot />
     </main>
 </body>

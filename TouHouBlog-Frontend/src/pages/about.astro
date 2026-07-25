@@ -2,8 +2,34 @@
 import Layout from '../layouts/Layout.astro'
 ---
 <Layout>
-    <div class="text-center py-20">
-        <h1 class="text-3xl font-bold mb-4">正在开发ing</h1>
-        <p class="text-gray-500">关于我</p>
+    <div class="max-w-3xl mx-auto py-12">
+        <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-6">关于我</h1>
+            <div class="space-y-4 text-gray-700 leading-relaxed">
+                <p class="text-lg">
+                    👋 你好，我是 <span class="font-semibold text-gray-900">Hisouten</span>，一名热爱技术的高校学生 / 后端开发练习生。
+                </p>
+                <p class="text-base">
+                    这里是我的个人博客，主要用来记录我在 <span class="font-medium text-blue-600">后端开发</span> 和 <span class="font-medium text-indigo-600">前端学习</span> 路上的点点滴滴，也偶尔会聊些自己喜欢的东西，比如<span class="font-medium text-red-500">东方Project</span>。
+                </p>
+                <hr class="border-gray-200 my-6">
+            </div>
+            <div class="space-y-3 text-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 mb-3">🚀 正在做的 / 技能树</h2>
+                <ul class="list-disc list-inside space-y-1 text-base pl-4">
+                    <li><strong class="text-gray-800">后端：</strong>Java, Spring Boot, MyBatis-Plus, MySQL, Redis</li>
+                    <li><strong class="text-gray-800">前端：</strong>Vue 3, Astro, Tailwind CSS, TypeScript</li>
+                    <li><strong class="text-gray-800">运维 / 工具：</strong>Docker, Git, Linux, Nginx</li>
+                    <li><strong class="text-gray-800">兴趣：</strong>东方Project, 独立游戏, 开源社区</li>
+                </ul>
+            </div>
+            <div class="mt-8 space-y-2 text-base text-gray-600">
+                <hr class="border-gray-200 mb-6">
+                <h2 class="text-ul fond-bold text-gray-900 mb-3">📬 找到我</h2>
+                <p>GitHub: <a href="#" class="text-blue-500 hover:text-blue-700 underline">github.com/你的ID</a></p>
+                <p>邮箱: <a href="mailto:你的邮箱@example.com" class="text-blue-500 hover:text-blue-700 underline">你的邮箱@example.com</a></p>
+                <p class="italic text-sm mt-4 text-gray-400">欢迎交换友链，或者单纯来聊聊天~</p>
+            </div>
+        </div>
     </div>
 </Layout>

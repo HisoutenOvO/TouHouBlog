@@ -1,9 +1,33 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import HomeIntro from "../components/pages/indexPage/HomeIntro.vue";
+import CategoryList from '../components/pages/indexPage/CategoryList.vue';
+import RecentArticles from '../components/pages/indexPage/RecentArticles.vue';
+import SiteStates from '../components/pages/indexPage/SiteStates.vue';
+import TagList from '../components/pages/indexPage/TagList.vue';
 ---
 <Layout>
-	<div class="text-center py-20">
-		<h1 class="text-3xl font-bold mb-4">欢迎来到 TouHouBlog</h1>
-		<p class="text-gray-500">东方Project · 技术博客 · 个人杂谈</p>
+	<div class="px-6 py-8">
+
+		<HomeIntro client:load />
+
+		<div class="flex gap-6 mt-8">
+
+			<div class="flex-1">
+				<RecentArticles client:load />
+			</div>
+
+			<aside class="w-80 space-y-4">
+				<CategoryList client:load />
+				<TagList client:load />
+
+				<div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+					<h3 class="font-bold text-gray-900 mb-2">🎵 音乐</h3>
+					<p class="text-sm text-gray-500">音乐功能开发中...</p>
+				</div>
+
+				<SiteStates client:load />
+			</aside>
+		</div>
 	</div>
 </Layout>

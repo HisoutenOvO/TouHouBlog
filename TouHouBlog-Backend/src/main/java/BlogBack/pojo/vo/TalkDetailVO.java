@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TalkDetailVO {
 
+    private Long id;
+
     private String content;
 
     private LocalDateTime createTime;

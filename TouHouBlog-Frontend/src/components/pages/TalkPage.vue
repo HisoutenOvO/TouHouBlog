@@ -1,31 +1,136 @@
 <template>
   <div>
-  <h2 class="text-2xl font-bold mb-6">杂谈列表</h2>
-  <div v-if="loading" class="text-gray-500">加载中</div>
-  <div v-else-if="talks.length" class="space-y-4">
-    <div v-for="talk in talks" :key="talk.id" class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <h3 class="text-lg font-semibold mb-2">{{ talk.content }}</h3>
-      <p class="text-sm text-gray-400">{{talk.createTime}}</p>
-  </div>
-  </div>
-    <div v-else class="text-gray-500">暂无杂谈。</div>
+    <!-- 顶部标题区 -->
+    <div class="text-center py-12">
+      <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest">
+        杂谈与思考
+      </h1>
+      <p class="mt-4 text-base text-gray-400">
+        把日常里值得记住的一瞬，沿着时间慢慢收进这里
+      </p>
+    </div>
+
+    <div v-if="loading" class="text-center text-gray-500 py-20">加载中...</div>
+
+    <div v-else-if="talks.length" class="max-w-3xl mx-auto space-y-5 px-4">
+      <div
+          v-for="talk in talks"
+          :key="talk.id"
+          class="bg-white rounded-lg shadow-sm border border-gray-100 p-6"
+      >
+        <!-- 第一行：昵称 + 日期 -->
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-bold text-gray-900">Hisouten</span>
+          <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
+        </div>
+
+        <!-- 第二行：正文 -->
+        <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">
+          {{ talk.content }}
+        </p>
+
+        <!-- 如果有图片 -->
+        <div v-if="talk.picture" class="mb-4">
+          <img
+              :src="talk.picture"
+              alt="杂谈图片"
+              class="max-w-full h-auto rounded-lg border border-gray-100"
+          />
+        </div>
+
+        <!-- 第三行：时间 + 互动按钮 -->
+        <div class="flex justify-between items-center text-sm text-gray-400">
+          <span>{{ formatTime(talk.createTime) }}</span>
+          <div class="flex gap-3">
+            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+              ❤️ <span class="text-xs">0</span>
+            </button>
+            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+              💬 <span class="text-xs">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 第四行：预留评论/点赞展开区（目前无数据） -->
+        <div class="mt-3 pt-3 border-t border-gray-50 text-xs text-gray-400">
+          暂无评论
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div v-if="total > pageSize" class="flex justify-center gap-2 pt-6">
+        <button
+            @click="changePage(pageNum - 1)"
+            :disabled="pageNum === 1"
+            class="px-3 py-1 text-sm rounded border border-gray-200 bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          上一页
+        </button>
+        <span class="px-3 py-1 text-sm text-gray-500">
+          {{ pageNum }} / {{ totalPages }}
+        </span>
+        <button
+            @click="changePage(pageNum + 1)"
+            :disabled="pageNum === totalPages"
+            class="px-3 py-1 text-sm rounded border border-gray-200 bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          下一页
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="text-center text-gray-500 py-20">暂无杂谈。</div>
   </div>
 </template>
+
 <script setup>
-import { ref,onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const talks = ref([]);
-const loading = ref(true);
-onMounted(async () => {
-  try{
-    const res = await axios.get('/api/talks/list?page=1&pageSize=10');
-    talks.value = res.data.data.records;
-  }catch(e){
-    console.log(e)
-  }finally{
+const talks = ref([])
+const loading = ref(true)
+const pageNum = ref(1)
+const pageSize = 5
+const total = ref(0)
+const totalPages = ref(0)
+
+const fetchTalks = async () => {
+  loading.value = true
+  try {
+    const res = await axios.get('/api/talks/list', {
+      params: { page: pageNum.value, pageSize: pageSize }
+    })
+    talks.value = res.data.data.records
+    total.value = res.data.data.total
+    totalPages.value = Math.ceil(total.value / pageSize)
+  } catch (e) {
+    console.error('获取杂谈失败', e)
+  } finally {
     loading.value = false
   }
-})
+}
 
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) return
+  pageNum.value = page
+  fetchTalks()
+}
+
+// 日期格式化：yyyy-MM-dd
+const formatDate = (datetime) => {
+  if (!datetime) return ''
+  const d = new Date(datetime)
+  return d.toLocaleDateString('zh-CN') // 2026/8/4 格式，如需改成 2026-08-04 可自行处理
+}
+
+// 时间格式化：HH:mm
+const formatTime = (datetime) => {
+  if (!datetime) return ''
+  const d = new Date(datetime)
+  return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+}
+
+onMounted(() => {
+  fetchTalks()
+})
 </script>

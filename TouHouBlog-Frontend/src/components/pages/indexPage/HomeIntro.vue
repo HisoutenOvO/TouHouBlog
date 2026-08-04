@@ -1,17 +1,14 @@
 <template>
-  <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm border-b border-gray-100">
-    <div class="flex items-center gap-4">
-      <div class="w-16 -16 rounded-full bg-gray-300 flex items-center justify-center text-2xl">👤</div>
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">HisoutenOVO</h1>
-        <p class="text-gray-500 text-sm mt-1">一名热爱技术的后端开发练习生 | 东方Project爱好者</p>
-      </div>
+  <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center">
+    <div class="w-12 h-12 rounded-full bg-gray-300 mx-auto flex items-center justify-center text-xl">
+      👤
     </div>
-    <div class="flex gap-3 mt-4">
-      <a href="https://github.com/HisoutenOVO" class="text-sm text-gray-600 hover:text-gray-900 no-underline">GitHub</a>
-      <a href="mailto:1163481801@qq.com" class="text-sm text-gray-600 hover:text-gray-900 no-underline">邮箱</a>
+    <h3 class="font-bold text-gray-900 mt-2">Hisouten</h3>
+    <p class="text-xs text-gray-500 mt-1">后端开发练习生</p>
+    <p class="text-xs text-gray-500">东方Project爱好者</p>
+    <div class="flex justify-center gap-3 mt-3 text-xs">
+      <a href="https://github.com/HisoutenOVO" class="text-gray-600 hover:text-gray-900 no-underline">GitHub</a>
+      <a href="mailto:1163481801@qq.com" class="text-gray-600 hover:text-gray-900 no-underline">邮箱</a>
     </div>
   </div>
 </template>
-
-

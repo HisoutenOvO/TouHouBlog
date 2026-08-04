@@ -5,27 +5,40 @@ import CategoryList from '../components/pages/indexPage/CategoryList.vue';
 import RecentArticles from '../components/pages/indexPage/RecentArticles.vue';
 import SiteStates from '../components/pages/indexPage/SiteStates.vue';
 import TagList from '../components/pages/indexPage/TagList.vue';
+import LatestTalk from '../components/pages/indexPage/LatestTalk.vue'
 ---
 <Layout>
 	<div class="px-6 py-8">
+		<!-- 1. 顶部区域：左边大图片 + 中间音乐（正方形） + 右边最近三条杂谈 -->
+		<div class="flex gap-6 mb-8 min-h-[28rem]">
+			<!-- 左边正方形图片占位 -->
+			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center flex-shrink-0">
+				<span class="text-gray-400 text-lg">图片占位</span>
+			</div>
 
-		<HomeIntro client:load />
+			<!-- 中间：音乐模块，和图片一样大的正方形 -->
+			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col justify-center items-center flex-shrink-0">
+				<span class="text-4xl mb-3">🎵</span>
+				<h3 class="font-bold text-gray-900 text-lg mb-2">音乐播放器</h3>
+				<p class="text-sm text-gray-500 text-center">音乐功能开发中...</p>
+				<p class="text-xs text-gray-400 mt-2">后续支持播放、切歌</p>
+			</div>
 
-		<div class="flex gap-6 mt-8">
+			<!-- 右边最近三条杂谈：占剩余空间，三列排列 -->
+			<div class="flex-1 min-w-0">
+				<LatestTalk client:load />
+			</div>
+		</div>
 
+		<div class="flex gap-6">
 			<div class="flex-1">
 				<RecentArticles client:load />
 			</div>
 
 			<aside class="w-80 space-y-4">
+				<HomeIntro client:load />
 				<CategoryList client:load />
 				<TagList client:load />
-
-				<div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-					<h3 class="font-bold text-gray-900 mb-2">🎵 音乐</h3>
-					<p class="text-sm text-gray-500">音乐功能开发中...</p>
-				</div>
-
 				<SiteStates client:load />
 			</aside>
 		</div>

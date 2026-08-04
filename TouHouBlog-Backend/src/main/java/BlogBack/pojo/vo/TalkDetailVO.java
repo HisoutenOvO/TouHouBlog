@@ -15,6 +15,8 @@ public class TalkDetailVO {
 
     private String content;
 
+    private String picture;
+
     private LocalDateTime createTime;
 
 }

@@ -8,5 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TalkAddDTO {
+
+    private String picture;
+
     private String content;
+
 }

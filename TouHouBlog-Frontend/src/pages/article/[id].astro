@@ -1,0 +1,11 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import ArticleDetail from '../../components/pages/ArticleDetail.vue'
+export const prerender = false
+
+const { id } = Astro.params
+---
+
+<Layout>
+    <ArticleDetail client:load articleId={id} />
+</Layout>

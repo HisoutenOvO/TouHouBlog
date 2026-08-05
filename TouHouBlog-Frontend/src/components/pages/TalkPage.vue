@@ -13,49 +13,39 @@
     <div v-if="loading" class="text-center text-gray-500 py-20">加载中...</div>
 
     <div v-else-if="talks.length" class="max-w-3xl mx-auto space-y-5 px-4">
-      <div
-          v-for="talk in talks"
-          :key="talk.id"
-          class="bg-white rounded-lg shadow-sm border border-gray-100 p-6"
-      >
-        <!-- 第一行：昵称 + 日期 -->
-        <div class="flex justify-between items-center mb-3">
-          <span class="font-bold text-gray-900">Hisouten</span>
-          <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
-        </div>
-
-        <!-- 第二行：正文 -->
-        <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">
-          {{ talk.content }}
-        </p>
-
-        <!-- 如果有图片 -->
-        <div v-if="talk.picture" class="mb-4">
-          <img
-              :src="talk.picture"
-              alt="杂谈图片"
-              class="max-w-full h-auto rounded-lg border border-gray-100"
-          />
-        </div>
-
-        <!-- 第三行：时间 + 互动按钮 -->
-        <div class="flex justify-between items-center text-sm text-gray-400">
-          <span>{{ formatTime(talk.createTime) }}</span>
-          <div class="flex gap-3">
-            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-              ❤️ <span class="text-xs">0</span>
-            </button>
-            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-              💬 <span class="text-xs">0</span>
-            </button>
+      <a v-for="talk in talks"
+         :key="talk.id"
+         :href="`/talk/${talk.id}`"
+         class="block no-underline">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer">
+          <!-- 昵称 + 日期 -->
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-bold text-gray-900">Hisouten</span>
+            <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
+          </div>
+          <!-- 正文 -->
+          <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">
+            {{ talk.content }}
+          </p>
+          <!-- 图片（如果有） -->
+          <div v-if="talk.picture" class="mb-4">
+            <img :src="talk.picture" alt="杂谈图片"
+                 class="max-w-full h-auto rounded-lg border border-gray-100" />
+          </div>
+          <!-- 互动按钮行 -->
+          <div class="flex justify-between items-center text-sm text-gray-400">
+            <span>{{ formatTime(talk.createTime) }}</span>
+            <div class="flex gap-3" @click.prevent>
+              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                ❤️ <span class="text-xs">0</span>
+              </button>
+              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                💬 <span class="text-xs">0</span>
+              </button>
+            </div>
           </div>
         </div>
-
-        <!-- 第四行：预留评论/点赞展开区（目前无数据） -->
-        <div class="mt-3 pt-3 border-t border-gray-50 text-xs text-gray-400">
-          暂无评论
-        </div>
-      </div>
+      </a>
 
       <!-- 分页 -->
       <div v-if="total > pageSize" class="flex justify-center gap-2 pt-6">
@@ -120,7 +110,7 @@ const changePage = (page) => {
 const formatDate = (datetime) => {
   if (!datetime) return ''
   const d = new Date(datetime)
-  return d.toLocaleDateString('zh-CN') // 2026/8/4 格式，如需改成 2026-08-04 可自行处理
+  return d.toLocaleDateString('zh-CN') // 2026/8/4 格式
 }
 
 // 时间格式化：HH:mm

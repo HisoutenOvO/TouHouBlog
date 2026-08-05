@@ -1,0 +1,89 @@
+<template>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div v-if="loading" class="text-center py-20 text-gray-500">加载中...</div>
+
+    <div v-else-if="article" class="flex gap-6">
+      <!-- 左侧内容 -->
+      <div class="flex-1 min-w-0">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-3">{{ article.title }}</h1>
+        <div class="flex items-center text-sm text-gray-400 space-x-4 mb-6">
+          <span>发布于 {{ formatDate(article.createTime) }}</span>
+          <span v-if="article.updateTime">最后修改于 {{ formatDate(article.updateTime) }}</span>
+          <span v-if="article.categoryName" class="bg-gray-100 px-2 py-0.5 rounded">{{ article.categoryName }}</span>
+        </div>
+
+        <!-- 正文 -->
+        <div class="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed
+            bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          {{ article.content }}
+        </div>
+
+        <!-- 标签 -->
+        <div v-if="article.tags && article.tags.length" class="flex flex-wrap gap-2 mt-6">
+          <span v-for="tag in article.tags" :key="tag.id"
+                class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+            {{ tag.name }}
+          </span>
+        </div>
+
+        <div class="mt-8">
+          <a href="/archive" class="text-sm text-gray-400 hover:text-gray-600 no-underline">← 返回归档</a>
+        </div>
+      </div>
+
+      <!-- 右侧侧边栏 -->
+      <aside class="w-72 flex-shrink-0 space-y-4">
+        <div class="sticky top-24 space-y-4">
+          <HomeIntro />
+          <MusicWidget />
+          <TableOfContents />
+        </div>
+      </aside>
+    </div>
+
+    <div v-else class="text-center py-20 text-gray-500">文章不存在。</div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import HomeIntro from './indexPage/HomeIntro.vue'
+import TableOfContents from './indexPage/TableOfContents.vue'
+
+const props = defineProps({
+  articleId: String
+})
+
+const article = ref(null)
+const loading = ref(true)
+
+const fetchArticle = async () => {
+  try {
+    const res = await axios.get(`/api/articles/${props.articleId}`)
+    article.value = res.data.data
+  } catch (e) {
+    console.error('获取文章详情失败', e)
+    article.value = null
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatDate = (datetime) => {
+  if (!datetime) return ''
+  return new Date(datetime).toLocaleDateString('zh-CN')
+}
+
+// 音乐占位组件（内联）
+const MusicWidget = {
+  template: `
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+      <h3 class="font-bold text-gray-900 mb-2">🎵 音乐</h3>
+      <p class="text-sm text-gray-500">音乐功能开发中...</p>
+    </div>
+  `
+}
+
+onMounted(fetchArticle)
+</script>

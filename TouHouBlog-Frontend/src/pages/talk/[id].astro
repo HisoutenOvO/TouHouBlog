@@ -1,0 +1,11 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import TalkDetail from '../../components/pages/TalkDetail.vue'
+export const prerender = false
+
+const { id } = Astro.params
+---
+
+<Layout>
+    <TalkDetail client:load talkId={id} />
+</Layout>

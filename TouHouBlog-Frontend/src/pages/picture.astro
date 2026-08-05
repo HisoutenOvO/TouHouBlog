@@ -1,16 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import VersionTimeline from '../components/pages/VersionTimeline.vue'
+import PictureGrid from '../components/pages/PictureGrid.vue'
 ---
 
 <Layout>
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto px-4 py-8">
         <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest text-center py-12">
-            开发者日志
+            图集
         </h1>
         <p class="text-center text-base text-gray-400 mb-10">
-            记录博客每个重要版本的迭代与思考
+            这里将收藏我喜欢的图片作品，敬请期待
         </p>
-        <VersionTimeline client:load />
+        <PictureGrid client:load />
     </div>
 </Layout>

@@ -3,6 +3,7 @@ package BlogBack.mapper;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.entity.Article;
 import BlogBack.pojo.vo.ArticleVO;
+import BlogBack.pojo.vo.TagVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -29,10 +30,12 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     /**
      * 对文章的条件分页查询
-     * @param articlePageQueryDTO
+     * @param dto
      * @return
      */
-    List<ArticleVO> getArticlesWithCategoryAndTags(ArticlePageQueryDTO articlePageQueryDTO);
+    List<ArticleVO> pageArticles(ArticlePageQueryDTO dto);
+
+    List<TagVO> getTagsByArticleIds(List<Long> articleIds);
 
     /**
      * 根据id修改文章（重写mp方法）

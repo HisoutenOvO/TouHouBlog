@@ -19,6 +19,8 @@ public class ArticlePageQueryDTO {
 
      private String title;
 
+     private String keyword;
+
      private Long categoryId;
 
      private Long tagId;

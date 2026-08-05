@@ -10,6 +10,7 @@ import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
 import BlogBack.pojo.entity.Article;
 import BlogBack.pojo.vo.ArticleVO;
+import BlogBack.pojo.vo.TagVO;
 import BlogBack.service.ArticleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static BlogBack.common.constant.MessageConstant.ARTICLE_NOT_EXIST;
 
@@ -35,10 +38,24 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public PageResult pageQuery(ArticlePageQueryDTO articlePageQueryDTO) {
-        PageHelper.startPage(articlePageQueryDTO.getPage(),articlePageQueryDTO.getPageSize()*2);
-        List<ArticleVO> articles = articleMapper.getArticlesWithCategoryAndTags(articlePageQueryDTO);
-        Page<ArticleVO> articleVOS = (Page) articles;
-        return new PageResult(articleVOS.getTotal(), articleVOS.getResult());
+        // 第一步：PageHelper 分页查询文章（不含标签）
+        PageHelper.startPage(articlePageQueryDTO.getPage(), articlePageQueryDTO.getPageSize());
+        List<ArticleVO> articles = articleMapper.pageArticles(articlePageQueryDTO);
+        Page<ArticleVO> articlePage = (Page<ArticleVO>) articles;
+
+        if (!articlePage.isEmpty()) {
+            // 第二步：收集文章 ID，批量查询标签
+            List<Long> articleIds = articlePage.stream().map(ArticleVO::getId).toList();
+            List<TagVO> allTags = articleMapper.getTagsByArticleIds(articleIds);
+
+            // 组装：将标签按 articleId 分组填入对应文章
+            Map<Long, List<TagVO>> tagMap = allTags.stream()
+                    .collect(Collectors.groupingBy(TagVO::getArticleId));
+
+            articlePage.forEach(vo -> vo.setTags(tagMap.getOrDefault(vo.getId(), List.of())));
+        }
+
+        return new PageResult(articlePage.getTotal(), articlePage.getResult());
     }
 
     /**
@@ -48,9 +65,16 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public ArticleVO getDetail(Long id) {
-        ArticlePageQueryDTO articlePageQueryDTO = new ArticlePageQueryDTO();
-        articlePageQueryDTO.setId(id);
-        return articleMapper.getArticlesWithCategoryAndTags(articlePageQueryDTO).get(0);
+        ArticlePageQueryDTO dto = new ArticlePageQueryDTO();
+        dto.setId(id);
+        List<ArticleVO> articles = articleMapper.pageArticles(dto);
+        if (articles.isEmpty()) throw new ArticleNotExistException(ARTICLE_NOT_EXIST);
+        ArticleVO article = articles.get(0);
+
+        // 查标签
+        List<TagVO> tags = articleMapper.getTagsByArticleIds(List.of(id));
+        article.setTags(tags);
+        return article;
     }
 
     /**

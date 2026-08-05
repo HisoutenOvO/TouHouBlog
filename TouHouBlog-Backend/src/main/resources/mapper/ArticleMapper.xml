@@ -21,39 +21,37 @@
         </set>
         where id = #{id}
     </update>
-    <resultMap id="ArticlePageQueryVO" type="BlogBack.pojo.vo.ArticleVO">
-        <id property="id" column="id"/>
-        <result property="title" column="title"/>
-        <result property="content" column="content"/>
-        <result property="categoryId" column="category_id"/>
-        <result property="categoryName" column="category_name"/>
-        <result property="createTime" column="create_time"/>
-        <result property="updateTime" column="update_time"/>
-        <collection property="tags" ofType="BlogBack.pojo.vo.TagVO">
-            <id property="id" column="tag_id"/>
-            <result property="name" column="tag_name"/>
-        </collection>
-    </resultMap>
-    <select id="getArticlesWithCategoryAndTags" resultMap="ArticlePageQueryVO">
-        select a.*,c.name as category_name,t.id as tag_id,t.name as tag_name
+    <select id="pageArticles" resultType="BlogBack.pojo.vo.ArticleVO">
+        select a.id, a.title, a.content, a.category_id, c.name as categoryName,
+        a.create_time as createTime, a.update_time as updateTime
         from article a
-            left join article_tag at on a.id = at.article_id
-            left join tag t on at.tag_id = t.id
-            left join category c on a.category_id = c.id
+        left join category c on a.category_id = c.id
         <where>
             <if test="id != null">
                 and a.id = #{id}
             </if>
+            <if test="keyword != null and keyword != ''">
+                and (a.title like concat('%',#{keyword},'%') or a.content like concat('%',#{keyword},'%'))
+            </if>
             <if test="title != null and title != ''">
-                and title like concat('%',#{title},'%')
+                and a.title like concat('%',#{title},'%')
             </if>
             <if test="categoryId != null">
-                and category_id = #{categoryId}
+                and a.category_id = #{categoryId}
             </if>
             <if test="tagId != null">
-                and tag_id = #{tagId}
+                and a.id in (select article_id from article_tag where tag_id = #{tagId})
             </if>
         </where>
         order by a.create_time desc
+    </select>
+    <select id="getTagsByArticleIds" resultType="BlogBack.pojo.vo.TagVO">
+        select t.id, t.name, at.article_id as articleId
+        from tag t
+        inner join article_tag at on t.id = at.tag_id
+        where at.article_id in
+        <foreach collection="articleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

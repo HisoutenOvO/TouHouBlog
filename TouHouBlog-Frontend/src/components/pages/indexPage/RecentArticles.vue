@@ -56,24 +56,19 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
 const props = defineProps({
-  pageSize: {
-    type: Number,
-    default: 5
-  },
-  search: {
-    type: String,
-    default: ''
-  }
+  pageSize: { type: Number, default: 5 },
+  search: { type: String, default: '' },
+  categoryId: { type: [String, Number], default: null },
+  tagId: { type: [String, Number], default: null }
 })
 
 const articles = ref([])
-const loading = ref(true)
+const loading = ref(false)
 const pageNum = ref(1)
 const total = ref(0)
 const totalPages = ref(0)
@@ -81,19 +76,19 @@ const totalPages = ref(0)
 const fetchArticles = async () => {
   loading.value = true
   try {
-    const params = {
-      page: pageNum.value,
-      pageSize: props.pageSize
-    }
-    if (props.search) {
-      params.title = props.search   // 假设后端参数名为 keyword
-    }
+    const params = { page: pageNum.value, pageSize: props.pageSize }
+    if (props.search) params.keyword = props.search
+    if (props.categoryId && props.categoryId !== 'null') params.categoryId = props.categoryId
+    if (props.tagId && props.tagId !== 'null') params.tagId = props.tagId
+
     const res = await axios.get('/api/articles/list', { params })
     articles.value = res.data.data.records
     total.value = res.data.data.total
     totalPages.value = Math.ceil(total.value / props.pageSize)
   } catch (e) {
     console.error('获取文章失败', e)
+    articles.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
@@ -105,12 +100,16 @@ const changePage = (page) => {
   fetchArticles()
 }
 
-// 监听搜索词变化：重置到第一页并重新获取
-watch(() => props.search, () => {
-  pageNum.value = 1
-  fetchArticles()
-})
+// 监听筛选条件变化
+watch(
+    () => [props.search, props.categoryId, props.tagId],
+    () => {
+      pageNum.value = 1
+      fetchArticles()
+    }
+)
 
+// 组件挂载时请求数据（此时 props 已由父组件提供正确的值）
 onMounted(() => {
   fetchArticles()
 })

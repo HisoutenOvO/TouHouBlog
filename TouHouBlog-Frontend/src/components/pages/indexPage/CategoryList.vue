@@ -3,7 +3,12 @@
     <h3 class="font-bold text-gray-900 mb-3">📂 分类</h3>
     <div class="text-sm text-gray-500" v-if="loading">加载中...</div>
     <div v-else-if="categories.length" class="space-y-2">
-      <div v-for="cat in categories" :key="cat.id" class="lex justify-between text-sm">
+      <div
+          v-for="cat in categories"
+          :key="cat.id"
+          class="flex justify-between text-sm cursor-pointer hover:text-gray-900 transition-colors"
+          @click="goToCategory(cat.id)"
+      >
         <span class="text-gray-700">{{ cat.name }}</span>
         <span class="text-gray-400">{{ cat.articleCount || 0 }}</span>
       </div>
@@ -13,20 +18,24 @@
 </template>
 
 <script setup>
-import {ref,onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const categories = ref([])
 const loading = ref(true)
 
+const goToCategory = (id) => {
+  window.location.href = `/archive?categoryId=${id}`
+}
+
 onMounted(async () => {
-  try{
+  try {
     const res = await axios.get('/api/categories/list?page=1&pageSize=999')
     categories.value = res.data.data.records
   } catch (e) {
-    console.error('获取分类失败', e);
+    console.error('获取分类失败', e)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 })
 </script>

@@ -4,7 +4,9 @@ import BlogBack.common.result.PageResult;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
+import BlogBack.pojo.dto.LikeDTO;
 import BlogBack.pojo.vo.ArticleVO;
+import BlogBack.pojo.vo.LikeVO;
 
 public interface ArticleService {
     /**
@@ -39,4 +41,12 @@ public interface ArticleService {
      * @param id
      */
     void delete(Long id);
+
+    /**
+     * 点赞/取消点赞
+     * @param id
+     * @param likeDTO
+     * @return
+     */
+    LikeVO liked(Long id, LikeDTO likeDTO);
 }

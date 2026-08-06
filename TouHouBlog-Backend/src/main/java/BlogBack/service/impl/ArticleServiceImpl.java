@@ -8,8 +8,10 @@ import BlogBack.mapper.TagMapper;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
+import BlogBack.pojo.dto.LikeDTO;
 import BlogBack.pojo.entity.Article;
 import BlogBack.pojo.vo.ArticleVO;
+import BlogBack.pojo.vo.LikeVO;
 import BlogBack.pojo.vo.TagVO;
 import BlogBack.service.ArticleService;
 import com.github.pagehelper.Page;
@@ -122,5 +124,29 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.deleteById(id);
         //再删除相关联的标签
         tagMapper.deleteBatch(id);
+    }
+
+    /**
+     * 点赞/取消点赞
+     * @param id
+     * @param likeDTO
+     * @return
+     */
+    @Override
+    public LikeVO liked(Long id, LikeDTO likeDTO) {
+        //查询like record表是否存着article_id = {id} 且 user_id = userId 的记录
+        Long likeId = articleMapper.getLikeIdByArticleIdAndUserId(id,likeDTO.getUserId());
+        //如果有记录则删除
+        if(likeId != null){
+            articleMapper.deleteLike(likeId);
+        }
+        //如果没有则加入
+        else{
+            articleMapper.addLike(id,likeDTO.getUserId());
+        }
+        //返回文章点赞总数以及当前用户是否点赞
+        Integer likeTotal = articleMapper.getLikeTotal(id);
+        boolean liked = articleMapper.ifUserLiked(id, likeDTO.getUserId()) != 0;
+        return new LikeVO(likeTotal,liked);
     }
 }

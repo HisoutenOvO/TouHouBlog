@@ -5,6 +5,8 @@ import BlogBack.pojo.entity.Article;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.TagVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -42,4 +44,45 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param id
      */
     void updateById(Long id,Article article);
+
+    /**
+     * 根据文章和用户id查询点赞id
+     * @param id
+     * @param userId
+     * @return
+     */
+    @Select("select id from like_record where article_id = #{id} and user_id = #{userId}")
+    Long getLikeIdByArticleIdAndUserId(Long id, Long userId);
+
+    /**
+     * 根据点赞id删除点赞
+     * @param likeId
+     */
+    @Delete("delete from like_record where id = #{likeId}")
+    void deleteLike(Long likeId);
+
+    /**
+     * 根据文章和用户id添加点赞记录
+     * @param id
+     * @param userId
+     */
+    @Insert("insert into like_record (article_id,user_id) values (#{id},#{userId})")
+    void addLike(Long id, Long userId);
+
+    /**
+     * 查询用户是否为文章点赞
+     * @param id
+     * @param userId
+     * @return
+     */
+    @Select("select count(*) from like_record where article_id = #{id} and user_id = #{userId}")
+    Integer ifUserLiked(Long id, Long userId);
+
+    /**
+     * 获取文章的点赞总数
+     * @param id
+     * @return
+     */
+    @Select("select count(*) from like_record where article_id = #{id}")
+    Integer getLikeTotal(Long id);
 }

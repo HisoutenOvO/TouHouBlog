@@ -5,7 +5,9 @@ import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
+import BlogBack.pojo.dto.LikeDTO;
 import BlogBack.pojo.vo.ArticleVO;
+import BlogBack.pojo.vo.LikeVO;
 import BlogBack.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,5 +85,17 @@ public class ArticleController {
         log.info("删除文章:{}",id);
         articleService.delete(id);
         return Result.success();
+    }
+
+    /**
+     * 点赞/取消点赞
+     * @return
+     */
+    @PostMapping("/{id}/like")
+    @Operation(summary = "点赞/取消点赞")
+    public Result<LikeVO> liked(@PathVariable Long id, @RequestBody LikeDTO likeDTO){
+        log.info("点赞/取消点赞:{}",id);
+        LikeVO likeVO = articleService.liked(id,likeDTO);
+        return Result.success(likeVO);
     }
 }

@@ -21,7 +21,26 @@ const siteTitle = "TouHouBlog"
                 <a href="/talks" class="text-gray-600 hover:text-gray-900 no-underline">杂谈</a>
                 <a href="/about" class="text-gray-600 hover:text-gray-900 no-underline">关于</a>
                 <a href="/version" class="text-gray-600 hover:text-gray-900 no-underline">开发者日志</a>
-                <a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">管理员介入</a>
+                <!-- 临时用户切换，以后删除 -->
+                <select id="userSelector" class="px-2 py-1 text-sm border border-gray-200 rounded bg-white">
+                    <option value="6">博丽灵梦</option>
+                    <option value="7">雾雨魔理沙</option>
+                    <option value="8">十六夜咲夜</option>
+                    <option value="1">Hisouten (管理员)</option>
+                </select>
+                <script type="module">
+                    import { getCurrentUserId, setCurrentUserId } from '/src/utils/auth.js';
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const select = document.getElementById('userSelector');
+                        if (select) {
+                            select.value = getCurrentUserId();
+                            select.addEventListener('change', (e) => {
+                                setCurrentUserId(e.target.value);
+                            });
+                        }
+                    });
+                </script>
+                <a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>
 
             </div>
         </nav>

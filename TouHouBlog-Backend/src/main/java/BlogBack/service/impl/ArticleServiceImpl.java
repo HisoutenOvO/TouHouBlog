@@ -149,4 +149,18 @@ public class ArticleServiceImpl implements ArticleService {
         boolean liked = articleMapper.ifUserLiked(id, likeDTO.getUserId()) != 0;
         return new LikeVO(likeTotal,liked);
     }
+
+    /**
+     * 查询点赞状态
+     * @param id
+     * @param likeDTO
+     * @return
+     */
+    @Override
+    public LikeVO getLikeStatus(Long id, LikeDTO likeDTO) {
+        //返回文章点赞总数以及当前用户是否点赞
+        Integer likeTotal = articleMapper.getLikeTotal(id);
+        boolean liked = articleMapper.ifUserLiked(id, likeDTO.getUserId()) != 0;
+        return new LikeVO(likeTotal,liked);
+    }
 }

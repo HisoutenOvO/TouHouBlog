@@ -49,4 +49,12 @@ public interface ArticleService {
      * @return
      */
     LikeVO liked(Long id, LikeDTO likeDTO);
+
+    /**
+     * 查询点赞状态
+     * @param id
+     * @param likeDTO
+     * @return
+     */
+    LikeVO getLikeStatus(Long id, LikeDTO likeDTO);
 }

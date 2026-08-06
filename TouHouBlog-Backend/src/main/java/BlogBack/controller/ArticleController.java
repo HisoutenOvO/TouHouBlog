@@ -98,4 +98,17 @@ public class ArticleController {
         LikeVO likeVO = articleService.liked(id,likeDTO);
         return Result.success(likeVO);
     }
+
+    /**
+     * 查询点赞状态
+     * @return
+     */
+    @GetMapping("/{id}/like")
+    @Operation(summary = "查询点赞状态")
+    public Result<LikeVO> getLikeStatus(@PathVariable Long id,LikeDTO likeDTO){
+        log.info("查询点赞状态:{}",id);
+        LikeVO likeVO = articleService.getLikeStatus(id,likeDTO);
+        return Result.success(likeVO);
+    }
+
 }

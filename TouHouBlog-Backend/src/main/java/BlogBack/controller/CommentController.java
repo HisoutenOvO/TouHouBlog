@@ -1,16 +1,15 @@
 package BlogBack.controller;
 
+import BlogBack.common.result.PageResult;
 import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.CommentAddDTO;
+import BlogBack.pojo.dto.CommentListDTO;
 import BlogBack.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/comments")
 @RequiredArgsConstructor
@@ -31,5 +30,17 @@ public class CommentController {
         log.info("发表评论：{}给{}",commentAddDTO.getUserId(),commentAddDTO.getArticleId());
         commentService.addComment(commentAddDTO);
         return Result.success();
+    }
+
+    /**
+     * 获取文章评论列表
+     * @return
+     */
+    @GetMapping("/article/{id}")
+    @Operation(summary = "获取文章评论列表")
+    public Result<PageResult> getCommentList(@PathVariable Long id, CommentListDTO commentListDTO){
+        log.info("获取文章评论列表:{}",id);
+        PageResult pageResult = commentService.getList(id,commentListDTO);
+        return Result.success(pageResult);
     }
 }

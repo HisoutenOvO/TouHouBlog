@@ -1,6 +1,9 @@
 package BlogBack.service;
 
+import BlogBack.common.result.PageResult;
 import BlogBack.pojo.dto.CommentAddDTO;
+import BlogBack.pojo.dto.CommentListDTO;
+
 
 public interface CommentService {
     /**
@@ -8,4 +11,12 @@ public interface CommentService {
      * @param commentAddDTO
      */
      void addComment(CommentAddDTO commentAddDTO);
+
+    /**
+     * 获取文章评论列表
+     * @param id
+     * @param commentListDTO
+     * @return
+     */
+    PageResult getList(Long id, CommentListDTO commentListDTO);
 }

@@ -63,8 +63,8 @@ import axios from 'axios'
 const props = defineProps({
   pageSize: { type: Number, default: 5 },
   search: { type: String, default: '' },
-  categoryId: { type: [String, Number], default: null },
-  tagId: { type: [String, Number], default: null }
+  categoryId: { default: null },    // 不再限制类型，接受任何值包括 null
+  tagId: { default: null }          // 同理
 })
 
 const articles = ref([])
@@ -113,4 +113,6 @@ watch(
 onMounted(() => {
   fetchArticles()
 })
+
+
 </script>

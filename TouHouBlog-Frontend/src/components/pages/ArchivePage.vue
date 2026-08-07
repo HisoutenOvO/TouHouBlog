@@ -35,10 +35,7 @@
       <aside class="w-56 flex-shrink-0">
         <div class="sticky top-24 space-y-4">
           <TagList />
-          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-900 mb-2">🎵 音乐</h3>
-            <p class="text-sm text-gray-500">音乐功能开发中...</p>
-          </div>
+          <MusicPlayer client:only="vue" />
         </div>
       </aside>
     </div>
@@ -51,6 +48,7 @@ import axios from 'axios'
 import RecentArticles from './indexPage/RecentArticles.vue'
 import CategoryList from './indexPage/CategoryList.vue'
 import TagList from './indexPage/TagList.vue'
+import MusicPlayer from "./MusicPlayer.vue";
 
 const totalArticles = ref(0)
 const inputText = ref('')

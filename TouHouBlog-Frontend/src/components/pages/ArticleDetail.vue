@@ -35,7 +35,7 @@
       <aside class="w-72 flex-shrink-0 space-y-4">
         <div class="sticky top-24 space-y-4">
           <HomeIntro />
-          <MusicWidget />
+          <MusicPlayer client:only="vue" />
           <TableOfContents :headings="headings" />
         </div>
       </aside>
@@ -54,6 +54,7 @@ import HomeIntro from './indexPage/HomeIntro.vue'
 import TableOfContents from './TableOfContents.vue'
 import CommentSection from './CommentSection.vue'
 import LikeButton from './LikeButton.vue'
+import MusicPlayer from "./MusicPlayer.vue";
 
 const props = defineProps({
   articleId: String
@@ -117,15 +118,7 @@ const formatDate = (datetime) => {
   return new Date(datetime).toLocaleDateString('zh-CN')
 }
 
-// 音乐占位组件（内联）
-const MusicWidget = {
-  template: `
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-      <h3 class="font-bold text-gray-900 mb-2">🎵 音乐</h3>
-      <p class="text-sm text-gray-500">音乐功能开发中...</p>
-    </div>
-  `
-}
+
 
 onMounted(fetchArticle)
 </script>

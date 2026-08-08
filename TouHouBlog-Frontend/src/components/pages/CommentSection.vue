@@ -10,7 +10,7 @@
           <span class="text-xs text-gray-400">{{ item.createTime }}</span>
         </div>
         <p class="mt-1 text-gray-700 whitespace-pre-wrap">{{ item.content }}</p>
-        <!-- 删除按钮占位，后续根据登录态显示 -->
+        <!-- 管理员可删除，暂时隐藏 -->
         <button v-if="false" class="text-xs text-red-400 hover:text-red-600 mt-1">删除</button>
       </div>
     </div>
@@ -25,8 +25,8 @@
               class="px-3 py-1 text-sm rounded border border-gray-200 bg-white disabled:opacity-30">下一页</button>
     </div>
 
-    <!-- 发表评论表单 -->
-    <div class="border-t pt-4">
+    <!-- 发表评论表单：仅登录后可见 -->
+    <div v-if="isLoggedIn" class="border-t pt-4">
       <textarea v-model="content" rows="3" placeholder="写下你的评论..."
                 class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 resize-none"></textarea>
       <button @click="submitComment" :disabled="!content || submitting"
@@ -35,13 +35,16 @@
       </button>
       <span v-if="errorMsg" class="ml-3 text-sm text-red-500">{{ errorMsg }}</span>
     </div>
+    <div v-else class="border-t pt-4 text-center text-sm text-gray-400">
+      <a href="/manage" class="text-blue-500 hover:underline">请先登录</a> 后发表评论
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import { getCurrentUserId } from '../../utils/auth.js'
+import { getUserFromToken } from '../../utils/auth.js'
 
 const props = defineProps({ articleId: String })
 
@@ -49,6 +52,11 @@ const comments = ref([])
 const content = ref('')
 const submitting = ref(false)
 const errorMsg = ref('')
+const isLoggedIn = ref(false)
+
+// 检查登录状态
+const user = getUserFromToken()
+isLoggedIn.value = !!user
 
 const pageNum = ref(1)
 const pageSize = 5
@@ -78,9 +86,9 @@ const submitComment = async () => {
   submitting.value = true
   errorMsg.value = ''
   try {
+    // 不再发送 userId，后端从 token 获取
     await axios.post('/api/comments', {
       articleId: props.articleId,
-      userId: getCurrentUserId(),
       content: content.value.trim()
     })
     content.value = ''
@@ -94,5 +102,7 @@ const submitComment = async () => {
   }
 }
 
-onMounted(fetchComments)
+onMounted(() => {
+  fetchComments()
+})
 </script>

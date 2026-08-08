@@ -1,13 +1,36 @@
-// 临时用户管理，用于评论/点赞的 userId
-// 等登录做完后，替换为从 JWT 解析
+const TOKEN_KEY = 'touhou_token'
 
-const USER_KEY = 'currentUserId'
-
-export function getCurrentUserId() {
-    return localStorage.getItem(USER_KEY) || '6'  // 默认用 guest1（博丽灵梦）
+export function getToken() {
+    return localStorage.getItem(TOKEN_KEY)
 }
 
-export function setCurrentUserId(id) {
-    localStorage.setItem(USER_KEY, id)
-    window.location.reload()
+export function setToken(token) {
+    localStorage.setItem(TOKEN_KEY, token)
+}
+
+export function removeToken() {
+    localStorage.removeItem(TOKEN_KEY)
+}
+
+export function getUserFromToken() {
+    const token = getToken()
+    if (!token) return null
+    try {
+        const base64Url = token.split('.')[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        )
+        const payload = JSON.parse(jsonPayload)
+        return {
+            id: payload.sub,
+            role: payload.role,
+            nickname: payload.nickname
+        }
+    } catch {
+        return null
+    }
 }

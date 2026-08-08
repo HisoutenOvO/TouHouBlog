@@ -1,10 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import ManageEntry from '../components/pages/ManageEntry.vue'
 ---
 
 <Layout>
     <div class="flex items-center justify-center min-h-[60vh]">
-        <ManageEntry client:load />
+        <div class="text-center">
+            <h1 class="text-3xl font-bold mb-6">管理员登录</h1>
+            <div class="flex gap-4 justify-center">
+                <!-- Gitee 登录 -->
+                <a href="http://localhost:8080/oauth2/authorization/gitee"
+                   class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors no-underline">
+                    Gitee 登录
+                </a>
+            </div>
+        </div>
     </div>
 </Layout>

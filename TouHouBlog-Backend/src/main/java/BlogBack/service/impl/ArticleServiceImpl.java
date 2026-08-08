@@ -3,17 +3,18 @@ package BlogBack.service.impl;
 import BlogBack.common.exception.ArticleNotExistException;
 import BlogBack.common.result.PageResult;
 import BlogBack.mapper.ArticleMapper;
-import BlogBack.mapper.CategoryMapper;
+import BlogBack.mapper.LikeRecordMapper;
 import BlogBack.mapper.TagMapper;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
-import BlogBack.pojo.dto.LikeDTO;
 import BlogBack.pojo.entity.Article;
+import BlogBack.pojo.entity.LikeRecord;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
 import BlogBack.pojo.vo.TagVO;
 import BlogBack.service.ArticleService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import static BlogBack.common.constant.MessageConstant.ARTICLE_NOT_EXIST;
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleMapper articleMapper;
     private final TagMapper tagMapper;
+    private final LikeRecordMapper likeRecordMapper;
 
     /**
      * 文章的分页条件查询
@@ -128,39 +130,43 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 点赞/取消点赞
-     * @param id
-     * @param likeDTO
+     * @param articleId
+     * @param userId
      * @return
      */
     @Override
-    public LikeVO liked(Long id, LikeDTO likeDTO) {
-        //查询like record表是否存着article_id = {id} 且 user_id = userId 的记录
-        Long likeId = articleMapper.getLikeIdByArticleIdAndUserId(id,likeDTO.getUserId());
-        //如果有记录则删除
-        if(likeId != null){
-            articleMapper.deleteLike(likeId);
+    @Transactional
+    public LikeVO toggleLike(Long articleId, Long userId) {
+        LambdaQueryWrapper<LikeRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(LikeRecord::getArticleId, articleId)
+                .eq(LikeRecord::getUserId, userId);
+        LikeRecord record = likeRecordMapper.selectOne(wrapper);
+        if (record != null) {
+            likeRecordMapper.deleteById(record.getId());
+        } else {
+            LikeRecord newRecord = new LikeRecord();
+            newRecord.setArticleId(articleId);
+            newRecord.setUserId(userId);
+            likeRecordMapper.insert(newRecord);
         }
-        //如果没有则加入
-        else{
-            articleMapper.addLike(id,likeDTO.getUserId());
-        }
-        //返回文章点赞总数以及当前用户是否点赞
-        Integer likeTotal = articleMapper.getLikeTotal(id);
-        boolean liked = articleMapper.ifUserLiked(id, likeDTO.getUserId()) != 0;
-        return new LikeVO(likeTotal,liked);
+        long count = likeRecordMapper.selectCount(new LambdaQueryWrapper<LikeRecord>()
+                .eq(LikeRecord::getArticleId, articleId));
+        return new LikeVO(count, record == null); // 插入后 liked=true，删除后 liked=false
     }
 
     /**
      * 查询点赞状态
-     * @param id
-     * @param likeDTO
+     * @param articleId
+     * @param userId
      * @return
      */
     @Override
-    public LikeVO getLikeStatus(Long id, LikeDTO likeDTO) {
-        //返回文章点赞总数以及当前用户是否点赞
-        Integer likeTotal = articleMapper.getLikeTotal(id);
-        boolean liked = articleMapper.ifUserLiked(id, likeDTO.getUserId()) != 0;
-        return new LikeVO(likeTotal,liked);
+    public LikeVO getLikeStatus(Long articleId, Long userId) {
+        long count = likeRecordMapper.selectCount(new LambdaQueryWrapper<LikeRecord>()
+                .eq(LikeRecord::getArticleId, articleId));
+        boolean liked = likeRecordMapper.exists(new LambdaQueryWrapper<LikeRecord>()
+                .eq(LikeRecord::getArticleId, articleId)
+                .eq(LikeRecord::getUserId, userId));
+        return new LikeVO(count, liked);
     }
 }

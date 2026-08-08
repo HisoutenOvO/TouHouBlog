@@ -4,7 +4,6 @@ import BlogBack.common.result.PageResult;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
-import BlogBack.pojo.dto.LikeDTO;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
 
@@ -44,17 +43,17 @@ public interface ArticleService {
 
     /**
      * 点赞/取消点赞
-     * @param id
-     * @param likeDTO
+     * @param articleId
+     * @param userId
      * @return
      */
-    LikeVO liked(Long id, LikeDTO likeDTO);
+    LikeVO toggleLike(Long articleId, Long userId);
 
     /**
      * 查询点赞状态
-     * @param id
-     * @param likeDTO
+     * @param articleId
+     * @param userId
      * @return
      */
-    LikeVO getLikeStatus(Long id, LikeDTO likeDTO);
+    LikeVO getLikeStatus(Long articleId, Long userId);
 }

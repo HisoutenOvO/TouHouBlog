@@ -4,11 +4,13 @@ import BlogBack.common.result.PageResult;
 import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.CommentAddDTO;
 import BlogBack.pojo.dto.CommentListDTO;
+import BlogBack.pojo.entity.User;
 import BlogBack.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/comments")
@@ -21,14 +23,15 @@ public class CommentController {
 
     /**
      * 发表评论
-     * @param commentAddDTO
+     * @param auth
      * @return
      */
     @PostMapping
     @Operation(summary = "发表评论")
-    public Result addComment(@RequestBody CommentAddDTO commentAddDTO){
-        log.info("发表评论：{}给{}",commentAddDTO.getUserId(),commentAddDTO.getArticleId());
-        commentService.addComment(commentAddDTO);
+    public Result add(@RequestBody CommentAddDTO dto, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        dto.setUserId(user.getId());  // 强制使用当前登录用户ID
+        commentService.addComment(dto);
         return Result.success();
     }
 

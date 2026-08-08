@@ -5,7 +5,7 @@ import BlogBack.common.result.Result;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
-import BlogBack.pojo.dto.LikeDTO;
+import BlogBack.pojo.entity.User;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
 import BlogBack.service.ArticleService;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -93,22 +94,20 @@ public class ArticleController {
      */
     @PostMapping("/{id}/like")
     @Operation(summary = "点赞/取消点赞")
-    public Result<LikeVO> liked(@PathVariable Long id, @RequestBody LikeDTO likeDTO){
-        log.info("点赞/取消点赞:{}",id);
-        LikeVO likeVO = articleService.liked(id,likeDTO);
+    public Result<LikeVO> like(@PathVariable Long id, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        LikeVO likeVO = articleService.toggleLike(id, user.getId());
         return Result.success(likeVO);
     }
-
     /**
      * 查询点赞状态
      * @return
      */
     @GetMapping("/{id}/like")
     @Operation(summary = "查询点赞状态")
-    public Result<LikeVO> getLikeStatus(@PathVariable Long id,LikeDTO likeDTO){
-        log.info("查询点赞状态:{}",id);
-        LikeVO likeVO = articleService.getLikeStatus(id,likeDTO);
+    public Result<LikeVO> getLikeStatus(@PathVariable Long id, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        LikeVO likeVO = articleService.getLikeStatus(id, user.getId());
         return Result.success(likeVO);
     }
-
 }

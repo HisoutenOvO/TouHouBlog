@@ -1,21 +1,20 @@
 package BlogBack.pojo.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-
-import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class User {
+public class User implements OAuth2User {
 
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     private String username;
@@ -26,18 +25,26 @@ public class User {
 
     private String avatarUrl;
 
-    private Integer role;
+    private Integer role;      // 0=用户, 1=管理员
 
-    private Integer status;
+    // 第三方登录绑定
+    private Long giteeId;      // 必须存在！否则 CustomOAuth2UserService 报错
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    // ---------- OAuth2User 接口实现 ----------
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Collections.emptyMap();
+    }
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + (role == 1 ? "ADMIN" : "USER"))
+        );
+    }
 
+    @Override
+    public String getName() {
+        return this.id != null ? this.id.toString() : "";
+    }
 }

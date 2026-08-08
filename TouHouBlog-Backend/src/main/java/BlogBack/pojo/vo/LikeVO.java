@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LikeVO {
 
-    private Integer likes;
+    private Long likes;
 
     private boolean liked;
 

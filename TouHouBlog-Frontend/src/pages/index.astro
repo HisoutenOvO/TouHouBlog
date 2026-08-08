@@ -1,29 +1,28 @@
 ---
+// src/pages/index.astro
 import Layout from '../layouts/Layout.astro'
 import HomeIntro from "../components/pages/indexPage/HomeIntro.vue";
 import CategoryList from '../components/pages/indexPage/CategoryList.vue';
 import RecentArticles from '../components/pages/indexPage/RecentArticles.vue';
 import SiteStates from '../components/pages/indexPage/SiteStates.vue';
 import TagList from '../components/pages/indexPage/TagList.vue';
-import LatestTalk from '../components/pages/indexPage/LatestTalk.vue'
-import MusicPlayer from '../components/pages/MusicPlayer.vue';
+import LatestTalk from '../components/pages/indexPage/LatestTalk.vue';
+import MusicPlayer from '../components/pages/MusicPlayer.vue';  // 重新导入
 const recentProps = { pageSize: 5, search: "", categoryId: null, tagId: null };
 ---
 <Layout>
 	<div class="px-6 py-8">
-		<!-- 1. 顶部区域：左边大图片 + 中间音乐（正方形） + 右边最近三条杂谈 -->
+		<!-- 顶部区域：左边图片 + 中间音乐（正方形） + 右边杂谈 -->
 		<div class="flex gap-6 mb-8 min-h-[28rem]">
-			<!-- 左边正方形图片占位 -->
 			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center flex-shrink-0">
 				<span class="text-gray-400 text-lg">图片占位</span>
 			</div>
 
-			<!-- 中间：音乐模块，和图片一样大的正方形 -->
-			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col justify-center items-center flex-shrink-0">
-				<MusicPlayer client:only="vue" />
+			<!-- 中间：音乐模块，放在正方形内，加上 transition:persist -->
+			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center flex-shrink-0">
+				<MusicPlayer client:only="vue" mode="full" transition:persist />
 			</div>
 
-			<!-- 右边最近三条杂谈：占剩余空间，三列排列 -->
 			<div class="flex-1 min-w-0">
 				<LatestTalk client:load />
 			</div>

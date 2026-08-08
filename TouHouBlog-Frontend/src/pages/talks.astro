@@ -1,7 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import TalkPage from '../components/pages/TalkPage.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
+
 <Layout>
-    <TalkPage client:load/>
+    <div class="flex gap-6 max-w-7xl mx-auto px-4">
+        <div class="flex-1 min-w-0">
+            <TalkPage client:load />
+        </div>
+    </div>
 </Layout>

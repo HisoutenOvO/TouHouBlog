@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { margin: 0; background: transparent; }
+    </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">
+<script>
+    let ap = null;
+    let currentPlaylist = [];
+
+    // 监听主页面发来的消息
+    window.addEventListener('message', async (event) => {
+        const { type, data } = event.data;
+        if (type === 'init' && !ap) {
+            currentPlaylist = data.songs;
+            ap = new APlayer({
+                container: document.body,
+                fixed: false,
+                mini: false,
+                autoplay: false,
+                theme: '#b7b7b7',
+                loop: 'all',
+                order: 'list',
+                preload: 'auto',
+                volume: data.volume || 0.7,
+                audio: data.songs.map(s => ({
+                    name: s.name,
+                    artist: s.artist,
+                    url: s.url,
+                    cover: s.cover
+                }))
+            });
+            // 恢复进度
+            if (data.progress) {
+                ap.list.switch(data.progress.index || 0);
+                ap.seek(data.progress.currentTime || 0);
+            }
+            // 发送状态更新给主页面
+            ap.on('play', () => sendState());
+            ap.on('pause', () => sendState());
+            ap.on('timeupdate', () => sendState());
+            ap.on('listswitch', () => sendState());
+            sendState();
+        } else if (ap) {
+            switch (type) {
+                case 'play': ap.play(); break;
+                case 'pause': ap.pause(); break;
+                case 'toggle': ap.toggle(); break;
+                case 'next': ap.skipForward(); break;
+                case 'prev': ap.skipBack(); break;
+                case 'seek': ap.seek(data.time); break;
+                case 'setVolume': ap.volume(data.volume); break;
+                case 'switchTrack': ap.list.switch(data.index); break;
+                case 'getState': sendState(); break;
+            }
+        }
+    });
+
+    function sendState() {
+        if (!ap) return;
+        const track = ap.list.audios[ap.list.index] || {};
+        window.parent.postMessage({
+            type: 'musicState',
+            data: {
+                name: track.name || '',
+                artist: track.artist || '',
+                cover: track.cover || '',
+                isPlaying: !ap.audio.paused,
+                currentTime: ap.audio.currentTime,
+                duration: ap.audio.duration,
+                volume: ap.audio.volume,
+                index: ap.list.index
+            }
+        }, '*');
+    }
+
+    // 定期同步进度，确保精准
+    setInterval(sendState, 1000);
+</script>
+</body>
+</html>

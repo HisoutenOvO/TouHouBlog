@@ -35,7 +35,7 @@ public class MusicController {
     public Result<List<Map<String, String>>> getPlaylist() {
         try {
             // 在这里写死或从配置读取你的歌单 ID
-            String myPlaylistId = "6617686504";
+            String myPlaylistId = "18231256590";
             List<Map<String, String>> songs = musicService.getPlaylistSongs(myPlaylistId);
             return Result.success(songs);
         } catch (Exception e) {

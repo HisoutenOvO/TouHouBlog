@@ -1,7 +1,5 @@
 ---
-// src/layouts/Layout.astro
 import { ClientRouter } from 'astro:transitions';
-
 const siteTitle = "TouHouBlog"
 ---
 
@@ -14,25 +12,22 @@ const siteTitle = "TouHouBlog"
     <ClientRouter />
 </head>
 <body class="bg-white text-gray-900">
-<header class="bg-white shadow-sm p-4 fixed top-0 w-full z-50 ">
+<header class="bg-white shadow-sm p-4 fixed top-0 w-full z-50">
     <nav class="max-w-4xl mx-auto flex justify-between items-center">
         <a href="/" class="text-xl font-bold text-gray-900 no-underline">TouHouBlog</a>
-        <div class="flex gap-4">
+        <div class="flex gap-4 items-center">
             <a href="/" class="text-gray-600 hover:text-gray-900 no-underline">首页</a>
             <a href="/archive" class="text-gray-600 hover:text-gray-900 no-underline">归档</a>
             <a href="/picture" class="text-gray-600 hover:text-gray-900 no-underline">图集</a>
             <a href="/talks" class="text-gray-600 hover:text-gray-900 no-underline">杂谈</a>
             <a href="/about" class="text-gray-600 hover:text-gray-900 no-underline">关于</a>
             <a href="/version" class="text-gray-600 hover:text-gray-900 no-underline">开发者日志</a>
-
             <span id="user-area"></span>
         </div>
     </nav>
 </header>
 
-<main class="p-6 pt-20">
-    <slot />
-</main>
+<main class="p-6 pt-20"><slot /></main>
 
 <script>
     // @ts-nocheck
@@ -40,12 +35,9 @@ const siteTitle = "TouHouBlog"
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                })
-                .join('')
+            atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')
         );
         return JSON.parse(jsonPayload);
     }
@@ -54,32 +46,26 @@ const siteTitle = "TouHouBlog"
         const token = localStorage.getItem('touhou_token');
         const userArea = document.getElementById('user-area');
         if (!userArea) return;
-
         if (token) {
             try {
                 const payload = decodeJwtPayload(token);
-                const nickname = payload.nickname || payload.sub;
-                userArea.innerHTML = `
-        <span class="text-sm text-gray-600">👤 ${nickname}</span>
-        <a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline ml-2">管理</a>
-        <button id="logout-btn" class="text-gray-600 hover:text-gray-900 no-underline ml-2">退出</button>
-      `;
-                document.getElementById('logout-btn')?.addEventListener('click', function() {
-                    localStorage.removeItem('touhou_token');
-                    window.location.href = '/';
+                const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
+                userArea.innerHTML = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
+                document.getElementById('user-avatar').addEventListener('click', function() {
+                    if (confirm('确定退出登录吗？')) {
+                        localStorage.removeItem('touhou_token');
+                        window.location.reload();
+                    }
                 });
             } catch(e) {
-                console.error('Token 解析失败', e);
                 userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
             }
         } else {
             userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
         }
     }
-
     updateUserArea();
     document.addEventListener('astro:page-load', updateUserArea);
 </script>
-
 </body>
 </html>

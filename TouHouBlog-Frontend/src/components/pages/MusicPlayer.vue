@@ -171,14 +171,14 @@ const applyPlayMode = (mode) => {
   console.log('[Player] 模式已切换:', mode, '→ aplayer mode:', targetMode, 'order:', ap.order)
 }
 
-// 切换播放模式
+// 切换播放模式（直接刷新页面使新模式生效）
 const changeMode = () => {
   const modeOrder = ['list', 'single', 'random']
   const currentIdx = modeOrder.indexOf(playMode.value)
   const nextMode = modeOrder[(currentIdx + 1) % modeOrder.length]
-  playMode.value = nextMode
-  localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)
-  applyPlayMode(nextMode)   // 立即生效
+  localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)   // 保存新模式
+  console.log('[Player] 模式切换为:', nextMode, '→ 即将刷新页面')
+  window.location.reload()   // 强制刷新，重新加载播放器
 }
 
 // 音量控制（不变）

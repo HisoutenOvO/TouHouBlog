@@ -29,6 +29,7 @@ public class JwtUtils {
                 .subject(user.getId().toString())
                 .claim("role", user.getRole())
                 .claim("nickname", user.getNickname())
+                .claim("avatarUrl", user.getAvatarUrl())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getKey())

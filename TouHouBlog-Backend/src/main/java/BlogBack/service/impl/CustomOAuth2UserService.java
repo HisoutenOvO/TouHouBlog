@@ -35,7 +35,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             String name = (String) attributes.get("name");
             String avatarUrl = (String) attributes.get("avatar_url");
 
-            // 查找是否已有该 Gitee 用户
             User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                     .eq(User::getGiteeId, giteeId));
 
@@ -43,13 +42,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user = new User();
                 user.setGiteeId(giteeId);
                 user.setUsername(login);
-                user.setNickname(name != null ? name : login);
                 user.setAvatarUrl(avatarUrl);
-                user.setRole(giteeId.equals(adminGiteeId) ? 1 : 0);
+                // 管理员设置固定昵称，普通用户使用 Gitee 昵称
+                if (giteeId.equals(adminGiteeId)) {
+                    user.setNickname("Hisouten");   // 可改为你想要的任何昵称
+                    user.setRole(1);
+                } else {
+                    user.setNickname(name != null ? name : login);
+                    user.setRole(0);
+                }
                 userMapper.insert(user);
             } else {
-                // 更新昵称和头像（可能变更）
-                user.setNickname(name != null ? name : login);
+                // 已有用户：管理员不更新昵称，普通用户可更新
+                if (!giteeId.equals(adminGiteeId)) {
+                    user.setNickname(name != null ? name : login);
+                }
                 user.setAvatarUrl(avatarUrl);
                 userMapper.updateById(user);
             }

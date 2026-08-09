@@ -20,12 +20,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { navigate } from 'astro:transitions/client'   // 新增导入
 
 const categories = ref([])
 const loading = ref(true)
 
 const goToCategory = (id) => {
-  window.location.href = `/archive?categoryId=${id}`
+  navigate(`/archive?categoryId=${id}`)   // 替换原来 window.location.href
 }
 
 onMounted(async () => {

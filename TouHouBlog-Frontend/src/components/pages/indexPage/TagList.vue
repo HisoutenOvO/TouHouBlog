@@ -19,12 +19,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { navigate } from 'astro:transitions/client'   // 新增导入
 
 const tags = ref([])
 const loading = ref(true)
 
 const goToTag = (id) => {
-  window.location.href = `/archive?tagId=${id}`
+  navigate(`/archive?tagId=${id}`)   // 替换原来 window.location.href
 }
 
 onMounted(async () => {

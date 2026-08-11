@@ -2,32 +2,27 @@
   <div>
     <div v-if="loading" class="text-gray-500">加载中...</div>
     <div v-else-if="articles.length" class="space-y-3">
-      <a v-for="article in articles"
-         :key="article.id"
-         :href="`/article/${article.id}`"
-         class="block no-underline">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 flex hover:shadow-md transition-shadow cursor-pointer">
-          <!-- 左侧封面 -->
-          <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center p-4">
-            <span class="text-gray-400 text-lg">封面占位</span>
+      <a v-for="article in articles" :key="article.id" :href="`/article/${article.id}`"
+         class="bg-white rounded-lg shadow-sm border border-gray-100 flex hover:shadow-md transition-shadow cursor-pointer min-h-[12rem]">
+        <!-- 左侧封面 -->
+        <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center overflow-hidden relative">
+          <img v-if="article.coverUrl" :src="article.coverUrl" class="absolute inset-0 w-full h-full object-cover rounded-l-lg" />
+          <span v-else class="text-gray-400 text-lg">封面占位</span>
+        </div>
+        <!-- 右侧文字 -->
+        <div class="w-1/2 p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">{{ article.title }}</h3>
+            <div class="text-sm text-gray-400">
+              {{ article.categoryName }} · {{ article.createTime }}
+            </div>
           </div>
-          <!-- 右侧文字 -->
-          <div class="w-1/2 p-5 flex flex-col justify-between">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900 mb-1">{{ article.title }}</h3>
-              <div class="text-sm text-gray-400">
-                {{ article.categoryName }} · {{ article.createTime }}
-              </div>
-            </div>
-            <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">
-              {{ article.content }}
-            </p>
-            <div class="flex flex-wrap gap-1.5">
-        <span v-for="tag in article.tags" :key="tag.id"
-              class="px-2.5 py-1 text-xs rounded-full bg-gray-100 text-gray-500">
-          {{ tag.name }}
-        </span>
-            </div>
+          <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
+          <div class="flex flex-wrap gap-1.5">
+      <span v-for="tag in article.tags" :key="tag.id"
+            class="px-2.5 py-1 text-xs rounded-full bg-gray-100 text-gray-500">
+        {{ tag.name }}
+      </span>
           </div>
         </div>
       </a>

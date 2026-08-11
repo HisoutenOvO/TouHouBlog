@@ -23,6 +23,18 @@
             取消
           </button>
         </div>
+        <!-- 封面图上传 -->
+        <div class="mb-4">
+          <p class="text-sm text-gray-500 mb-1">封面图</p>
+          <div class="flex items-center gap-3">
+            <div class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden">
+              <img v-if="editCoverUrl" :src="editCoverUrl" class="w-full h-full object-cover" />
+              <span v-else class="text-gray-400 text-xs">无封面</span>
+            </div>
+            <input type="file" accept="image/*" @change="uploadCover" class="text-xs" />
+            <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500">移除</button>
+          </div>
+        </div>
 
         <!-- 新增分类弹窗 -->
         <div v-if="showAddCategory" class="flex gap-2 mt-2 items-center">
@@ -96,6 +108,12 @@
           <span v-if="article.updateTime">最后修改于 {{ formatDate(article.updateTime) }}</span>
           <span v-if="article.categoryName" class="bg-gray-100 px-2 py-0.5 rounded">{{ article.categoryName }}</span>
           <LikeButton :article-id="articleId" />
+        </div>
+
+        <!--封面图-->
+        <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center p-4 overflow-hidden">
+          <img v-if="article.coverUrl" :src="article.coverUrl" class="w-full h-full object-cover rounded-l-lg" />
+          <span v-else class="text-gray-400 text-lg">封面占位</span>
         </div>
 
         <!-- 正文 -->
@@ -177,6 +195,20 @@ const newCategoryName = ref('')
 const plugins = []
 let ossClient = null
 
+const editCoverUrl = ref('')
+
+const uploadCover = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  if (!ossClient) {
+    const res = await request.get('/api/oss/signature')
+    const data = res.data.data
+    ossClient = new OSS({ region: data.region, accessKeyId: data.accessKeyId, accessKeySecret: data.accessKeySecret, bucket: data.bucket })
+  }
+  const key = `blog-covers/${Date.now()}_${file.name}`
+  const result = await ossClient.put(key, file)
+  editCoverUrl.value = result.url
+}
 const md = new MarkdownIt({
   html: true, breaks: true, linkify: true,
   highlight: function (str, lang) {
@@ -319,6 +351,7 @@ const enterEditMode = async () => {
   await loadCategories()
   await loadTags()
   editTitle.value = article.value.title
+  editCoverUrl.value = article.value.coverUrl || ''
   editContent.value = article.value.content
   editCategoryId.value = article.value.categoryId || ''
   editSelectedTags.value = article.value.tags ? article.value.tags.map(t => t.id) : []
@@ -338,8 +371,10 @@ const saveArticle = async () => {
     title: editTitle.value,
     content: editContent.value,
     categoryId: editCategoryId.value || null,
-    tagIds: editSelectedTags.value
+    tagIds: editSelectedTags.value,
+    coverUrl: editCoverUrl.value || null
   }
+  console.log(payload)
   try {
     await request.put(`/api/articles/${props.articleId}`, payload)
     await fetchArticle()

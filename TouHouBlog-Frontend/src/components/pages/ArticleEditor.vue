@@ -33,6 +33,18 @@
           <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
         </div>
       </div>
+      <!-- 封面图上传 -->
+      <div class="mb-4">
+        <p class="text-sm text-gray-500 mb-1">封面图</p>
+        <div class="flex items-center gap-3">
+          <div class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden">
+            <img v-if="editCoverUrl" :src="editCoverUrl" class="w-full h-full object-cover" />
+            <span v-else class="text-gray-400 text-xs">无封面</span>
+          </div>
+          <input type="file" accept="image/*" @change="uploadCover" class="text-xs" />
+          <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500">移除</button>
+        </div>
+      </div>
 
       <!-- 标签区域 -->
       <div class="border border-gray-200 rounded-lg p-3">
@@ -112,6 +124,20 @@ const newCategoryName = ref('')
 const plugins = []
 let ossClient = null
 
+const editCoverUrl = ref('')
+
+const uploadCover = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  if (!ossClient) {
+    const res = await request.get('/api/oss/signature')
+    const data = res.data.data
+    ossClient = new OSS({ region: data.region, accessKeyId: data.accessKeyId, accessKeySecret: data.accessKeySecret, bucket: data.bucket })
+  }
+  const key = `blog-covers/${Date.now()}_${file.name}`
+  const result = await ossClient.put(key, file)
+  editCoverUrl.value = result.url
+}
 // 图片上传（OSS）
 const uploadImages = async (files) => {
   if (!ossClient) {
@@ -218,8 +244,11 @@ const saveArticle = async () => {
     title: title.value,
     content: content.value,
     categoryId: categoryId.value || null,
-    tagIds: selectedTags.value
+    tagIds: selectedTags.value,
+    coverUrl: editCoverUrl.value || null
+
   }
+  console.log(payload)
   try {
     if (isEdit.value) {
       await request.put(`/api/articles/${props.articleId}`, payload)

@@ -1,31 +1,42 @@
 spring:
   profiles:
     active: dev
-  # MySQL 驱动
   datasource:
     driver-class-name: ${datasource.driver-class-name}
     url: jdbc:mysql://${datasource.host}:${datasource.port}/${datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&useGeneratedKeys=true
     username: ${datasource.username}
     password: ${datasource.password}
   security:
-      oauth2:
-        client:
-          registration:
-            gitee:
-              client-id: ${gitee.client-id}
-              client-secret: ${gitee.client-secret}
-              redirect-uri: "{baseUrl}/login/oauth2/code/gitee"
-              authorization-grant-type: authorization_code
-              client-authentication-method: client_secret_post
-              scope:
-                - user_info
-              provider: gitee
-          provider:
-            gitee:
-              authorization-uri: https://gitee.com/oauth/authorize
-              token-uri: https://gitee.com/oauth/token
-              user-info-uri: https://gitee.com/api/v5/user
-              user-name-attribute: id
+    oauth2:
+      client:
+        registration:
+          gitee:
+            client-id: ${gitee.client-id}
+            client-secret: ${gitee.client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/gitee"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - user_info
+            provider: gitee
+          github:
+            client-id: ${github.client-id}
+            client-secret: ${github.client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/github"
+            scope:
+              - read:user
+            provider: github
+        provider:
+          gitee:
+            authorization-uri: https://gitee.com/oauth/authorize
+            token-uri: https://gitee.com/oauth/token
+            user-info-uri: https://gitee.com/api/v5/user
+            user-name-attribute: id
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
 
 jwt:
   secret: ${jwt.secret}
@@ -34,6 +45,16 @@ jwt:
 admin:
   gitee:
     id: ${admin.gitee.id}
+  github:
+    id: ${admin.github.id}
+
+oss:
+  endpoint: ${oss.endpoint}
+  bucket: ${oss.bucket}
+  access-key-id: ${oss.access-key-id}
+  access-key-secret: ${oss.access-key-secret}
+  region: ${oss.region}
+
 knife4j:
   setting:
     language: zh_cn
@@ -45,11 +66,3 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-# 阿里云 OSS 配置
-oss:
-  endpoint: ${oss.endpoint}
-  bucket: ${oss.bucket}
-  access-key-id: ${oss.access-key-id}
-  access-key-secret: ${oss.access-key-secret}
-  region: ${oss.region}
-

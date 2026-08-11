@@ -38,6 +38,7 @@ public class TalkServiceImpl implements TalkService {
     public void add(TalkAddDTO talkAddDTO) {
         Talk talk = new Talk();
         talk.setContent(talkAddDTO.getContent());
+        talk.setPicture(talkAddDTO.getPicture());
         talkMapper.insert(talk);
     }
 

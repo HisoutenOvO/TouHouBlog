@@ -22,9 +22,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Value("${admin.gitee.id:0}")
     private Long adminGiteeId;
 
+    @Value("${admin.github.id:0}")
+    private Long adminGithubId;
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 先调用父类获取 OAuth2User 信息
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
@@ -34,36 +36,63 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             String login = (String) attributes.get("login");
             String name = (String) attributes.get("name");
             String avatarUrl = (String) attributes.get("avatar_url");
+            String displayName = (name != null && !name.isEmpty()) ? name : login;
 
-            User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                    .eq(User::getGiteeId, giteeId));
-
+            User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getGiteeId, giteeId));
             if (user == null) {
                 user = new User();
                 user.setGiteeId(giteeId);
                 user.setUsername(login);
                 user.setAvatarUrl(avatarUrl);
-                // 管理员设置固定昵称，普通用户使用 Gitee 昵称
                 if (giteeId.equals(adminGiteeId)) {
-                    user.setNickname("Hisouten");   // 可改为你想要的任何昵称
+                    user.setNickname("Hisouten");
                     user.setRole(1);
                 } else {
-                    user.setNickname(name != null ? name : login);
+                    user.setNickname(displayName);
                     user.setRole(0);
                 }
                 userMapper.insert(user);
             } else {
-                // 已有用户：管理员不更新昵称，普通用户可更新
-                if (!giteeId.equals(adminGiteeId)) {
-                    user.setNickname(name != null ? name : login);
-                }
                 user.setAvatarUrl(avatarUrl);
+                if (!giteeId.equals(adminGiteeId)) {
+                    user.setNickname(displayName);
+                }
+                userMapper.updateById(user);
+            }
+            return user;
+        }
+        else if ("github".equals(registrationId)) {
+            Map<String, Object> attributes = oAuth2User.getAttributes();
+            Long githubId = ((Number) attributes.get("id")).longValue();
+            String login = (String) attributes.get("login");
+            String avatarUrl = (String) attributes.get("avatar_url");
+            String name = (String) attributes.get("name");
+            String displayName = (name != null && !name.isEmpty()) ? name : login;
+
+            User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getGithubId, githubId));
+            if (user == null) {
+                user = new User();
+                user.setGithubId(githubId);
+                user.setUsername(login);
+                user.setAvatarUrl(avatarUrl);
+                if (githubId.equals(adminGithubId)) {
+                    user.setNickname("Hisouten");
+                    user.setRole(1);
+                } else {
+                    user.setNickname(displayName);
+                    user.setRole(0);
+                }
+                userMapper.insert(user);
+            } else {
+                user.setAvatarUrl(avatarUrl);
+                if (!githubId.equals(adminGithubId)) {
+                    user.setNickname(displayName);
+                }
                 userMapper.updateById(user);
             }
             return user;
         }
 
-        // 如果不是 gitee，返回原始的 OAuth2User
         return oAuth2User;
     }
 }

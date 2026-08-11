@@ -16,21 +16,16 @@ public class User implements OAuth2User {
 
     @TableId(type = IdType.AUTO)
     private Long id;
-
     private String username;
-
     private String password;
-
     private String nickname;
-
     private String avatarUrl;
-
     private Integer role;      // 0=用户, 1=管理员
 
     // 第三方登录绑定
-    private Long giteeId;      // 必须存在！否则 CustomOAuth2UserService 报错
+    private Long giteeId;
+    private Long githubId;
 
-    // ---------- OAuth2User 接口实现 ----------
     @Override
     public Map<String, Object> getAttributes() {
         return Collections.emptyMap();

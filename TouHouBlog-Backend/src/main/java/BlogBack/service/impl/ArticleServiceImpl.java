@@ -102,16 +102,18 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public void update(ArticleUpdateDTO articleUpdateDTO, Long id) {
-        //先修改文章
         Article article = articleMapper.selectById(id);
         if(article == null){
             throw new ArticleNotExistException(ARTICLE_NOT_EXIST);
         }
-        BeanUtils.copyProperties(articleUpdateDTO,article);
-        articleMapper.updateById(id,article);
-        if(articleUpdateDTO.getTagIds() != null && !articleUpdateDTO.getTagIds().isEmpty()) {
-            //再修改文章相关的标签（先删再加）
-            tagMapper.deleteBatch(id);
+        BeanUtils.copyProperties(articleUpdateDTO, article);
+        articleMapper.updateById(id, article);
+
+        // 先移除文章原有的所有标签
+        tagMapper.deleteBatch(id);
+
+        // 如果新的标签列表不为空，再插入新标签
+        if (articleUpdateDTO.getTagIds() != null && !articleUpdateDTO.getTagIds().isEmpty()) {
             tagMapper.insertBatch(id, articleUpdateDTO.getTagIds());
         }
     }

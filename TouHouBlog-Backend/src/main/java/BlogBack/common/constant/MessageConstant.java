@@ -8,7 +8,7 @@ public class MessageConstant {
 
     public static final String UNKNOWN_ERROR = "未知错误";
 
-    public static final String ALREADY_EXISTS = "已存在";
+    public static final String ALREADY_EXISTS = "已经有了哦，换个名字吧～";
 
     public static final String ARTICLE_NOT_EXIST = "文章不见啦～";
 

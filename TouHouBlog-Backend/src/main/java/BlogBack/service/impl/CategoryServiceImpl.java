@@ -92,18 +92,15 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public void delete(Long id) {
-        if(categoryMapper.selectById(id) == null){
-            //先判断该分类下是否有文章
-            List<Article> articles = articleMapper.selectByCategoryId(id);
-            if(articles == null){
-                //先把分类下的各个文章全部转移给“其他”分类
-                articleMapper.updateArticleCategoryIdBatch(id,ElseCategoryId);
-            }
-            categoryMapper.deleteById(id);
-            //再删除该文章
-        }
-        else {
+        Category category = categoryMapper.selectById(id);
+        if (category == null) {
             throw new CategoryNotExistException(CATEGORY_NOT_EXIST);
         }
+        // 将该分类下的所有文章转移到“其他”分类
+        List<Article> articles = articleMapper.selectByCategoryId(id);
+        if (articles != null && !articles.isEmpty()) {
+            articleMapper.updateArticleCategoryIdBatch(id, ElseCategoryId);
+        }
+        categoryMapper.deleteById(id);
     }
 }

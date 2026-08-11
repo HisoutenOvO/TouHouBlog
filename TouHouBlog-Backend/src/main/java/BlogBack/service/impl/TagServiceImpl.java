@@ -78,7 +78,7 @@ public class TagServiceImpl implements TagService {
     public void delete(Long id) {
         //先判断是否有文章关联
         Integer relation = tagMapper.getRelativeArticleNumById(id);
-        if(relation >= 0){
+        if(relation > 0){
             throw new TagRelativeArticleException(TAG_RELATIVE_ARTICLE);
         }
         //删除标签

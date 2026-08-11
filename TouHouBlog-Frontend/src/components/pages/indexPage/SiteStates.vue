@@ -23,8 +23,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
-
+import request from '../../../utils/request'
 const stats = ref({
   articleCount: 0,
   categoryCount: 0,
@@ -35,9 +34,9 @@ const stats = ref({
 onMounted(async () => {
   try {
     const [articleRes, categoryRes, tagRes] = await Promise.all([
-      axios.get('/api/articles/list?page=1&pageSize=5'),
-      axios.get('/api/categories/list?page=1&pageSize=5'),
-      axios.get('/api/tags/list?page=1&pageSize=5')
+      request.get('/api/articles/list?page=1&pageSize=5'),
+      request.get('/api/categories/list?page=1&pageSize=5'),
+      request.get('/api/tags/list?page=1&pageSize=5')
     ]);
 
     stats.value.articleCount = articleRes.data.data.total;

@@ -23,6 +23,41 @@
         </div>
       </div>
 
+      <!-- 标签区域 -->
+      <div class="edit-tags">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm text-gray-500">🏷️ 标签</span>
+          <button @click="showTagPanel = !showTagPanel" class="text-xs text-blue-500 hover:underline">
+            {{ showTagPanel ? '收起' : '管理标签' }}
+          </button>
+        </div>
+        <!-- 已选标签 -->
+        <div class="flex flex-wrap gap-1.5">
+          <span v-for="tagId in editSelectedTags" :key="tagId" class="px-2 py-0.5 text-xs rounded-full bg-gray-800 text-white">
+            {{ getTagName(tagId) }}
+            <button @click="removeTag(tagId)" class="ml-1 text-white hover:text-red-300">&times;</button>
+          </span>
+        </div>
+        <!-- 标签管理面板（可折叠） -->
+        <div v-if="showTagPanel" class="mt-2 border border-gray-200 rounded p-2 bg-white">
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span v-for="tag in allTags" :key="tag.id"
+                  class="px-2 py-0.5 text-xs rounded-full cursor-pointer transition-colors"
+                  :class="editSelectedTags.includes(tag.id) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                  @click="toggleTag(tag.id)">
+              {{ tag.name }}
+            </span>
+          </div>
+          <div class="flex gap-2">
+            <input v-model="newTagName" type="text" placeholder="新标签名"
+                   class="flex-1 px-2 py-1 text-xs border border-gray-200 rounded"
+                   @keyup.enter="createTag" />
+            <button @click="createTag" :disabled="!newTagName.trim()"
+                    class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">新增</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ByteMD 编辑器：占满剩余高度 -->
       <div class="edit-editor-full">
         <Editor :value="editContent" :plugins="plugins" :upload-images="uploadImages"
@@ -55,20 +90,7 @@
 
         <!-- 正文 -->
         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div class="prose prose-lg max-w-none
-                   prose-headings:text-gray-900
-                   prose-p:text-gray-700 prose-p:leading-relaxed
-                   prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline
-                   prose-strong:text-gray-900 prose-strong:font-semibold
-                   prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:text-gray-600
-                   prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                   prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:shadow-lg
-                   prose-ol:list-decimal prose-ul:list-disc prose-li:text-gray-700
-                   prose-table:border-collapse prose-table:w-full
-                   prose-th:border prose-th:border-gray-300 prose-th:bg-gray-50 prose-th:px-4 prose-th:py-2
-                   prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                   prose-img:rounded-lg prose-img:shadow-md"
-               v-html="renderedContent"></div>
+          <div class="prose prose-lg max-w-none ..." v-html="renderedContent"></div>
         </div>
 
         <!-- 标签 -->
@@ -105,7 +127,7 @@
 <script setup>
 // @ts-nocheck
 import { ref, computed, onMounted, nextTick } from 'vue'
-import axios from 'axios'
+import request from '../../utils/request'
 import MarkdownIt from 'markdown-it'
 import markdownItAnchor from 'markdown-it-anchor'
 import hljs from 'highlight.js'
@@ -131,6 +153,12 @@ const editTitle = ref('')
 const editContent = ref('')
 const editCategoryId = ref('')
 const categories = ref([])
+
+// 标签相关
+const allTags = ref([])            // 所有可用标签
+const editSelectedTags = ref([])   // 当前编辑模式下选中的标签ID
+const showTagPanel = ref(false)    // 是否显示标签管理面板
+const newTagName = ref('')         // 新标签名输入
 
 const plugins = []
 let ossClient = null
@@ -173,7 +201,7 @@ const updateHeadings = () => {
 
 const uploadImages = async (files) => {
   if (!ossClient) {
-    const res = await axios.get('/api/oss/signature')
+    const res = await request.get('/api/oss/signature')
     const data = res.data.data
     ossClient = new OSS({
       region: data.region,
@@ -192,13 +220,53 @@ const uploadImages = async (files) => {
 }
 
 const loadCategories = async () => {
-  const res = await axios.get('/api/categories/list?page=1&pageSize=999')
+  const res = await request.get('/api/categories/list?page=1&pageSize=999')
   categories.value = res.data.data.records
+}
+
+const loadTags = async () => {
+  try {
+    const res = await request.get('/api/tags/list?page=1&pageSize=999')
+    allTags.value = res.data.data.records
+  } catch (e) {
+    console.error('加载标签失败', e)
+  }
+}
+
+const getTagName = (id) => {
+  const tag = allTags.value.find(t => t.id == id)
+  return tag ? tag.name : ''
+}
+
+const toggleTag = (tagId) => {
+  const index = editSelectedTags.value.indexOf(tagId)
+  if (index === -1) {
+    editSelectedTags.value.push(tagId)
+  } else {
+    editSelectedTags.value.splice(index, 1)
+  }
+}
+
+const removeTag = (tagId) => {
+  editSelectedTags.value = editSelectedTags.value.filter(id => id !== tagId)
+}
+
+const createTag = async () => {
+  const name = newTagName.value.trim()
+  if (!name) return
+  try {
+    await request.post('/api/tags', { name })
+    newTagName.value = ''
+    await loadTags()
+    // 不再自动选中新标签
+  } catch (e) {
+    alert('标签创建失败')
+  }
 }
 
 const fetchArticle = async () => {
   try {
-    const res = await axios.get(`/api/articles/${props.articleId}`)
+    const res = await request.get(`/api/articles/${props.articleId}`)
     article.value = res.data.data
     const html = md.render(article.value.content)
     headings.value = extractHeadings(html)
@@ -213,9 +281,11 @@ const fetchArticle = async () => {
 
 const enterEditMode = async () => {
   await loadCategories()
+  await loadTags() // 加载标签列表
   editTitle.value = article.value.title
   editContent.value = article.value.content
   editCategoryId.value = article.value.categoryId || ''
+  editSelectedTags.value = article.value.tags ? article.value.tags.map(t => t.id) : []
   isEditing.value = true
   await nextTick()
   updateHeadings()
@@ -232,10 +302,10 @@ const saveArticle = async () => {
     title: editTitle.value,
     content: editContent.value,
     categoryId: editCategoryId.value || null,
-    tagIds: []
+    tagIds: editSelectedTags.value
   }
   try {
-    await axios.put(`/api/articles/${props.articleId}`, payload)
+    await request.put(`/api/articles/${props.articleId}`, payload)
     await fetchArticle()
     isEditing.value = false
   } catch (e) {
@@ -259,7 +329,7 @@ onMounted(fetchArticle)
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 200; /* 提高层级确保覆盖导航栏 */
+  z-index: 200; /* 确保高于导航栏 */
   display: flex;
   flex-direction: column;
   background: white;
@@ -273,6 +343,13 @@ onMounted(fetchArticle)
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
   box-sizing: border-box;
+}
+
+.edit-tags {
+  padding: 0.5rem 1rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
 .edit-editor-full {

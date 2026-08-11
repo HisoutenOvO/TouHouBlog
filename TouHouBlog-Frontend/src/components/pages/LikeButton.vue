@@ -13,7 +13,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth.js'
 
 const props = defineProps({ articleId: String })
@@ -30,7 +30,7 @@ const fetchLikeStatus = async () => {
   if (!isLoggedIn.value) return
   try {
     const token = localStorage.getItem('touhou_token')
-    const res = await axios.get(`/api/articles/${props.articleId}/like`, {
+    const res = await request.get(`/api/articles/${props.articleId}/like`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     likes.value = res.data.data.likes
@@ -48,7 +48,7 @@ const toggleLike = async () => {
   loading.value = true
   try {
     const token = localStorage.getItem('touhou_token')
-    const res = await axios.post(`/api/articles/${props.articleId}/like`, null, {
+    const res = await request.post(`/api/articles/${props.articleId}/like`, null, {
       headers: { Authorization: `Bearer ${token}` }
     })
     likes.value = res.data.data.likes

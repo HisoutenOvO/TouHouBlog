@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth.js'
 
 const props = defineProps({ articleId: String })
@@ -65,7 +65,7 @@ const totalPages = computed(() => Math.ceil(total.value / pageSize))
 
 const fetchComments = async () => {
   try {
-    const res = await axios.get(`/api/comments/article/${props.articleId}`, {
+    const res = await request.get(`/api/comments/article/${props.articleId}`, {
       params: { page: pageNum.value, pageSize }
     })
     comments.value = res.data.data.records
@@ -87,7 +87,7 @@ const submitComment = async () => {
   errorMsg.value = ''
   try {
     // 不再发送 userId，后端从 token 获取
-    await axios.post('/api/comments', {
+    await request.post('/api/comments', {
       articleId: props.articleId,
       content: content.value.trim()
     })

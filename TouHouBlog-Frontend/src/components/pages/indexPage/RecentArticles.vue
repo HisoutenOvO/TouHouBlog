@@ -58,8 +58,7 @@
 </template>
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import axios from 'axios'
-
+import request from '../../../utils/request'
 const props = defineProps({
   pageSize: { type: Number, default: 5 },
   search: { type: String, default: '' },
@@ -81,14 +80,12 @@ const fetchArticles = async () => {
     if (props.categoryId && props.categoryId !== 'null') params.categoryId = props.categoryId
     if (props.tagId && props.tagId !== 'null') params.tagId = props.tagId
 
-    const res = await axios.get('/api/articles/list', { params })
+    const res = await request.get('/api/articles/list', { params })
     articles.value = res.data.data.records
     total.value = res.data.data.total
     totalPages.value = Math.ceil(total.value / props.pageSize)
   } catch (e) {
-    console.error('获取文章失败', e)
-    articles.value = []
-    total.value = 0
+
   } finally {
     loading.value = false
   }

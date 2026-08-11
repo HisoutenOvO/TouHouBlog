@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="BlogBack.mapper.TagMapper">
     <insert id="insertBatch">
-        insert into article_tag
-        values
+        <if test="tagIds != null and tagIds.size() > 0">
+            INSERT INTO article_tag (article_id, tag_id) VALUES
             <foreach collection="tagIds" item="tagId" separator=",">
-                (#{articleId},#{tagId})
+                (#{articleId}, #{tagId})
             </foreach>
+        </if>
     </insert>
     <select id="pageQuery" resultType="BlogBack.pojo.vo.TagPageQueryVO">
         select tag.*,count(id) article_count

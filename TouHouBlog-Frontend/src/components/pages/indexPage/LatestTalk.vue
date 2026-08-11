@@ -32,17 +32,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import request from '../../../utils/request'
 
 const talks = ref([]);
 const loading = ref(true);
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/talks/list', { params: { page: 1, pageSize: 3 } });
+    const res = await request.get('/api/talks/list', { params: { page: 1, pageSize: 3 } });
     talks.value = res.data.data.records || [];
   } catch (e) {
-    console.error('获取杂谈失败', e);
   } finally {
     loading.value = false;
   }

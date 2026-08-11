@@ -75,8 +75,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
+import request from '../../utils/request'
 const talks = ref([])
 const loading = ref(true)
 const pageNum = ref(1)
@@ -87,7 +86,7 @@ const totalPages = ref(0)
 const fetchTalks = async () => {
   loading.value = true
   try {
-    const res = await axios.get('/api/talks/list', {
+    const res = await request.get('/api/talks/list', {
       params: { page: pageNum.value, pageSize: pageSize }
     })
     talks.value = res.data.data.records

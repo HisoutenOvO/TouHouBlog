@@ -40,15 +40,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
+import request from '../../utils/request'
 const props = defineProps({ talkId: String })
 const talk = ref(null)
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const res = await axios.get(`/api/talks/${props.talkId}`)
+    const res = await request.get(`/api/talks/${props.talkId}`)
     talk.value = res.data.data
   } catch (e) {
     console.error('获取杂谈详情失败', e)

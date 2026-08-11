@@ -18,7 +18,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import request from '../../../utils/request'
 import { navigate } from 'astro:transitions/client'   // 新增导入
 
 const tags = ref([])
@@ -30,7 +30,7 @@ const goToTag = (id) => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/tags/list?page=1&pageSize=999')
+    const res = await request.get('/api/tags/list?page=1&pageSize=999')
     tags.value = res.data.data.records
   } catch (err) {
     console.error(err)

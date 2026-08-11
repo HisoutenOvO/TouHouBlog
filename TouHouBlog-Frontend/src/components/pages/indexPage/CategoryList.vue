@@ -19,7 +19,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import request from '../../../utils/request'
 import { navigate } from 'astro:transitions/client'   // 新增导入
 
 const categories = ref([])
@@ -31,10 +31,9 @@ const goToCategory = (id) => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/categories/list?page=1&pageSize=999')
+    const res = await request.get('/api/categories/list?page=1&pageSize=999')
     categories.value = res.data.data.records
   } catch (e) {
-    console.error('获取分类失败', e)
   } finally {
     loading.value = false
   }

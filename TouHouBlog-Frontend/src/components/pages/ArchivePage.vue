@@ -11,7 +11,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import request from '../../utils/request'
 import RecentArticles from './indexPage/RecentArticles.vue'
 
 const searchKeyword = ref('')
@@ -41,7 +41,7 @@ const fetchTotal = async () => {
     if (searchKeyword.value) params.keyword = searchKeyword.value
     if (categoryId.value) params.categoryId = categoryId.value
     if (tagId.value) params.tagId = tagId.value
-    const res = await axios.get('/api/articles/list', { params })
+    const res = await request.get('/api/articles/list', { params })
     window.dispatchEvent(new CustomEvent('article-total', {
       detail: { total: res.data.data.total || 0 }
     }))

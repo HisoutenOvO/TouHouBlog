@@ -14,12 +14,21 @@
             <option value="">选择分类</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
+          <!-- 新增分类按钮 -->
+          <button v-if="isAdmin" @click="showAddCategory = true" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">＋</button>
           <button @click="saveArticle" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
             保存修改
           </button>
           <button @click="cancelEdit" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
             取消
           </button>
+        </div>
+
+        <!-- 新增分类弹窗 -->
+        <div v-if="showAddCategory" class="flex gap-2 mt-2 items-center">
+          <input v-model="newCategoryName" @keyup.enter="addCategory" placeholder="新分类名" class="px-2 py-1 text-xs border border-gray-200 rounded" />
+          <button @click="addCategory" :disabled="!newCategoryName.trim()" class="px-2 py-1 text-xs bg-gray-800 text-white rounded">确定</button>
+          <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
         </div>
       </div>
 
@@ -33,10 +42,10 @@
         </div>
         <!-- 已选标签 -->
         <div class="flex flex-wrap gap-1.5">
-          <span v-for="tagId in editSelectedTags" :key="tagId" class="px-2 py-0.5 text-xs rounded-full bg-gray-800 text-white">
-            {{ getTagName(tagId) }}
-            <button @click="removeTag(tagId)" class="ml-1 text-white hover:text-red-300">&times;</button>
-          </span>
+  <span v-for="tagId in editSelectedTags" :key="tagId" class="px-2 py-0.5 text-xs rounded-full bg-gray-800 text-white">
+    {{ getTagName(tagId) }}
+    <button @click="removeTag(tagId)" class="ml-1 text-white hover:text-red-300" title="从文章移除">&times;</button>
+  </span>
         </div>
         <!-- 标签管理面板（可折叠） -->
         <div v-if="showTagPanel" class="mt-2 border border-gray-200 rounded p-2 bg-white">
@@ -46,6 +55,7 @@
                   :class="editSelectedTags.includes(tag.id) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
                   @click="toggleTag(tag.id)">
               {{ tag.name }}
+              <button @click.stop="deleteTag(tag.id)" class="ml-1 text-red-500 hover:text-red-700" title="删除标签">×</button>
             </span>
           </div>
           <div class="flex gap-2">
@@ -160,6 +170,10 @@ const editSelectedTags = ref([])   // 当前编辑模式下选中的标签ID
 const showTagPanel = ref(false)    // 是否显示标签管理面板
 const newTagName = ref('')         // 新标签名输入
 
+// 新增分类
+const showAddCategory = ref(false)
+const newCategoryName = ref('')
+
 const plugins = []
 let ossClient = null
 
@@ -259,9 +273,31 @@ const createTag = async () => {
     newTagName.value = ''
     await loadTags()
     // 不再自动选中新标签
-  } catch (e) {
-    alert('标签创建失败')
-  }
+  } catch (e) {}
+}
+
+const deleteTag = async (tagId) => {
+  const tagName = getTagName(tagId)
+  const confirmed = confirm(`确定要删除标签「${tagName}」吗？`)
+  if (!confirmed) return
+  try {
+    await request.delete(`/api/tags/${tagId}`)
+    editSelectedTags.value = editSelectedTags.value.filter(id => id !== tagId)
+    await loadTags()
+  } catch (e) {}
+}
+
+const addCategory = async () => {
+  const name = newCategoryName.value.trim()
+  if (!name) return
+  try {
+    await request.post('/api/categories', { name })
+    await loadCategories()
+    const newCat = categories.value[categories.value.length - 1]
+    if (newCat) editCategoryId.value = newCat.id
+    showAddCategory.value = false
+    newCategoryName.value = ''
+  } catch (e) {}
 }
 
 const fetchArticle = async () => {
@@ -281,7 +317,7 @@ const fetchArticle = async () => {
 
 const enterEditMode = async () => {
   await loadCategories()
-  await loadTags() // 加载标签列表
+  await loadTags()
   editTitle.value = article.value.title
   editContent.value = article.value.content
   editCategoryId.value = article.value.categoryId || ''
@@ -308,9 +344,7 @@ const saveArticle = async () => {
     await request.put(`/api/articles/${props.articleId}`, payload)
     await fetchArticle()
     isEditing.value = false
-  } catch (e) {
-    alert('保存失败')
-  }
+  } catch (e) {}
 }
 
 const formatDate = (datetime) => {
@@ -322,14 +356,13 @@ onMounted(fetchArticle)
 </script>
 
 <style scoped>
-/* ========== 编辑模式全屏布局 ========== */
 .edit-page-container {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 200; /* 确保高于导航栏 */
+  z-index: 200;
   display: flex;
   flex-direction: column;
   background: white;
@@ -338,7 +371,7 @@ onMounted(fetchArticle)
 
 .edit-toolbar {
   padding: 0.75rem 1rem;
-  padding-top: calc(64px + 0.75rem); /* 留出导航栏高度 (64px) */
+  padding-top: calc(64px + 0.75rem);
   background: white;
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
@@ -360,7 +393,6 @@ onMounted(fetchArticle)
 </style>
 
 <style>
-/* 强制 ByteMD 占满高度并正确滚动 */
 .edit-editor-full .bytemd {
   height: 100% !important;
   display: flex;

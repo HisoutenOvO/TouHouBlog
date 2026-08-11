@@ -18,11 +18,21 @@
           @change="handleChange"
       />
 
-      <!-- 分类下拉 -->
-      <select v-model="categoryId" class="border border-gray-200 rounded px-3 py-2">
-        <option value="">选择分类</option>
-        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-      </select>
+      <!-- 分类下拉 + 新增分类按钮 -->
+      <div class="flex items-center gap-2">
+        <select v-model="categoryId" class="border border-gray-200 rounded px-3 py-2">
+          <option value="">选择分类</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+        </select>
+        <button @click="showAddCategory = true" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">＋</button>
+
+        <!-- 新增分类弹窗 -->
+        <div v-if="showAddCategory" class="flex gap-2 items-center">
+          <input v-model="newCategoryName" @keyup.enter="addCategory" placeholder="新分类名" class="px-2 py-1 text-xs border border-gray-200 rounded" />
+          <button @click="addCategory" :disabled="!newCategoryName.trim()" class="px-2 py-1 text-xs bg-gray-800 text-white rounded">确定</button>
+          <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
+        </div>
+      </div>
 
       <!-- 标签区域 -->
       <div class="border border-gray-200 rounded-lg p-3">
@@ -37,6 +47,7 @@
               @click="toggleTag(tag.id)"
           >
             {{ tag.name }}
+            <button @click.stop="deleteTag(tag.id)" class="ml-1 text-red-500 hover:text-red-700" title="删除标签">×</button>
           </span>
         </div>
         <!-- 新增标签 -->
@@ -94,6 +105,10 @@ const selectedTags = ref([])      // 选中的标签 ID
 const newTagName = ref('')        // 新标签输入
 const creatingTag = ref(false)    // 是否正在创建标签
 
+// 新增分类
+const showAddCategory = ref(false)
+const newCategoryName = ref('')
+
 const plugins = []
 let ossClient = null
 
@@ -142,6 +157,19 @@ const toggleTag = (tagId) => {
   }
 }
 
+// 删除标签（实体）
+const deleteTag = async (tagId) => {
+  const tag = allTags.value.find(t => t.id === tagId)
+  const name = tag ? tag.name : '该标签'
+  const confirmed = confirm(`确定要删除标签「${name}」吗？`)
+  if (!confirmed) return
+  try {
+    await request.delete(`/api/tags/${tagId}`)
+    selectedTags.value = selectedTags.value.filter(id => id !== tagId)
+    await loadTags()
+  } catch (e) {}
+}
+
 // 创建新标签
 const createTag = async () => {
   const name = newTagName.value.trim()
@@ -150,17 +178,25 @@ const createTag = async () => {
   try {
     await request.post('/api/tags', { name })
     newTagName.value = ''
-    await loadTags()               // 刷新标签列表
-    // 自动选中新创建的标签（最新增加的 ID 最大，简单处理）
-    const newTag = allTags.value[allTags.value.length - 1]
-    if (newTag && !selectedTags.value.includes(newTag.id)) {
-      selectedTags.value.push(newTag.id)
-    }
-  } catch (e) {
-    alert('标签创建失败')
-  } finally {
+    await loadTags()
+    // 不再自动选中
+  } catch (e) {} finally {
     creatingTag.value = false
   }
+}
+
+// 新增分类
+const addCategory = async () => {
+  const name = newCategoryName.value.trim()
+  if (!name) return
+  try {
+    await request.post('/api/categories', { name })
+    await loadCategories()
+    const newCat = categories.value[categories.value.length - 1]
+    if (newCat) categoryId.value = newCat.id
+    showAddCategory.value = false
+    newCategoryName.value = ''
+  } catch (e) {}
 }
 
 // 加载已有文章数据（编辑模式）
@@ -172,7 +208,6 @@ const loadArticle = async () => {
     title.value = article.title
     content.value = article.content
     categoryId.value = article.categoryId
-    // 设置已选标签（假设 article.tags 是对象数组，有 id 属性）
     selectedTags.value = article.tags ? article.tags.map(t => t.id) : []
   }
 }
@@ -192,9 +227,7 @@ const saveArticle = async () => {
       await request.post('/api/articles', payload)
     }
     window.location.href = '/archive'
-  } catch (e) {
-    alert('保存失败')
-  }
+  } catch (e) {}
 }
 
 onMounted(async () => {

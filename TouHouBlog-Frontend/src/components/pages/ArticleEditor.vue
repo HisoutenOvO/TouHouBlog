@@ -1,55 +1,50 @@
 <template>
-  <div class="max-w-4xl mx-auto py-8">
-    <div v-if="!isAdmin" class="text-center py-20 text-gray-500">无权限访问</div>
-    <div v-else class="space-y-4">
-      <!-- 标题 -->
-      <input
-          v-model="title"
-          type="text"
-          placeholder="文章标题"
-          class="w-full px-4 py-3 text-2xl font-bold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-      />
-
-      <!-- ByteMD 编辑器 -->
-      <Editor
-          :value="content"
-          :plugins="plugins"
-          :upload-images="uploadImages"
-          @change="handleChange"
-      />
-
-      <!-- 分类下拉 + 新增分类按钮 -->
-      <div class="flex items-center gap-2">
+  <div v-if="!isAdmin" class="flex items-center justify-center h-screen text-gray-500">无权限访问</div>
+  <div v-else class="edit-page-container">
+    <!-- 顶部工具栏：标题、分类、封面、标签、保存 -->
+    <div class="edit-toolbar">
+      <div class="flex items-center gap-4">
+        <input v-model="title" type="text" placeholder="文章标题"
+               class="flex-1 px-4 py-2 text-xl font-bold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300" />
         <select v-model="categoryId" class="border border-gray-200 rounded px-3 py-2">
           <option value="">选择分类</option>
           <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
         </select>
         <button @click="showAddCategory = true" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">＋</button>
-
-        <!-- 新增分类弹窗 -->
-        <div v-if="showAddCategory" class="flex gap-2 items-center">
-          <input v-model="newCategoryName" @keyup.enter="addCategory" placeholder="新分类名" class="px-2 py-1 text-xs border border-gray-200 rounded" />
-          <button @click="addCategory" :disabled="!newCategoryName.trim()" class="px-2 py-1 text-xs bg-gray-800 text-white rounded">确定</button>
-          <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
-        </div>
+        <button @click="saveArticle" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
+          {{ isEdit ? '更新文章' : '发布文章' }}
+        </button>
       </div>
-      <!-- 封面图上传 -->
-      <div class="mb-4">
+
+      <!-- 新增分类弹窗 -->
+      <div v-if="showAddCategory" class="flex gap-2 mt-2 items-center">
+        <input v-model="newCategoryName" @keyup.enter="addCategory" placeholder="新分类名" class="px-2 py-1 text-xs border border-gray-200 rounded" />
+        <button @click="addCategory" :disabled="!newCategoryName.trim()" class="px-2 py-1 text-xs bg-gray-800 text-white rounded">确定</button>
+        <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
+      </div>
+
+      <!-- 封面图 -->
+      <div class="mt-3">
         <p class="text-sm text-gray-500 mb-1">封面图</p>
         <div class="flex items-center gap-3">
-          <div class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden">
+          <div
+              class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
+              @click="triggerCoverInput"
+          >
             <img v-if="editCoverUrl" :src="editCoverUrl" class="w-full h-full object-cover" />
-            <span v-else class="text-gray-400 text-xs">无封面</span>
+            <div v-else class="flex flex-col items-center text-gray-400">
+              <span class="text-2xl">＋</span>
+              <span class="text-xs">添加封面</span>
+            </div>
           </div>
-          <input type="file" accept="image/*" @change="uploadCover" class="text-xs" />
+          <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
           <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500">移除</button>
         </div>
       </div>
 
       <!-- 标签区域 -->
-      <div class="border border-gray-200 rounded-lg p-3">
+      <div class="mt-3 border border-gray-200 rounded-lg p-3">
         <p class="text-sm font-medium text-gray-700 mb-2">🏷️ 标签</p>
-        <!-- 已有标签云：多选 -->
         <div class="flex flex-wrap gap-2 mb-3">
           <span
               v-for="tag in allTags"
@@ -62,32 +57,22 @@
             <button @click.stop="deleteTag(tag.id)" class="ml-1 text-red-500 hover:text-red-700" title="删除标签">×</button>
           </span>
         </div>
-        <!-- 新增标签 -->
         <div class="flex gap-2">
-          <input
-              v-model="newTagName"
-              type="text"
-              placeholder="输入新标签名"
-              class="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-300"
-              @keyup.enter="createTag"
-          />
-          <button
-              @click="createTag"
-              :disabled="!newTagName.trim() || creatingTag"
-              class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
-          >
+          <input v-model="newTagName" type="text" placeholder="输入新标签名"
+                 class="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded"
+                 @keyup.enter="createTag" />
+          <button @click="createTag" :disabled="!newTagName.trim() || creatingTag"
+                  class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
             {{ creatingTag ? '...' : '新增' }}
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- 保存按钮 -->
-      <button
-          @click="saveArticle"
-          class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
-      >
-        {{ isEdit ? '更新文章' : '发布文章' }}
-      </button>
+    <!-- ByteMD 编辑器 -->
+    <div class="edit-editor-full">
+      <Editor :value="content" :plugins="plugins" :upload-images="uploadImages"
+              @change="handleChange" />
     </div>
   </div>
 </template>
@@ -111,20 +96,23 @@ const categoryId = ref('')
 const categories = ref([])
 const isEdit = ref(false)
 
-// 标签相关
-const allTags = ref([])           // 所有标签列表
-const selectedTags = ref([])      // 选中的标签 ID
-const newTagName = ref('')        // 新标签输入
-const creatingTag = ref(false)    // 是否正在创建标签
+// 标签
+const allTags = ref([])
+const selectedTags = ref([])
+const newTagName = ref('')
+const creatingTag = ref(false)
 
 // 新增分类
 const showAddCategory = ref(false)
 const newCategoryName = ref('')
 
+// 封面图
+const editCoverUrl = ref('')
+const coverInputRef = ref(null)
+const triggerCoverInput = () => coverInputRef.value?.click()
+
 const plugins = []
 let ossClient = null
-
-const editCoverUrl = ref('')
 
 const uploadCover = async (e) => {
   const file = e.target.files[0]
@@ -132,19 +120,26 @@ const uploadCover = async (e) => {
   if (!ossClient) {
     const res = await request.get('/api/oss/signature')
     const data = res.data.data
-    ossClient = new OSS({ region: data.region, accessKeyId: data.accessKeyId, accessKeySecret: data.accessKeySecret, bucket: data.bucket })
+    ossClient = new OSS({
+      region: data.region,
+      endpoint: data.endpoint,
+      accessKeyId: data.accessKeyId,
+      accessKeySecret: data.accessKeySecret,
+      bucket: data.bucket,
+    })
   }
   const key = `blog-covers/${Date.now()}_${file.name}`
   const result = await ossClient.put(key, file)
   editCoverUrl.value = result.url
 }
-// 图片上传（OSS）
+
 const uploadImages = async (files) => {
   if (!ossClient) {
     const res = await request.get('/api/oss/signature')
     const data = res.data.data
     ossClient = new OSS({
       region: data.region,
+      endpoint: data.endpoint,
       accessKeyId: data.accessKeyId,
       accessKeySecret: data.accessKeySecret,
       bucket: data.bucket,
@@ -161,19 +156,16 @@ const uploadImages = async (files) => {
 
 const handleChange = (v) => { content.value = v }
 
-// 加载分类
 const loadCategories = async () => {
   const res = await request.get('/api/categories/list?page=1&pageSize=999')
   categories.value = res.data.data.records
 }
 
-// 加载所有标签
 const loadTags = async () => {
   const res = await request.get('/api/tags/list?page=1&pageSize=999')
   allTags.value = res.data.data.records
 }
 
-// 切换标签选中状态
 const toggleTag = (tagId) => {
   const index = selectedTags.value.indexOf(tagId)
   if (index === -1) {
@@ -183,7 +175,6 @@ const toggleTag = (tagId) => {
   }
 }
 
-// 删除标签（实体）
 const deleteTag = async (tagId) => {
   const tag = allTags.value.find(t => t.id === tagId)
   const name = tag ? tag.name : '该标签'
@@ -196,7 +187,6 @@ const deleteTag = async (tagId) => {
   } catch (e) {}
 }
 
-// 创建新标签
 const createTag = async () => {
   const name = newTagName.value.trim()
   if (!name) return
@@ -205,13 +195,11 @@ const createTag = async () => {
     await request.post('/api/tags', { name })
     newTagName.value = ''
     await loadTags()
-    // 不再自动选中
   } catch (e) {} finally {
     creatingTag.value = false
   }
 }
 
-// 新增分类
 const addCategory = async () => {
   const name = newCategoryName.value.trim()
   if (!name) return
@@ -225,7 +213,6 @@ const addCategory = async () => {
   } catch (e) {}
 }
 
-// 加载已有文章数据（编辑模式）
 const loadArticle = async () => {
   if (props.articleId) {
     isEdit.value = true
@@ -235,10 +222,10 @@ const loadArticle = async () => {
     content.value = article.content
     categoryId.value = article.categoryId
     selectedTags.value = article.tags ? article.tags.map(t => t.id) : []
+    editCoverUrl.value = article.coverUrl || ''
   }
 }
 
-// 保存文章
 const saveArticle = async () => {
   const payload = {
     title: title.value,
@@ -246,9 +233,15 @@ const saveArticle = async () => {
     categoryId: categoryId.value || null,
     tagIds: selectedTags.value,
     coverUrl: editCoverUrl.value || null
-
   }
-  console.log(payload)
+  if (!categoryId.value) {
+    alert('请选择文章分类')
+    return
+  }
+  if (selectedTags.value.length === 0) {
+    alert('请至少选择一个标签')
+    return
+  }
   try {
     if (isEdit.value) {
       await request.put(`/api/articles/${props.articleId}`, payload)
@@ -269,3 +262,53 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.edit-page-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+}
+
+.edit-toolbar {
+  padding: 0.75rem 1rem;
+  padding-top: 1rem;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-height: 55vh;
+}
+
+.edit-editor-full {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+</style>
+
+<style>
+.edit-editor-full .bytemd {
+  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+}
+.edit-editor-full .bytemd-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.edit-editor-full .bytemd-editor,
+.edit-editor-full .bytemd-preview {
+  height: 100% !important;
+  overflow-y: auto !important;
+}
+</style>

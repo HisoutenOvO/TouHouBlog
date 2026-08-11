@@ -27,11 +27,17 @@
         <div class="mb-4">
           <p class="text-sm text-gray-500 mb-1">封面图</p>
           <div class="flex items-center gap-3">
-            <div class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden">
+            <div
+                class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
+                @click="triggerCoverInput"
+            >
               <img v-if="editCoverUrl" :src="editCoverUrl" class="w-full h-full object-cover" />
-              <span v-else class="text-gray-400 text-xs">无封面</span>
+              <div v-else class="flex flex-col items-center text-gray-400">
+                <span class="text-2xl">＋</span>
+                <span class="text-xs">添加封面</span>
+              </div>
             </div>
-            <input type="file" accept="image/*" @change="uploadCover" class="text-xs" />
+            <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
             <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500">移除</button>
           </div>
         </div>
@@ -93,12 +99,23 @@
     <div class="flex gap-6">
       <!-- 左侧内容区 -->
       <div class="flex-1 min-w-0">
+        <!--封面图-->
+        <div v-if="article.coverUrl" class="mb-6">
+          <div class="w-full" style="aspect-ratio: 16 / 5; overflow: hidden; border-radius: 0.5rem;">
+            <img :src="article.coverUrl" class="w-full h-full object-cover" />
+          </div>
+        </div>
         <!-- 标题行 -->
         <div class="flex items-center gap-4 mb-3">
           <h1 class="text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
           <button v-if="isAdmin" @click="enterEditMode"
                   class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 text-gray-600">
             编辑
+          </button>
+          <!-- 新增删除按钮 -->
+          <button v-if="isAdmin" @click="deleteArticle"
+                  class="text-sm px-3 py-1 border border-red-300 rounded text-red-600 hover:bg-red-50">
+            删除
           </button>
         </div>
 
@@ -110,11 +127,7 @@
           <LikeButton :article-id="articleId" />
         </div>
 
-        <!--封面图-->
-        <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center p-4 overflow-hidden">
-          <img v-if="article.coverUrl" :src="article.coverUrl" class="w-full h-full object-cover rounded-l-lg" />
-          <span v-else class="text-gray-400 text-lg">封面占位</span>
-        </div>
+
 
         <!-- 正文 -->
         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
@@ -194,7 +207,10 @@ const newCategoryName = ref('')
 
 const plugins = []
 let ossClient = null
-
+const coverInputRef = ref(null)
+const triggerCoverInput = () => {
+  coverInputRef.value?.click()
+}
 const editCoverUrl = ref('')
 
 const uploadCover = async (e) => {
@@ -367,6 +383,14 @@ const cancelEdit = () => {
 }
 
 const saveArticle = async () => {
+  if (!categoryId.value) {
+    alert('请选择文章分类')
+    return
+  }
+  if (selectedTags.value.length === 0) {
+    alert('请至少选择一个标签')
+    return
+  }
   const payload = {
     title: editTitle.value,
     content: editContent.value,
@@ -380,6 +404,17 @@ const saveArticle = async () => {
     await fetchArticle()
     isEditing.value = false
   } catch (e) {}
+}
+const deleteArticle = async () => {
+  const confirmed = confirm('确定要删除这篇文章吗？删除后无法恢复。')
+  if (!confirmed) return
+  try {
+    await request.delete(`/api/articles/${props.articleId}`)
+    // 删除成功后跳转到归档页
+    window.location.href = '/archive'
+  } catch (e) {
+    // 错误由全局拦截器处理
+  }
 }
 
 const formatDate = (datetime) => {

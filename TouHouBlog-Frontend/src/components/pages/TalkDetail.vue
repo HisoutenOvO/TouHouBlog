@@ -12,19 +12,26 @@
       <!-- 正文 -->
       <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{{ talk.content }}</p>
 
-      <!-- 图片 -->
-      <img v-if="talk.picture" :src="talk.picture" alt="杂谈图片"
-           class="max-w-full h-auto rounded-lg border border-gray-100 mb-4" />
+      <!-- 图片（点击放大） -->
+      <div v-if="talk.picture" class="mb-4">
+        <img v-if="talk.picture" :src="talk.picture" class="w-full rounded-lg border border-gray-100 cursor-pointer" @click="showImageOverlay = true" />
+      </div>
 
-      <!-- 互动 -->
+      <!-- 互动行：时间、点赞、评论按钮 -->
       <div class="flex justify-between items-center text-sm text-gray-400 border-t pt-3">
         <span>{{ formatTime(talk.createTime) }}</span>
         <div class="flex gap-3">
-          <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-            ❤️ <span class="text-xs">0</span>
+          <button
+              @click="toggleLike"
+              :disabled="likeLoading"
+              class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 transition-colors"
+              :class="{ 'bg-red-50 border-red-200': liked }"
+          >
+            <span :class="liked ? 'text-red-500' : 'text-gray-400'">❤️</span>
+            <span class="text-xs" :class="liked ? 'text-red-500' : 'text-gray-500'">{{ likes }}</span>
           </button>
           <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-            💬 <span class="text-xs">0</span>
+            💬 <span class="text-xs">{{ commentTotal }}</span>
           </button>
         </div>
       </div>
@@ -32,8 +39,19 @@
 
     <div v-else class="text-center py-20 text-gray-500">杂谈不存在。</div>
 
+    <!-- 评论区 -->
+    <div v-if="talk" class="mt-6">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">💬 评论 ({{ commentTotal }})</h3>
+      <TalkCommentSection :talk-id="talkId" @total-change="commentTotal = $event" />
+    </div>
+
     <div class="mt-6 text-center">
       <a href="/talks" class="text-sm text-gray-400 hover:text-gray-600 no-underline">← 返回杂谈</a>
+    </div>
+
+    <!-- 图片放大遮罩 -->
+    <div v-if="showImageOverlay" class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4" @click="showImageOverlay = false">
+      <img :src="talk.picture" class="max-w-full max-h-full rounded-lg shadow-2xl" @click.stop />
     </div>
   </div>
 </template>
@@ -41,22 +59,65 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import request from '../../utils/request'
+import { getUserFromToken } from '../../utils/auth'
+import TalkCommentSection from './TalkCommentSection.vue'
+
 const props = defineProps({ talkId: String })
+
 const talk = ref(null)
 const loading = ref(true)
+const likes = ref(0)
+const liked = ref(false)
+const likeLoading = ref(false)
+const showImageOverlay = ref(false)
+const commentTotal = ref(0)
 
-onMounted(async () => {
+const fetchTalk = async () => {
   try {
     const res = await request.get(`/api/talks/${props.talkId}`)
     talk.value = res.data.data
+    // 获取点赞状态
+    await fetchLikeStatus()
   } catch (e) {
-    console.error('获取杂谈详情失败', e)
     talk.value = null
   } finally {
     loading.value = false
   }
-})
+}
+
+const fetchLikeStatus = async () => {
+  const user = getUserFromToken()
+  if (!user) return
+  try {
+    const res = await request.get(`/api/talks/${props.talkId}/like`, {
+      params: { userId: user.id }
+    })
+    likes.value = res.data.data.likes
+    liked.value = res.data.data.liked
+  } catch (e) {}
+}
+
+const toggleLike = async () => {
+  const user = getUserFromToken()
+  if (!user) {
+    window.location.href = '/manage'
+    return
+  }
+  likeLoading.value = true
+  try {
+    const res = await request.post(`/api/talks/${props.talkId}/like`, {
+      userId: user.id
+    })
+    likes.value = res.data.data.likes
+    liked.value = res.data.data.liked
+  } catch (e) {}
+  finally {
+    likeLoading.value = false
+  }
+}
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('zh-CN') : ''
 const formatTime = (d) => d ? new Date(d).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) : ''
+
+onMounted(fetchTalk)
 </script>

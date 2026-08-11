@@ -45,8 +45,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import request from '../../../utils/request'
-import { getUserFromToken } from '../../../utils/auth'
+import request from '../../../utils/request.js'
+import { getUserFromToken } from '../../../utils/auth.js'
 import { navigate } from 'astro:transitions/client'
 
 const tags = ref([])

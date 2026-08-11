@@ -58,11 +58,11 @@
           <div class="flex justify-between items-center text-sm text-gray-400">
             <span>{{ formatTime(talk.createTime) }}</span>
             <div class="flex gap-3" @click.prevent>
-              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-                ❤️ <span class="text-xs">0</span>
+              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50" @click.stop>
+                ❤️ <span class="text-xs">{{ talk.likeCount || 0 }}</span>
               </button>
-              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-                💬 <span class="text-xs">0</span>
+              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50" @click.stop>
+                💬 <span class="text-xs">{{ talk.commentCount || 0 }}</span>
               </button>
             </div>
           </div>

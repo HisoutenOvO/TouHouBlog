@@ -1,9 +1,7 @@
 <template>
   <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
     <h3 class="font-bold text-gray-900 mb-2">📑 目录</h3>
-    <div v-if="headings.length === 0" class="text-sm text-gray-400">
-      暂无目录
-    </div>
+    <div v-if="headings.length === 0" class="text-sm text-gray-400">暂无目录</div>
     <nav v-else class="space-y-1">
       <a
           v-for="(heading, index) in headings"
@@ -25,9 +23,6 @@
 
 <script setup>
 defineProps({
-  headings: {
-    type: Array,
-    default: () => []
-  }
+  headings: { type: Array, default: () => [] }
 })
 </script>

@@ -50,13 +50,20 @@ const siteTitle = "TouHouBlog"
             try {
                 const payload = decodeJwtPayload(token);
                 const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
-                userArea.innerHTML = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
-                document.getElementById('user-avatar').addEventListener('click', function() {
-                    if (confirm('确定退出登录吗？')) {
-                        localStorage.removeItem('touhou_token');
-                        window.location.reload();
-                    }
-                });
+                let html = '';
+                // 无论管理员还是普通用户，都只显示头像
+                html = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
+                userArea.innerHTML = html;
+                // 绑定退出事件
+                const avatarEl = document.getElementById('user-avatar');
+                if (avatarEl) {
+                    avatarEl.addEventListener('click', function() {
+                        if (confirm('确定退出登录吗？')) {
+                            localStorage.removeItem('touhou_token');
+                            window.location.reload();
+                        }
+                    });
+                }
             } catch(e) {
                 userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
             }

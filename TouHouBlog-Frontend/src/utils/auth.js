@@ -28,7 +28,8 @@ export function getUserFromToken() {
         return {
             id: payload.sub,
             role: payload.role,
-            nickname: payload.nickname
+            nickname: payload.nickname,
+            avatarUrl: payload.avatarUrl
         }
     } catch {
         return null

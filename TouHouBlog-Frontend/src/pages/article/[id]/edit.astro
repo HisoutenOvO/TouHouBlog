@@ -1,0 +1,14 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+import ArticleEditor from '../../../components/pages/ArticleEditor.vue'
+
+export const prerender = false
+const { id } = Astro.params
+if (id === 'new' || id === 'edit') {
+    return new Response(null, { status: 404 })
+}
+---
+
+<Layout>
+    <ArticleEditor client:only="vue" articleId={id!} />
+</Layout>

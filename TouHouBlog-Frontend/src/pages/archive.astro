@@ -7,22 +7,24 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
-    <!-- 标题区域 -->
+    <!-- 标题区域（完全由 Astro 控制） -->
     <div class="text-center py-12">
         <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest">归档与探索</h1>
-        <p class="mt-4 text-base text-gray-400" id="totalArticles">共 0 篇研究</p>
-        <div class="mt-6 flex justify-center">
+        <p class="mt-4 text-base text-gray-400" id="totalArticles">共 … 篇研究</p>
+        <div class="mt-6 flex justify-center items-center gap-4">
             <input
                     id="searchInput"
                     type="text"
                     placeholder="搜索文章..."
                     class="w-80 px-4 py-2.5 border border-gray-200 rounded-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white shadow-sm"
-                    @keyup.enter="handleSearch"
             />
+            <a id="new-article-btn" href="/write" style="display:none"
+               class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm hover:bg-gray-900 no-underline">
+                写文章
+            </a>
         </div>
     </div>
 
-    <!-- 三栏布局 -->
     <div class="flex gap-6 max-w-7xl mx-auto px-4">
         <aside class="w-56 flex-shrink-0">
             <div class="sticky top-24">
@@ -44,29 +46,30 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 </Layout>
 
 <script>
-    import axios from 'axios';
+    //@ts-nocheck
+    // 每次 astro 页面加载完成时执行
+    document.addEventListener('astro:page-load', () => {
+        // 通知组件重新获取总数
+        window.dispatchEvent(new CustomEvent('refresh-article-total'))
 
-    const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
-    const totalSpan = document.getElementById('totalArticles') as HTMLSpanElement | null;
+        // 确保写文章按钮也重新检查
+        const btn = document.getElementById('new-article-btn')
+        if (btn) {
+            const token = localStorage.getItem('touhou_token')
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]))
+                    btn.style.display = (payload.role === 1) ? 'inline-block' : 'none'
+                } catch (e) { btn.style.display = 'none' }
+            } else { btn.style.display = 'none' }
+        }
+    })
 
-    async function fetchTotal(keyword = '') {
-        const params: Record<string, any> = { page: 1, pageSize: 1 };
-        if (keyword) params.keyword = keyword;
-        // 也可以从 URL 读取 categoryId / tagId，这里简化
-        const res = await axios.get('/api/articles/list', { params });
+    // 监听总数变化事件，每次触发都重新从 DOM 获取元素，防止引用失效
+    window.addEventListener('article-total', function(e) {
+        const totalSpan = document.getElementById('totalArticles')
         if (totalSpan) {
-            totalSpan.textContent = `共 ${res.data.data.total} 篇研究`;
+            totalSpan.textContent = '共 ' + e.detail.total + ' 篇研究'
         }
-    }
-
-    fetchTotal();
-
-    searchInput?.addEventListener('keyup', (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            const input = e.target as HTMLInputElement;
-            const keyword = input.value.trim();
-            fetchTotal(keyword);
-            window.dispatchEvent(new CustomEvent('search-change', { detail: { keyword } }));
-        }
-    });
+    })
 </script>

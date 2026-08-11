@@ -1,0 +1,7 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ArticleEditor from '../components/pages/ArticleEditor.vue'
+---
+<Layout>
+    <ArticleEditor client:only="vue" articleId="" />
+</Layout>

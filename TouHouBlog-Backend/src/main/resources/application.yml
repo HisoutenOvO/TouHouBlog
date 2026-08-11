@@ -45,4 +45,11 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+# 阿里云 OSS 配置
+oss:
+  endpoint: ${oss.endpoint}
+  bucket: ${oss.bucket}
+  access-key-id: ${oss.access-key-id}
+  access-key-secret: ${oss.access-key-secret}
+  region: ${oss.region}
 

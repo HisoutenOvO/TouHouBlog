@@ -6,7 +6,10 @@
       <!-- 昵称 + 日期 -->
       <div class="flex justify-between items-center mb-3">
         <span class="font-bold text-gray-900">Hisouten</span>
-        <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
+          <button v-if="isAdmin" @click="deleteTalk" class="text-xs text-red-500 hover:underline">删除</button>
+        </div>
       </div>
 
       <!-- 正文 -->
@@ -62,6 +65,7 @@ import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth'
 import TalkCommentSection from './TalkCommentSection.vue'
 
+
 const props = defineProps({ talkId: String })
 
 const talk = ref(null)
@@ -116,6 +120,22 @@ const toggleLike = async () => {
   }
 }
 
+const isAdmin = ref(false)
+
+onMounted(async () => {
+  const user = getUserFromToken()
+  isAdmin.value = !!(user && user.role === 1)
+  await fetchTalk()
+})
+
+const deleteTalk = async () => {
+  const confirmed = confirm('确定要删除这条杂谈吗？')
+  if (!confirmed) return
+  try {
+    await request.delete(`/api/talks/${props.talkId}`)
+    window.location.href = '/talks'
+  } catch (e) {}
+}
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('zh-CN') : ''
 const formatTime = (d) => d ? new Date(d).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) : ''
 

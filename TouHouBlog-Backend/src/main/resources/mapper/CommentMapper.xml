@@ -6,4 +6,10 @@
         from comment
         where article_id = #{articleId}
     </select>
+    <select id="pageQueryByTalkId" resultType="BlogBack.pojo.vo.CommentListVO">
+        select id, user_id, nickname, content, create_time
+        from comment
+        where talk_id = #{talkId}
+        order by create_time desc
+    </select>
 </mapper>

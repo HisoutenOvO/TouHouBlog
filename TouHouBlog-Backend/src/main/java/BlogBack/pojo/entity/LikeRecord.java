@@ -17,6 +17,8 @@ public class LikeRecord {
 
     private Long articleId;
 
+    private Long talkId;
+
     private Long userId;
 
 

@@ -19,4 +19,6 @@ public interface CommentService {
      * @return
      */
     PageResult getList(Long id, CommentListDTO commentListDTO);
+
+    PageResult getTalkList(Long id, CommentListDTO commentListDTO);
 }

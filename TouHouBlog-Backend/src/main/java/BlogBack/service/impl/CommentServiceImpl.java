@@ -47,4 +47,17 @@ public class CommentServiceImpl implements CommentService {
         Page<CommentListVO> page = commentMapper.pageQuery(id);
         return new PageResult(page.getTotal(), page.getResult());
     }
+
+    /**
+     * 获取杂谈评论列表
+     * @param talkId
+     * @param commentListDTO
+     * @return
+     */
+    @Override
+    public PageResult getTalkList(Long talkId, CommentListDTO commentListDTO) {
+        PageHelper.startPage(commentListDTO.getPage(), commentListDTO.getPageSize());
+        Page<CommentListVO> page = commentMapper.pageQueryByTalkId(talkId);
+        return new PageResult(page.getTotal(), page.getResult());
+    }
 }

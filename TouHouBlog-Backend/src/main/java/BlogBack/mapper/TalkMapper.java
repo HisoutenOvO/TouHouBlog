@@ -14,6 +14,5 @@ public interface TalkMapper extends BaseMapper<Talk> {
      * @param talkPageQueryDTO
      * @return
      */
-    @Select("select * from talk order by create_time desc")
     Page<Talk> pageQuery(TalkPageQueryDTO talkPageQueryDTO);
 }

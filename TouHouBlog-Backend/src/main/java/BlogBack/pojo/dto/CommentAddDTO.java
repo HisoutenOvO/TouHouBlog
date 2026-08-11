@@ -11,6 +11,8 @@ public class CommentAddDTO {
 
     private Long articleId;
 
+    private Long talkId;
+
     private Long userId;
 
     private String content;

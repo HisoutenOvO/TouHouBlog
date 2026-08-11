@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="BlogBack.mapper.TalkMapper">
-</mapper>
+    <select id="pageQuery" resultType="BlogBack.pojo.entity.Talk">
+        select t.*,
+               (select count(*) from like_record where talk_id = t.id) as likeCount,
+               (select count(*) from comment where talk_id = t.id) as commentCount
+        from talk t
+        order by t.create_time desc
+    </select></mapper>

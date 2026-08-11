@@ -5,6 +5,7 @@ import BlogBack.pojo.vo.CommentListVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
@@ -15,4 +16,11 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @return
      */
     Page<CommentListVO> pageQuery(Long articleId);
+
+    /**
+     * 获取杂谈评论列表
+     * @param talkId
+     * @return
+     */
+    Page<CommentListVO> pageQueryByTalkId(@Param("talkId") Long talkId);
 }

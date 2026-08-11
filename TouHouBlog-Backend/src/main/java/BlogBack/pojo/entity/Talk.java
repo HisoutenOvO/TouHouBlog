@@ -29,4 +29,11 @@ public class Talk {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    // 冗余字段
+    @TableField(exist = false)
+    private Integer likeCount;
+
+    @TableField(exist = false)
+    private Integer commentCount;
 }

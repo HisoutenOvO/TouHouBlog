@@ -22,6 +22,8 @@ public class Comment {
 
     private Long articleId;
 
+    private Long talkId;
+
     private Long userId;
 
     private String nickname;

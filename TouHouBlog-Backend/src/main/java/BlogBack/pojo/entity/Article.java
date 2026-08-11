@@ -29,6 +29,8 @@ public class Article {
 
     private String content;
 
+    private String coverUrl;
+
     private Long categoryId;//该文章的分类id
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

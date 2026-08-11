@@ -18,12 +18,15 @@
             <if test="article.categoryId != null">
                 category_id = #{article.categoryId},
             </if>
+            <if test="article.coverUrl != null">
+                cover_url = #{article.coverUrl},
+            </if>
         </set>
         where id = #{id}
     </update>
     <select id="pageArticles" resultType="BlogBack.pojo.vo.ArticleVO">
         select a.id, a.title, a.content, a.category_id, c.name as categoryName,
-        a.create_time as createTime, a.update_time as updateTime
+        a.create_time as createTime, a.update_time as updateTime, a.cover_url as coverUrl
         from article a
         left join category c on a.category_id = c.id
         <where>

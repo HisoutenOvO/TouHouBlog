@@ -15,6 +15,8 @@ public class ArticleUpdateDTO {
 
     private String content;
 
+    private String coverUrl;
+
     private Long categoryId;
 
     private List<Integer> tagIds;

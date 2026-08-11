@@ -19,6 +19,8 @@ public class ArticleVO {
 
     private String content;
 
+    private String coverUrl;
+
     private Long categoryId;
 
     private String categoryName;

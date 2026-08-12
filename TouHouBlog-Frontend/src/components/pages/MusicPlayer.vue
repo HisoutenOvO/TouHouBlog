@@ -46,6 +46,7 @@
         </button>
         <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
         <button @click="togglePlaylist" class="ctrl-btn" title="歌单">📋</button>
+        <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
       </div>
 
       <div class="volume-control">
@@ -143,6 +144,31 @@ const modeTitle = computed(() => {
     default: return '列表循环'
   }
 })
+const refreshPlaylist = async () => {
+  // 清除缓存
+  localStorage.removeItem(PLAYLIST_CACHE_KEY)
+  // 重新获取歌单
+  try {
+    const res = await fetch('/api/music/playlist')
+    const json = await res.json()
+    const songs = json.data || []
+    if (songs.length) {
+      localStorage.setItem(PLAYLIST_CACHE_KEY, JSON.stringify(songs))
+      // 更新播放列表（替换所有歌曲）
+      ap.list.clear()
+      ap.list.add(songs.map(s => ({
+        name: s.name || '未知歌曲',
+        artist: s.artist || '未知歌手',
+        url: s.url,
+        cover: s.cover || ''
+      })))
+      ap.list.switch(0)  // 切换到第一首
+      syncUI()
+    }
+  } catch (e) {
+    console.error('刷新歌单失败', e)
+  }
+}
 
 // 【关键】应用播放模式到 APlayer，使用 ap.mode 即时生效
 const applyPlayMode = (mode) => {

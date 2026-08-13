@@ -1,11 +1,15 @@
 package BlogBack.controller;
 
 import BlogBack.common.result.Result;
+import BlogBack.pojo.vo.LyricLineVO;
 import BlogBack.service.MusicService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +29,8 @@ import java.util.Map;
 @Tag(name = "音乐播放")
 public class MusicController {
     private final MusicService musicService;
+    private final OkHttpClient okHttpClient = new OkHttpClient();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public MusicController(MusicService musicService) {
         this.musicService = musicService;
@@ -58,6 +64,22 @@ public class MusicController {
             while ((n = in.read(buffer)) != -1) {
                 out.write(buffer, 0, n);
             }
+        }
+    }
+
+    /**
+     * 获取歌词
+     * @param songId
+     * @return
+     */
+    @GetMapping("/lyric")
+    @Operation(summary = "获取歌词")
+    public Result<List<LyricLineVO>> getLyric(@RequestParam("songId") String songId) {
+        try {
+            List<LyricLineVO> lyricLines = musicService.getLyric(songId);
+            return Result.success(lyricLines);
+        } catch (Exception e) {
+            return Result.error("歌词获取失败: " + e.getMessage());
         }
     }
 }

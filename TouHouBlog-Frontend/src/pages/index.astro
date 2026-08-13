@@ -8,14 +8,15 @@ import SiteStates from '../components/pages/indexPage/SiteStates.vue';
 import TagList from '../components/pages/indexPage/TagList.vue';
 import LatestTalk from '../components/pages/indexPage/LatestTalk.vue';
 import MusicPlayer from '../components/pages/MusicPlayer.vue';  // 重新导入
+import HomeImageCarousel from '../components/pages/HomeImageCarousel.vue';
 const recentProps = { pageSize: 5, search: "", categoryId: null, tagId: null };
 ---
 <Layout>
 	<div class="px-6 py-8">
 		<!-- 顶部区域：左边图片 + 中间音乐（正方形） + 右边杂谈 -->
 		<div class="flex gap-6 mb-8 min-h-[28rem]">
-			<div class="w-[28rem] h-[28rem] bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center flex-shrink-0">
-				<span class="text-gray-400 text-lg">图片占位</span>
+			<div class="w-[28rem] h-[28rem] flex-shrink-0">
+				<HomeImageCarousel client:load />
 			</div>
 
 			<!-- 中间：音乐模块，放在正方形内，加上 transition:persist -->

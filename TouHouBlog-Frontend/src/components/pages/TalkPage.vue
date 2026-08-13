@@ -36,38 +36,36 @@
       </div>
     </div>
 
-    <!-- 杂谈列表（原有） -->
+    <!-- 杂谈列表 -->
     <div v-if="loading" class="text-center text-gray-500 py-20">加载中...</div>
 
     <div v-else-if="talks.length" class="max-w-3xl mx-auto space-y-5 px-4">
-      <a
+      <div
           v-for="talk in talks"
           :key="talk.id"
-          :href="`/talk/${talk.id}`"
-          class="block no-underline"
+          class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer"
+          @click="goTalk(talk.id)"
       >
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer">
-          <div class="flex justify-between items-center mb-3">
-            <span class="font-bold text-gray-900">Hisouten</span>
-            <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
-          </div>
-          <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{{ talk.content }}</p>
-          <div v-if="talk.picture" class="mb-4">
-            <img :src="talk.picture" alt="杂谈图片" class="w-24 h-24 object-cover rounded-lg border border-gray-100" />
-          </div>
-          <div class="flex justify-between items-center text-sm text-gray-400">
-            <span>{{ formatTime(talk.createTime) }}</span>
-            <div class="flex gap-3" @click.prevent>
-              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50" @click.stop>
-                ❤️ <span class="text-xs">{{ talk.likeCount || 0 }}</span>
-              </button>
-              <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50" @click.stop>
-                💬 <span class="text-xs">{{ talk.commentCount || 0 }}</span>
-              </button>
-            </div>
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-bold text-gray-900">Hisouten</span>
+          <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
+        </div>
+        <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{{ talk.content }}</p>
+        <div v-if="talk.picture" class="mb-4">
+          <img :src="talk.picture" alt="杂谈图片" class="w-24 h-24 object-cover rounded-lg border border-gray-100" />
+        </div>
+        <div class="flex justify-between items-center text-sm text-gray-400">
+          <span>{{ formatTime(talk.createTime) }}</span>
+          <div class="flex gap-3">
+            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+              ❤️ <span class="text-xs">{{ talk.likeCount || 0 }}</span>
+            </button>
+            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+              💬 <span class="text-xs">{{ talk.commentCount || 0 }}</span>
+            </button>
           </div>
         </div>
-      </a>
+      </div>
 
       <!-- 分页 -->
       <div v-if="total > pageSize" class="flex justify-center gap-2 pt-6">
@@ -98,6 +96,7 @@ import { ref, onMounted, computed } from 'vue'
 import request from '../../utils/request'
 import OSS from 'ali-oss'
 import { getUserFromToken } from '../../utils/auth'
+import { navigate } from 'astro:transitions/client'
 
 const talks = ref([])
 const loading = ref(true)
@@ -182,6 +181,10 @@ const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return
   pageNum.value = page
   fetchTalks()
+}
+
+const goTalk = (id) => {
+  navigate(`/talk/${id}`)
 }
 
 const formatDate = (datetime) => {

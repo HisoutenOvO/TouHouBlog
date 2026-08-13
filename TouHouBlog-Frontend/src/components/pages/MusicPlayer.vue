@@ -4,81 +4,124 @@
   <!-- 留声机全屏模式 -->
   <div v-if="currentMode === 'full'" class="full-mode">
     <div class="record-player">
-      <div class="turntable">
-        <div class="tonearm" :class="{ playing: isPlaying }">
-          <div class="tonearm-base"></div>
-          <div class="tonearm-arm"></div>
-          <div class="tonearm-head"></div>
-        </div>
-        <div class="vinyl-record" :class="{ spinning: isPlaying }" @click="togglePlay">
-          <div class="vinyl-grooves"></div>
-          <div class="vinyl-label">
-            <img :src="currentCover" class="label-cover" />
+      <!-- 黑胶形态 -->
+      <div v-show="currentView === 'player'">
+        <div class="turntable">
+          <div class="tonearm" :class="{ playing: isPlaying }">
+            <div class="tonearm-base"></div>
+            <div class="tonearm-arm"></div>
+            <div class="tonearm-head"></div>
           </div>
-          <div class="play-overlay">
-            <span class="text-4xl text-white">{{ isPlaying ? '⏸' : '▶' }}</span>
+          <div class="vinyl-record" :class="{ spinning: isPlaying }" @click="togglePlay">
+            <div class="vinyl-grooves"></div>
+            <div class="vinyl-label">
+              <img :src="currentCover" class="label-cover" />
+            </div>
+            <div class="play-overlay">
+              <span class="text-4xl text-white">{{ isPlaying ? '⏸' : '▶' }}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="song-info">
-        <h3>{{ currentName || '未选择' }}</h3>
-        <p>{{ currentArtist }}</p>
-      </div>
-
-      <div class="progress-bar">
-        <div class="bg-gray-200 h-1 rounded-full overflow-hidden">
-          <div class="bg-gray-800 h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
+        <div class="song-info">
+          <h3>{{ currentName || '未选择' }}</h3>
+          <p>{{ currentArtist }}</p>
         </div>
-        <div class="flex justify-between text-xs text-gray-400 mt-1">
-          <span>{{ formatTime(currentTime) }}</span>
-          <span>{{ formatTime(duration) }}</span>
+
+        <div class="progress-bar">
+          <div class="bg-gray-200 h-1 rounded-full overflow-hidden">
+            <div class="bg-gray-800 h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-400 mt-1">
+            <span>{{ formatTime(currentTime) }}</span>
+            <span>{{ formatTime(duration) }}</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
+            {{ modeIcon }}
+          </button>
+          <button @click="prevTrack" class="ctrl-btn" title="上一首">⏮</button>
+          <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
+            {{ isPlaying ? '⏸' : '▶' }}
+          </button>
+          <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
+          <!-- 刷新歌单按钮移到此处 -->
+          <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
+        </div>
+
+        <div class="volume-control">
+          <span class="text-sm mr-2">🔊</span>
+          <input type="range" min="0" max="1" step="0.01"
+                 v-model="sliderValue"
+                 @input="onSliderChange"
+                 class="volume-slider" />
         </div>
       </div>
 
-      <div class="controls">
-        <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
-          {{ modeIcon }}
-        </button>
-        <button @click="prevTrack" class="ctrl-btn" title="上一首">⏮</button>
-        <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
-          {{ isPlaying ? '⏸' : '▶' }}
-        </button>
-        <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
-        <button @click="togglePlaylist" class="ctrl-btn" title="歌单">📋</button>
-        <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
-      </div>
-
-      <div class="volume-control">
-        <span class="text-sm mr-2">🔊</span>
-        <input type="range" min="0" max="1" step="0.01"
-               v-model="sliderValue"
-               @input="onSliderChange"
-               class="volume-slider" />
-      </div>
-
-      <div v-if="showPlaylist" class="playlist-panel">
-        <div class="playlist-header">
-          <span>📄 歌单 ({{ playlistSongs.length }})</span>
-          <button @click="showPlaylist = false" class="text-gray-400 hover:text-gray-600">✕</button>
+      <!-- 歌词形态 -->
+      <div v-show="currentView === 'lyric'" class="lyric-container">
+        <div class="lyric-top">
+          <img :src="currentCover" class="lyric-cover" />
+          <div class="lyric-song-info">
+            <p class="lyric-song-name">{{ currentName || '未选择' }}</p>
+            <p class="lyric-song-artist">{{ currentArtist }}</p>
+          </div>
+          <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
         </div>
-        <ul class="playlist-list">
-          <li
+
+        <div class="lyric-scroll" ref="lyricScrollRef" @scroll="onLyricScroll">
+          <p v-if="!lyricLines.length" class="lyric-empty">暂无歌词</p>
+          <div
+              v-for="(line, index) in lyricLines"
+              :key="index"
+              class="lyric-line"
+              :class="{ active: index === currentLyricIndex }"
+          >
+            <p class="lyric-main">{{ line.text }}</p>
+            <p v-if="line.translation" class="lyric-trans">{{ line.translation }}</p>
+          </div>
+        </div>
+
+        <div class="lyric-bottom">
+          <button @click="prevTrack" class="mini-ctrl">⏮</button>
+          <button @click="togglePlay" class="mini-ctrl">{{ isPlaying ? '⏸' : '▶' }}</button>
+          <button @click="nextTrack" class="mini-ctrl">⏭</button>
+        </div>
+      </div>
+
+      <!-- 歌单形态 -->
+      <div v-show="currentView === 'playlist'" class="playlist-view">
+        <div class="playlist-view-top">
+          <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
+          <span class="playlist-title">歌单</span>
+          <span class="playlist-count">{{ playlistSongs.length }} 首</span>
+        </div>
+
+        <div class="playlist-view-list">
+          <div
               v-for="(song, index) in playlistSongs"
               :key="index"
-              class="playlist-item"
+              class="playlist-view-item"
               :class="{ active: index === currentIndex }"
               @click="playSong(index)"
           >
-            <img :src="song.cover || defaultCover" class="playlist-item-cover" />
-            <div class="playlist-item-info">
-              <p class="text-sm font-medium truncate">{{ song.name }}</p>
-              <p class="text-xs text-gray-400 truncate">{{ song.artist }}</p>
+            <img :src="song.cover || defaultCover" class="playlist-view-cover" />
+            <div class="playlist-view-info">
+              <p class="playlist-view-name">{{ song.name }}</p>
+              <p class="playlist-view-artist">{{ song.artist }}</p>
             </div>
-          </li>
-        </ul>
+            <span v-if="index === currentIndex" class="playlist-playing-icon">▶</span>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- 左侧歌词切换按钮 -->
+    <button v-if="currentView === 'player'" class="view-switch-btn left" @click="currentView = 'lyric'">🎤</button>
+    <!-- 右侧歌单切换按钮 -->
+    <button v-if="currentView === 'player'" class="view-switch-btn right" @click="currentView = 'playlist'">📋</button>
   </div>
 
   <!-- 迷你卡片模式 -->
@@ -98,6 +141,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import request from '../../utils/request'
 
 const props = defineProps({
   mode: { type: String, default: 'mini' }
@@ -105,6 +149,7 @@ const props = defineProps({
 
 const apContainer = ref(null)
 let ap = null
+let APlayerClass = null
 
 const currentMode = ref(props.mode)
 
@@ -116,7 +161,7 @@ const currentTime = ref(0)
 const duration = ref(0)
 const progress = computed(() => duration.value ? (currentTime.value / duration.value) * 100 : 0)
 
-// 播放模式管理
+// 播放模式
 const PLAYLIST_MODE_KEY = 'music_play_mode'
 const getStoredMode = () => {
   const mode = localStorage.getItem(PLAYLIST_MODE_KEY)
@@ -129,7 +174,14 @@ const playlistSongs = ref([])
 const currentIndex = ref(0)
 const defaultCover = 'https://picsum.photos/200?random=music'
 
-// 模式图标与标题
+// 歌词相关
+const currentView = ref('player')           // 'player' | 'lyric'
+const lyricLines = ref([])
+const currentLyricIndex = ref(-1)
+const lyricScrollRef = ref(null)
+const currentSongId = ref('')
+let lyricScrollLock = false
+
 const modeIcon = computed(() => {
   switch (playMode.value) {
     case 'single': return '🔂'
@@ -144,25 +196,24 @@ const modeTitle = computed(() => {
     default: return '列表循环'
   }
 })
+
 const refreshPlaylist = async () => {
-  // 清除缓存
   localStorage.removeItem(PLAYLIST_CACHE_KEY)
-  // 重新获取歌单
   try {
     const res = await fetch('/api/music/playlist')
     const json = await res.json()
     const songs = json.data || []
     if (songs.length) {
       localStorage.setItem(PLAYLIST_CACHE_KEY, JSON.stringify(songs))
-      // 更新播放列表（替换所有歌曲）
       ap.list.clear()
       ap.list.add(songs.map(s => ({
         name: s.name || '未知歌曲',
         artist: s.artist || '未知歌手',
         url: s.url,
-        cover: s.cover || ''
+        cover: s.cover || '',
+        id: s.id || ''
       })))
-      ap.list.switch(0)  // 切换到第一首
+      ap.list.switch(0)
       syncUI()
     }
   } catch (e) {
@@ -170,44 +221,7 @@ const refreshPlaylist = async () => {
   }
 }
 
-// 【关键】应用播放模式到 APlayer，使用 ap.mode 即时生效
-const applyPlayMode = (mode) => {
-  if (!ap) return
-  // 将内部标识符映射为 APlayer 支持的模式值
-  const aplayerModeMap = {
-    list: 'normal',
-    single: 'single',
-    random: 'random'
-  }
-  const targetMode = aplayerModeMap[mode] || 'normal'
-
-  // 使用官方方法 setMode（如果存在，否则回退到直接赋值）
-  if (typeof ap.setMode === 'function') {
-    ap.setMode(targetMode)
-  } else {
-    ap.mode = targetMode
-  }
-
-  // 随机模式需要配合 order = 'random' 打乱列表顺序
-  if (mode === 'random') {
-    ap.order = 'random'
-  } else {
-    ap.order = 'list'
-  }
-  console.log('[Player] 模式已切换:', mode, '→ aplayer mode:', targetMode, 'order:', ap.order)
-}
-
-// 切换播放模式（直接刷新页面使新模式生效）
-const changeMode = () => {
-  const modeOrder = ['list', 'single', 'random']
-  const currentIdx = modeOrder.indexOf(playMode.value)
-  const nextMode = modeOrder[(currentIdx + 1) % modeOrder.length]
-  localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)   // 保存新模式
-  console.log('[Player] 模式切换为:', nextMode, '→ 即将刷新页面')
-  window.location.reload()   // 强制刷新，重新加载播放器
-}
-
-// 音量控制（不变）
+// 音量
 const sliderValue = ref(0.5)
 const actualVolume = computed(() => {
   const val = sliderValue.value
@@ -232,7 +246,6 @@ const INSTANCE_KEY = '__MUSIC_PLAYER_INSTANCE__'
 const PLAYLIST_CACHE_KEY = 'touhou_music_playlist_cache'
 const PROGRESS_KEY = 'music-progress'
 
-// 切歌函数
 const switchToIndex = (index) => {
   if (!ap || !ap.list.audios.length) return
   const total = ap.list.audios.length
@@ -245,7 +258,20 @@ const switchToIndex = (index) => {
 const nextTrack = () => ap?.skipForward()
 const prevTrack = () => ap?.skipBack()
 
-// UI 同步
+// 加载歌词
+const loadLyric = async (songId) => {
+  if (!songId || songId === currentSongId.value) return
+  currentSongId.value = songId
+  lyricLines.value = []
+  currentLyricIndex.value = -1
+  try {
+    const res = await request.get(`/api/music/lyric?songId=${songId}`)
+    lyricLines.value = res.data.data || []
+  } catch (e) {
+    lyricLines.value = []
+  }
+}
+
 const syncUI = () => {
   if (!ap) return
   isPlaying.value = !ap.audio.paused
@@ -260,6 +286,9 @@ const syncUI = () => {
       currentName.value = track.name || '未知歌曲'
       currentArtist.value = track.artist || '未知歌手'
       currentCover.value = track.cover || defaultCover
+      if (track.id && track.id !== currentSongId.value) {
+        loadLyric(track.id)
+      }
     }
     playlistSongs.value = ap.list.audios.map(s => ({
       name: s.name,
@@ -268,7 +297,36 @@ const syncUI = () => {
     }))
   }
 
+  // 歌词高亮
+  if (lyricLines.value.length) {
+    let newIndex = -1
+    for (let i = 0; i < lyricLines.value.length; i++) {
+      if (currentTime.value >= lyricLines.value[i].time) {
+        newIndex = i
+      } else {
+        break
+      }
+    }
+    if (newIndex !== currentLyricIndex.value) {
+      currentLyricIndex.value = newIndex
+      if (!lyricScrollLock && lyricScrollRef.value) {
+        const activeEl = lyricScrollRef.value.querySelector('.lyric-line.active')
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }
+    }
+  }
+
   sliderValue.value = volumeToSlider(ap.audio.volume || 0.1)
+}
+
+const onLyricScroll = () => {
+  lyricScrollLock = true
+  clearTimeout(window.__lyricScrollTimer)
+  window.__lyricScrollTimer = setTimeout(() => {
+    lyricScrollLock = false
+  }, 2000)
 }
 
 const togglePlay = () => ap?.toggle()
@@ -276,6 +334,7 @@ const togglePlaylist = () => { showPlaylist.value = !showPlaylist.value }
 const playSong = (index) => {
   if (!ap) return
   switchToIndex(index)
+  currentView.value = 'player'   // 新增这一行，点击歌单后自动回到黑胶形态ß
   showPlaylist.value = false
 }
 const formatTime = (s) => {
@@ -285,7 +344,68 @@ const formatTime = (s) => {
   return `${m}:${sec < 10 ? '0' : ''}${sec}`
 }
 
-// 路由切换
+const changeMode = () => {
+  const modeOrder = ['list', 'single', 'random']
+  const currentIdx = modeOrder.indexOf(playMode.value)
+  const nextMode = modeOrder[(currentIdx + 1) % modeOrder.length]
+
+  localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)
+  playMode.value = nextMode
+
+  if (APlayerClass && ap) {
+    const oldIndex = ap.list.index
+    const oldTime = ap.audio.currentTime
+    const oldVolume = ap.audio.volume
+    const wasPlaying = !ap.audio.paused
+
+    const songs = ap.list.audios.map(s => ({
+      name: s.name,
+      artist: s.artist,
+      url: s.url,
+      cover: s.cover || '',
+      id: s.id || ''
+    }))
+
+    ap.destroy()
+
+    let newLoop, newOrder
+    if (nextMode === 'single') {
+      newLoop = 'one'
+      newOrder = 'list'
+    } else if (nextMode === 'random') {
+      newLoop = 'all'
+      newOrder = 'random'
+    } else {
+      newLoop = 'all'
+      newOrder = 'list'
+    }
+
+    ap = new APlayerClass({
+      container: apContainer.value,
+      fixed: false,
+      mini: false,
+      autoplay: false,
+      theme: '#b7b7b7',
+      loop: newLoop,
+      order: newOrder,
+      preload: 'auto',
+      volume: oldVolume,
+      audio: songs
+    })
+
+    if (songs.length > 0) {
+      const newIndex = (oldIndex >= 0 && oldIndex < songs.length) ? oldIndex : 0
+      ap.list.switch(newIndex)
+      if (oldTime) ap.seek(oldTime)
+      if (wasPlaying) ap.play()
+    }
+
+    window[INSTANCE_KEY] = ap
+    syncUI()
+    console.log('[Player] 实例重建完成，新模式:', nextMode, 'loop:', newLoop, 'order:', newOrder)
+  }
+}
+
 if (typeof window !== 'undefined') {
   watch(
       () => window.location.pathname,
@@ -305,7 +425,6 @@ onMounted(async () => {
     console.log('[Player] 复用已有实例')
     const savedMode = getStoredMode()
     playMode.value = savedMode
-    applyPlayMode(savedMode)   // 重新应用模式
     syncUI()
   } else {
     console.log('[Player] 创建新实例')
@@ -322,6 +441,7 @@ onMounted(async () => {
       })
     ])
     const APlayer = APlayerModule.default
+    APlayerClass = APlayer
 
     let songs = []
     const cached = localStorage.getItem(PLAYLIST_CACHE_KEY)
@@ -340,12 +460,19 @@ onMounted(async () => {
         console.error('获取歌单失败', e)
       }
     }
-    console.log('[Player] 歌单加载完成，共', songs.length, '首')
 
-    // 初始化模式
     const initMode = getStoredMode()
-    const aplayerInitMode = initMode === 'single' ? 'single' : initMode === 'random' ? 'random' : 'normal'
-    const aplayerInitOrder = initMode === 'random' ? 'random' : 'list'
+    let initLoop, initOrder
+    if (initMode === 'single') {
+      initLoop = 'one'
+      initOrder = 'list'
+    } else if (initMode === 'random') {
+      initLoop = 'all'
+      initOrder = 'random'
+    } else {
+      initLoop = 'all'
+      initOrder = 'list'
+    }
 
     ap = new APlayer({
       container: apContainer.value,
@@ -353,22 +480,21 @@ onMounted(async () => {
       mini: false,
       autoplay: false,
       theme: '#b7b7b7',
-      mode: aplayerInitMode,
-      order: aplayerInitOrder,   // 必须添加 order 参数
+      loop: initLoop,
+      order: initOrder,
       preload: 'auto',
       volume: 0.1,
       audio: songs.map(s => ({
         name: s.name || '未知歌曲',
         artist: s.artist || '未知歌手',
         url: s.url,
-        cover: s.cover || ''
+        cover: s.cover || '',
+        id: s.id || ''
       }))
     })
     window[INSTANCE_KEY] = ap
     playMode.value = initMode
-    console.log('[Player] 新实例已创建，初始模式:', initMode)
 
-    // 恢复进度和音量
     const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY))
     if (saved) {
       try {
@@ -379,7 +505,6 @@ onMounted(async () => {
         }
         const vol = saved.volume ?? 0.1
         ap.volume(vol)
-        console.log('[Player] 已恢复进度和音量')
       } catch (e) {}
     }
     syncUI()
@@ -411,6 +536,7 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: 20px 10px 10px;
   overflow: visible;
+  position: relative;
 }
 
 .record-player {
@@ -418,8 +544,10 @@ onBeforeUnmount(() => {
   max-width: 320px;
   width: 100%;
   position: relative;
+  height: 440px;
 }
 
+/* 黑胶唱片外框 */
 .turntable {
   position: relative;
   width: 230px;
@@ -449,7 +577,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 35px rgba(0,0,0,0.7),
   0 0 0 6px rgba(20,20,20,0.9);
 }
-
 .vinyl-record.spinning {
   animation: spin 20s linear infinite;
 }
@@ -510,7 +637,6 @@ onBeforeUnmount(() => {
 .tonearm.playing {
   transform: rotate(-80deg);
 }
-
 .tonearm-arm {
   position: absolute;
   top: 50%;
@@ -522,7 +648,6 @@ onBeforeUnmount(() => {
   border-radius: 2px;
   transform-origin: 100% 50%;
 }
-
 .tonearm-head {
   position: absolute;
   left: -6px;
@@ -543,7 +668,6 @@ onBeforeUnmount(() => {
   background: #888;
   border-radius: 50%;
 }
-
 .tonearm-base {
   position: absolute;
   top: 50%;
@@ -655,64 +779,228 @@ onBeforeUnmount(() => {
   border-radius: 3px;
 }
 
-/* 歌单面板 */
-.playlist-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 260px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  z-index: 50;
-  text-align: left;
-}
-.playlist-header {
+/* ========== 歌词容器 ========== */
+.lyric-container {
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #374151;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  padding: 1rem 0.75rem;
+  box-sizing: border-box;
 }
-.playlist-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.playlist-item {
+.lyric-top {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid #f3f4f6;
-  cursor: pointer;
-  transition: background 0.2s;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
 }
-.playlist-item:hover {
-  background: #f9fafb;
-}
-.playlist-item.active {
-  background: #f3f4f6;
-}
-.playlist-item-cover {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
+.lyric-cover {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
-.playlist-item-info {
+.lyric-song-info {
   flex: 1;
   min-width: 0;
 }
+.lyric-song-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lyric-song-artist {
+  font-size: 0.7rem;
+  color: #777;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lyric-back-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #888;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.lyric-back-btn:hover {
+  color: #111;
+}
+.lyric-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 1rem 0;
+  scroll-behavior: smooth;
+  text-align: center;
+  padding: 0.5rem 0;
+  scrollbar-width: none;          /* Firefox 隐藏滚动条 */
+}
+.lyric-scroll::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari 隐藏滚动条 */
+}
+.lyric-empty {
+  color: #bbb;
+  font-size: 0.8rem;
+  margin-top: 2rem;
+}
+.lyric-line {
+  padding: 0.5rem 0;
+  transition: all 0.25s;
+}
+.lyric-main,
+.lyric-trans {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
+  margin: 0 auto;
+}
+.lyric-main {
+  font-size: 0.9rem;
+  color: #555;
+  transition: color 0.3s, font-weight 0.3s;
+}
+.lyric-trans {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 0.25rem;
+  transition: color 0.3s;
+}
+.lyric-line.active .lyric-main {
+  color: #000;
+  font-weight: bold;
+  transform: scale(1.08);
+}
+.lyric-line.active .lyric-trans {
+  color: #666;
+}
+.lyric-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
 
-/* 迷你模式 */
+/* ========== 歌单形态 ========== */
+.playlist-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.75rem;
+  box-sizing: border-box;
+}
+.playlist-view-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.playlist-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #111;
+  flex: 1;
+  text-align: left;
+}
+.playlist-count {
+  font-size: 0.8rem;
+  color: #777;
+}
+.playlist-view-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  scrollbar-width: none;
+}
+.playlist-view-list::-webkit-scrollbar {
+  display: none;
+}
+.playlist-view-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.playlist-view-item:hover {
+  background: #fafafa;
+}
+.playlist-view-item.active {
+  background: #f3f4f6;
+}
+.playlist-view-cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.playlist-view-info {
+  flex: 1;
+  min-width: 0;
+}
+.playlist-view-name {
+  font-size: 0.85rem;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.playlist-view-artist {
+  font-size: 0.75rem;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.playlist-playing-icon {
+  font-size: 0.9rem;
+  color: #000;
+  flex-shrink: 0;
+}
+
+/* ========== 侧边切换按钮 ========== */
+.view-switch-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 1rem;
+  z-index: 25;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+.view-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #bbb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.view-switch-btn.left {
+  left: 0.25rem;
+}
+.view-switch-btn.right {
+  right: 0.25rem;
+}
+
+/* ========== 迷你模式 ========== */
 .mini-bar {
   background: white;
   border: 1px solid #e5e7eb;

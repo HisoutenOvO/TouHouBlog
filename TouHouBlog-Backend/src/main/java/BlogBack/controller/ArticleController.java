@@ -6,6 +6,7 @@ import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
 import BlogBack.pojo.entity.User;
+import BlogBack.pojo.vo.ArchiveMonthVO;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
 import BlogBack.service.ArticleService;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 文章接口
@@ -109,5 +112,16 @@ public class ArticleController {
         User user = (User) authentication.getPrincipal();
         LikeVO likeVO = articleService.getLikeStatus(id, user.getId());
         return Result.success(likeVO);
+    }
+
+    /**
+     * 文章归档时间线
+     * @return
+     */
+    @GetMapping("/archive")
+    @Operation(summary = "文章归档时间线")
+    public Result<List<ArchiveMonthVO>> getArchiveList() {
+        log.info("获取文章归档时间线");
+        return Result.success(articleService.getArchiveList());
     }
 }

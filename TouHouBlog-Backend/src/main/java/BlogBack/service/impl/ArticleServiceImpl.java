@@ -21,7 +21,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import BlogBack.pojo.vo.ArchiveArticleVO;
+import BlogBack.pojo.vo.ArchiveMonthVO;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -170,5 +175,30 @@ public class ArticleServiceImpl implements ArticleService {
                 .eq(LikeRecord::getArticleId, articleId)
                 .eq(LikeRecord::getUserId, userId));
         return new LikeVO(count, liked);
+    }
+
+    @Override
+    public List<ArchiveMonthVO> getArchiveList() {
+        List<ArchiveArticleVO> allArticles = articleMapper.selectArchiveList();
+
+        // 按月份分组，保持文章按时间倒序
+        Map<String, List<ArchiveArticleVO>> grouped = allArticles.stream()
+                .collect(Collectors.groupingBy(
+                        article -> article.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM")),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        List<ArchiveMonthVO> result = new ArrayList<>();
+        grouped.forEach((month, articles) -> {
+            ArchiveMonthVO vo = new ArchiveMonthVO();
+            vo.setMonth(month);
+            vo.setArticles(articles);
+            result.add(vo);
+        });
+
+        // 月份倒序
+        result.sort((a, b) -> b.getMonth().compareTo(a.getMonth()));
+        return result;
     }
 }

@@ -2,6 +2,7 @@ package BlogBack.mapper;
 
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.entity.Article;
+import BlogBack.pojo.vo.ArchiveArticleVO;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.TagVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -85,4 +86,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
      */
     @Select("select count(*) from like_record where article_id = #{id}")
     Integer getLikeTotal(Long id);
+
+
+    List<ArchiveArticleVO> selectArchiveList();
 }

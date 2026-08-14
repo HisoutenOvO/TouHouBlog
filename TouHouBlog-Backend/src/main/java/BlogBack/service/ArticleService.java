@@ -4,8 +4,11 @@ import BlogBack.common.result.PageResult;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
+import BlogBack.pojo.vo.ArchiveMonthVO;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
+
+import java.util.List;
 
 public interface ArticleService {
     /**
@@ -56,4 +59,6 @@ public interface ArticleService {
      * @return
      */
     LikeVO getLikeStatus(Long articleId, Long userId);
+
+    List<ArchiveMonthVO> getArchiveList();
 }

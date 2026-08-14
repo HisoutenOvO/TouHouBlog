@@ -57,4 +57,9 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectArchiveList" resultType="BlogBack.pojo.vo.ArchiveArticleVO">
+        select id, title, create_time
+        from article
+        order by create_time desc
+    </select>
 </mapper>

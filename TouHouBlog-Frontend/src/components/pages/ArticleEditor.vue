@@ -71,8 +71,13 @@
 
     <!-- ByteMD 编辑器 -->
     <div class="edit-editor-full">
-      <Editor :value="content" :plugins="plugins" :upload-images="uploadImages"
-              @change="handleChange" />
+      <Editor
+          :value="content"
+          :plugins="plugins"
+          :upload-images="uploadImages"
+          locale="zh-Hans"
+          @change="handleChange"
+      />
     </div>
   </div>
 </template>
@@ -84,6 +89,8 @@ import 'bytemd/dist/index.css'
 import { getUserFromToken } from '../../utils/auth'
 import request from '../../utils/request'
 import OSS from 'ali-oss'
+import gfm from '@bytemd/plugin-gfm'
+const plugins = [gfm()]
 
 const props = defineProps({
   articleId: { type: String, default: '' }
@@ -111,7 +118,6 @@ const editCoverUrl = ref('')
 const coverInputRef = ref(null)
 const triggerCoverInput = () => coverInputRef.value?.click()
 
-const plugins = []
 let ossClient = null
 
 const uploadCover = async (e) => {

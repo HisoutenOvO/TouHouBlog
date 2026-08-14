@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astrojs/vue": "^7.0.1",
+    "@bytemd/plugin-gfm": "^1.22.0",
     "@bytemd/vue-next": "^1.22.0",
     "@tailwindcss/vite": "^4.3.3",
     "ali-oss": "^6.23.0",

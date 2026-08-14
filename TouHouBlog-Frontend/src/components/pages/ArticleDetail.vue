@@ -88,7 +88,8 @@
 
       <!-- ByteMD 编辑器：占满剩余高度 -->
       <div class="edit-editor-full">
-        <Editor :value="editContent" :plugins="plugins" :upload-images="uploadImages"
+        <Editor :value="editContent" :plugins="plugins"
+                :upload-images="uploadImages"
                 @change="v => editContent = v" />
       </div>
     </div>
@@ -181,7 +182,8 @@ import LikeButton from './LikeButton.vue'
 import CommentSection from './CommentSection.vue'
 import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
-
+import gfm from '@bytemd/plugin-gfm'
+const plugins = [gfm()]
 const props = defineProps({ articleId: String })
 
 const article = ref(null)
@@ -205,7 +207,6 @@ const newTagName = ref('')         // 新标签名输入
 const showAddCategory = ref(false)
 const newCategoryName = ref('')
 
-const plugins = []
 let ossClient = null
 const coverInputRef = ref(null)
 const triggerCoverInput = () => {
@@ -381,16 +382,19 @@ const cancelEdit = () => {
   const html = md.render(article.value.content)
   headings.value = extractHeadings(html)
 }
-
 const saveArticle = async () => {
-  if (!categoryId.value) {
+  console.log('保存按钮被点击111')
+
+  // 用 editCategoryId 和 editSelectedTags 进行校验
+  if (!editCategoryId.value) {
     alert('请选择文章分类')
     return
   }
-  if (selectedTags.value.length === 0) {
+  if (editSelectedTags.value.length === 0) {
     alert('请至少选择一个标签')
     return
   }
+
   const payload = {
     title: editTitle.value,
     content: editContent.value,
@@ -399,11 +403,14 @@ const saveArticle = async () => {
     coverUrl: editCoverUrl.value || null
   }
   console.log(payload)
+
   try {
     await request.put(`/api/articles/${props.articleId}`, payload)
     await fetchArticle()
     isEditing.value = false
-  } catch (e) {}
+  } catch (e) {
+    console.error('保存失败', e)
+  }
 }
 const deleteArticle = async () => {
   const confirmed = confirm('确定要删除这篇文章吗？删除后无法恢复。')

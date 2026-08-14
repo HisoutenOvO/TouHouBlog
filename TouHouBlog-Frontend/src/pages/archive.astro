@@ -23,6 +23,13 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
                 写文章
             </a>
         </div>
+        <div class="mt-4 flex justify-center">
+            <div class="inline-flex items-center bg-gray-100 rounded-full p-1 relative w-48" id="viewSwitch">
+                <div id="switchIndicator" class="absolute top-0 bottom-0 w-1/2 bg-white rounded-full shadow transition-all duration-200 left-0"></div>
+                <button data-view="list" class="flex-1 py-1.5 text-sm font-medium rounded-full transition-colors relative z-10 text-gray-900">文章列表</button>
+                <button data-view="timeline" class="flex-1 py-1.5 text-sm font-medium rounded-full transition-colors relative z-10 text-gray-500">时间线</button>
+            </div>
+        </div>
     </div>
 
     <div class="flex gap-6 max-w-7xl mx-auto px-4">
@@ -51,7 +58,34 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
     document.addEventListener('astro:page-load', () => {
         // 通知组件重新获取总数
         window.dispatchEvent(new CustomEvent('refresh-article-total'))
+        const switchContainer = document.getElementById('viewSwitch')
+        const indicator = document.getElementById('switchIndicator')
+        const buttons = switchContainer?.querySelectorAll('button')
 
+        function setSwitchStyle(view) {
+            if (!indicator || !buttons) return
+            indicator.style.transform = view === 'timeline' ? 'translateX(100%)' : 'translateX(0)'
+            buttons[0].classList.toggle('text-gray-900', view === 'list')
+            buttons[0].classList.toggle('text-gray-500', view !== 'list')
+            buttons[1].classList.toggle('text-gray-900', view === 'timeline')
+            buttons[1].classList.toggle('text-gray-500', view !== 'timeline')
+            }
+
+        function switchView(view) {
+            window.__archiveView = view
+            setSwitchStyle(view)
+            window.dispatchEvent(new CustomEvent('archive-view-change', { detail: { view } }))
+            }
+
+        // 初始化
+        setSwitchStyle(window.__archiveView || 'list')
+
+        // 绑定点击事件
+        buttons?.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchView(btn.dataset.view)
+                })
+            })
         // 确保写文章按钮也重新检查
         const btn = document.getElementById('new-article-btn')
         if (btn) {

@@ -13,7 +13,7 @@
       <div
           v-for="talk in talks"
           :key="talk.id"
-          class="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
+          class="glass-card p-4"
       >
         <p class="text-sm text-gray-700 leading-relaxed line-clamp-2">
           {{ talk.content }}

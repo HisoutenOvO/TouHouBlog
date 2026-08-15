@@ -34,7 +34,7 @@ const recentProps = { pageSize: 5, search: "", categoryId: null, tagId: null };
 				<RecentArticles client:load {...recentProps} />
 			</div>
 
-			<aside class="w-80 space-y-4">
+			<aside class="w-80 flex flex-col gap-6">
 				<HomeIntro client:load />
 				<SiteStates client:load />
 				<CategoryList client:load />

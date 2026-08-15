@@ -298,8 +298,22 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   z-index: 200;
-  background: #f5f6f8;
+  background: linear-gradient(135deg, #fce4ec 0%, #e8eaf6 40%, #ede7f6 100%);
   overflow: hidden;
+}
+
+/* 伪元素：模糊背景图叠加，并设置透明度让渐变透出 */
+.edit-page-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('/images/bg.jpg') center/cover no-repeat;
+  filter: blur(6px);
+  opacity: 0.5;
+  z-index: -1;
 }
 
 .edit-layout {
@@ -319,12 +333,19 @@ onMounted(async () => {
 .title-input {
   font-size: 2rem;
   font-weight: 700;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  padding: 0.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  color: #111827;
+}
+.title-input:focus {
+  border-color: #111827;
+  background: rgba(255, 255, 255, 0.8);
 }
 .title-input:focus {
   border-bottom-color: #111827;
@@ -335,15 +356,20 @@ onMounted(async () => {
   min-height: 0;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 20px rgba(31, 38, 135, 0.08);
 }
 
 .edit-settings {
   width: 320px;
   flex-shrink: 0;
-  background: #fff;
-  border-left: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
   padding: 1.25rem;
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center">
+  <div class="glass-card p-4 text-center">
     <div class="w-12 h-12 rounded-full bg-gray-300 mx-auto flex items-center justify-center text-xl">
       👤
     </div>

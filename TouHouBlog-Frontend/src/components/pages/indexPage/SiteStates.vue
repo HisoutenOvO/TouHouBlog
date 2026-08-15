@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+  <div class="glass-card p-4">
     <div class="flex justify-around text-center">
       <div>
         <div class="text-2xl font-bold text-gray-900">{{ stats.articleCount }}</div>

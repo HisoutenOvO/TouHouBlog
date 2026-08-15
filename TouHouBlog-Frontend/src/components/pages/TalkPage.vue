@@ -7,7 +7,7 @@
 
     <!-- 发布框（仅管理员可见） -->
     <div v-if="isAdmin" class="max-w-3xl mx-auto mb-8 px-4">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+      <div class="glass-card  p-4">
         <textarea
             v-model="newContent"
             rows="3"
@@ -43,7 +43,7 @@
       <div
           v-for="talk in talks"
           :key="talk.id"
-          class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer"
+          class="glass-card  p-6 hover:shadow-md transition-shadow cursor-pointer"
           @click="goTalk(talk.id)"
       >
         <div class="flex justify-between items-center mb-3">

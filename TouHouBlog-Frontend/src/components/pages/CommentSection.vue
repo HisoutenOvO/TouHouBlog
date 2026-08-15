@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mt-6">
+  <div class="glass-card p-6 mt-6">
     <h3 class="text-lg font-bold text-gray-900 mb-4">💬 评论 ({{ total }})</h3>
 
     <!-- 评论列表 -->

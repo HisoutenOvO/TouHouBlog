@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 relative">
+  <div class="glass-card p-4 relative">
     <div class="flex justify-between items-center mb-3">
       <h3 class="font-bold text-gray-900">🏷️ 标签</h3>
       <button v-if="isAdmin" @click="showManager = !showManager" class="text-xs text-blue-500 hover:underline">管理</button>

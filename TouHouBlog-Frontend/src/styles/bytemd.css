@@ -310,3 +310,147 @@
     border-top: 1px solid #e5e7eb;
     margin: 1.5em 0;
 }
+/* 让 ByteMD 预览区与文章详情页正文样式完全一致 */
+.bytemd-preview {
+    max-width: none;
+    line-height: 1.7;
+    font-size: 15px;
+    color: #1f2937;
+    padding: 16px 24px;  /* 保持编辑器原有内边距，如需更接近详情页可改成 0 或由外部容器控制 */
+    background: #ffffff;
+}
+
+.bytemd-preview h1,
+.bytemd-preview h2,
+.bytemd-preview h3,
+.bytemd-preview h4,
+.bytemd-preview h5,
+.bytemd-preview h6 {
+    color: #111827;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 1.2em 0 0.6em;
+}
+
+.bytemd-preview h1 { font-size: 2em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
+.bytemd-preview h2 { font-size: 1.5em; border-bottom: 1px solid #f0f0f0; padding-bottom: 0.25em; }
+.bytemd-preview h3 { font-size: 1.25em; }
+
+.bytemd-preview p { margin: 0.8em 0; }
+
+.bytemd-preview a { color: #2563eb; text-decoration: none; }
+.bytemd-preview a:hover { text-decoration: underline; }
+
+.bytemd-preview :not(pre) > code {
+    background: #f3f4f6;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.9em;
+    color: #be185d;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.bytemd-preview pre {
+    background: #f6f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    line-height: 1.6;
+    margin: 1em 0;
+}
+
+.bytemd-preview pre code {
+    background: transparent;
+    color: #111827;
+    padding: 0;
+    font-size: inherit;
+}
+
+.bytemd-preview blockquote {
+    border-left: 4px solid #d1d5db;
+    color: #6b7280;
+    padding: 0.5em 1em;
+    margin: 1em 0;
+    background: #f9fafb;
+    border-radius: 0 6px 6px 0;
+}
+
+.bytemd-preview table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+.bytemd-preview th,
+.bytemd-preview td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.bytemd-preview th {
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.bytemd-preview img {
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.bytemd-preview hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 1.5em 0;
+}
+/* ========== ByteMD 毛玻璃适配 ========== */
+
+/* 整体容器透明，让外层 .editor-wrapper 的毛玻璃渐变透出 */
+.bytemd {
+    background: linear-gradient(135deg, rgba(252,228,236,0.75), rgba(232,234,246,0.75), rgba(237,231,246,0.75)) !important;
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.6) !important;
+}
+
+/* 工具栏半透明 */
+.bytemd-toolbar {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 编辑区半透明 */
+.bytemd-editor {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+/* 预览区半透明 */
+.bytemd-preview {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+/* 状态栏半透明 */
+.bytemd-status {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 确保 CodeMirror 编辑区本身透明 */
+.bytemd-editor .CodeMirror {
+    background: transparent !important;
+}
+
+/* 修复选中样式，保持可读性 */
+.bytemd-editor .CodeMirror-selected {
+    background: rgba(191, 219, 254, 0.5) !important;
+}

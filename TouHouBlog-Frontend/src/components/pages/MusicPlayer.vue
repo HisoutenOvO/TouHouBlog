@@ -342,7 +342,6 @@ const togglePlaylist = () => { showPlaylist.value = !showPlaylist.value }
 const playSong = (index) => {
   if (!ap) return
   switchToIndex(index)
-  currentView.value = 'player'   // 新增这一行，点击歌单后自动回到黑胶形态ß
   showPlaylist.value = false
 }
 const formatTime = (s) => {

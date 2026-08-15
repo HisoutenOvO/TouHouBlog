@@ -96,9 +96,8 @@
     text-decoration: underline;
 }
 
-/* 行内代码 */
-.bytemd-preview code,
-.bytemd-editor .cm-inline-code {
+/* 行内代码（仅非代码块内） */
+.bytemd-preview :not(pre) > code {
     background: #f3f4f6;
     border-radius: 4px;
     padding: 2px 5px;
@@ -107,9 +106,8 @@
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-/* 代码块 */
-.bytemd-preview pre,
-.bytemd-editor .cm-comment {
+/* 代码块整体 */
+.bytemd-preview pre {
     background: #f6f8fa;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
@@ -117,13 +115,35 @@
     overflow-x: auto;
     font-size: 0.9em;
     line-height: 1.6;
+    margin: 1em 0;
 }
 
+/* 代码块内的 code，重置所有行内样式 */
 .bytemd-preview pre code {
     background: transparent;
-    color: #111827;
+    border: none;
     padding: 0;
     font-size: inherit;
+    color: #111827;
+    font-family: inherit;
+}
+
+/* 代码块左上角三个圆点 */
+.bytemd-preview pre {
+    position: relative;
+    padding-top: 2rem !important; /* 给圆点留出空间 */
+}
+
+.bytemd-preview pre::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 16px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fc625d;
+    box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
 }
 
 /* 引用块 */

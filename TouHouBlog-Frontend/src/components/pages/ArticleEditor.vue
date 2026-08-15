@@ -1,83 +1,100 @@
 <template>
   <div v-if="!isAdmin" class="flex items-center justify-center h-screen text-gray-500">无权限访问</div>
   <div v-else class="edit-page-container">
-    <!-- 顶部工具栏：标题、分类、封面、标签、保存 -->
-    <div class="edit-toolbar">
-      <div class="flex items-center gap-4">
-        <input v-model="title" type="text" placeholder="文章标题"
-               class="flex-1 px-4 py-2 text-xl font-bold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300" />
-        <select v-model="categoryId" class="border border-gray-200 rounded px-3 py-2">
-          <option value="">选择分类</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-        </select>
-        <button @click="showAddCategory = true" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">＋</button>
-        <button @click="saveArticle" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
-          {{ isEdit ? '更新文章' : '发布文章' }}
-        </button>
+    <div class="edit-layout">
+      <!-- 左侧写作区 -->
+      <div class="edit-main">
+        <input
+            v-model="title"
+            type="text"
+            placeholder="文章标题"
+            class="title-input"
+        />
+        <div class="editor-wrapper">
+          <Editor
+              :value="content"
+              :plugins="plugins"
+              :upload-images="uploadImages"
+              locale="zh-Hans"
+              @change="handleChange"
+          />
+        </div>
       </div>
 
-      <!-- 新增分类弹窗 -->
-      <div v-if="showAddCategory" class="flex gap-2 mt-2 items-center">
-        <input v-model="newCategoryName" @keyup.enter="addCategory" placeholder="新分类名" class="px-2 py-1 text-xs border border-gray-200 rounded" />
-        <button @click="addCategory" :disabled="!newCategoryName.trim()" class="px-2 py-1 text-xs bg-gray-800 text-white rounded">确定</button>
-        <button @click="showAddCategory = false" class="px-2 py-1 text-xs border border-gray-200 rounded">取消</button>
-      </div>
+      <!-- 右侧设置面板 -->
+      <div class="edit-settings">
+        <!-- 分类 -->
+        <div class="setting-group">
+          <label class="setting-label">分类</label>
+          <div class="flex gap-2">
+            <select v-model="categoryId" class="setting-select">
+              <option value="">未分类</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+            <button @click="showAddCategory = true" class="setting-add-btn">＋</button>
+          </div>
+          <div v-if="showAddCategory" class="flex gap-2 mt-2">
+            <input
+                v-model="newCategoryName"
+                @keyup.enter="addCategory"
+                placeholder="新分类名"
+                class="setting-input"
+            />
+            <button @click="addCategory" :disabled="!newCategoryName.trim()" class="setting-confirm-btn">确定</button>
+            <button @click="showAddCategory = false" class="setting-cancel-btn">取消</button>
+          </div>
+        </div>
 
-      <!-- 封面图 -->
-      <div class="mt-3">
-        <p class="text-sm text-gray-500 mb-1">封面图</p>
-        <div class="flex items-center gap-3">
+        <!-- 封面图 -->
+        <div class="setting-group">
+          <label class="setting-label">封面图</label>
           <div
-              class="w-32 h-20 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
+              class="cover-upload"
               @click="triggerCoverInput"
           >
-            <img v-if="editCoverUrl" :src="editCoverUrl" class="w-full h-full object-cover" />
-            <div v-else class="flex flex-col items-center text-gray-400">
-              <span class="text-2xl">＋</span>
+            <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
+            <div v-else class="cover-placeholder">
+              <span class="text-3xl">＋</span>
               <span class="text-xs">添加封面</span>
             </div>
           </div>
           <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
-          <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500">移除</button>
+          <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500 mt-1">移除封面</button>
         </div>
-      </div>
 
-      <!-- 标签区域 -->
-      <div class="mt-3 border border-gray-200 rounded-lg p-3">
-        <p class="text-sm font-medium text-gray-700 mb-2">🏷️ 标签</p>
-        <div class="flex flex-wrap gap-2 mb-3">
-          <span
-              v-for="tag in allTags"
-              :key="tag.id"
-              class="px-2.5 py-1 text-xs rounded-full cursor-pointer transition-colors"
-              :class="selectedTags.includes(tag.id) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-              @click="toggleTag(tag.id)"
-          >
-            {{ tag.name }}
-            <button @click.stop="deleteTag(tag.id)" class="ml-1 text-red-500 hover:text-red-700" title="删除标签">×</button>
-          </span>
+        <!-- 标签 -->
+        <div class="setting-group">
+          <label class="setting-label">标签</label>
+          <div class="flex flex-wrap gap-1.5">
+            <span
+                v-for="tag in allTags"
+                :key="tag.id"
+                class="tag-item"
+                :class="{ active: selectedTags.includes(tag.id) }"
+                @click="toggleTag(tag.id)"
+            >
+              {{ tag.name }}
+            </span>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <input
+                v-model="newTagName"
+                type="text"
+                placeholder="新增标签"
+                class="setting-input"
+                @keyup.enter="createTag"
+            />
+            <button @click="createTag" :disabled="!newTagName.trim() || creatingTag" class="setting-confirm-btn">
+              {{ creatingTag ? '...' : '新增' }}
+            </button>
+          </div>
         </div>
-        <div class="flex gap-2">
-          <input v-model="newTagName" type="text" placeholder="输入新标签名"
-                 class="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded"
-                 @keyup.enter="createTag" />
-          <button @click="createTag" :disabled="!newTagName.trim() || creatingTag"
-                  class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
-            {{ creatingTag ? '...' : '新增' }}
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- ByteMD 编辑器 -->
-    <div class="edit-editor-full">
-      <Editor
-          :value="content"
-          :plugins="plugins"
-          :upload-images="uploadImages"
-          locale="zh-Hans"
-          @change="handleChange"
-      />
+        <!-- 发布按钮 -->
+        <button @click="saveArticle" class="publish-btn">
+          {{ isEdit ? '更新文章' : '发布文章' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -233,12 +250,9 @@ const loadArticle = async () => {
 }
 
 const saveArticle = async () => {
-  const payload = {
-    title: title.value,
-    content: content.value,
-    categoryId: categoryId.value || null,
-    tagIds: selectedTags.value,
-    coverUrl: editCoverUrl.value || null
+  if (!title.value.trim()) {
+    alert('请输入文章标题')
+    return
   }
   if (!categoryId.value) {
     alert('请选择文章分类')
@@ -247,6 +261,13 @@ const saveArticle = async () => {
   if (selectedTags.value.length === 0) {
     alert('请至少选择一个标签')
     return
+  }
+  const payload = {
+    title: title.value.trim(),
+    content: content.value,
+    categoryId: categoryId.value,
+    tagIds: selectedTags.value,
+    coverUrl: editCoverUrl.value || null
   }
   try {
     if (isEdit.value) {
@@ -277,44 +298,210 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   z-index: 200;
+  background: #f5f6f8;
+  overflow: hidden;
+}
+
+.edit-layout {
+  display: flex;
+  height: 100%;
+}
+
+.edit-main {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  background: white;
-  overflow: hidden;
+  padding: 1.5rem;
+  gap: 1rem;
 }
 
-.edit-toolbar {
-  padding: 0.75rem 1rem;
-  padding-top: 1rem;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  overflow-y: auto;
-  max-height: 55vh;
+.title-input {
+  font-size: 2rem;
+  font-weight: 700;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 0.5rem 0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.title-input:focus {
+  border-bottom-color: #111827;
 }
 
-.edit-editor-full {
+.editor-wrapper {
   flex: 1;
   min-height: 0;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  background: #fff;
+}
+
+.edit-settings {
+  width: 320px;
+  flex-shrink: 0;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.setting-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.setting-select {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.setting-input {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.setting-add-btn,
+.setting-confirm-btn {
+  padding: 0.5rem 0.8rem;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.setting-cancel-btn {
+  padding: 0.5rem 0.8rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.cover-upload {
+  width: 100%;
+  height: 120px;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #9ca3af;
+}
+
+.tag-item {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.tag-item.active {
+  background: #111827;
+  color: #fff;
+}
+
+.publish-btn {
+  margin-top: auto;
+  padding: 0.7rem 1rem;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.publish-btn:hover {
+  background: #1f2937;
 }
 </style>
 
 <style>
-.edit-editor-full .bytemd {
-  height: 100% !important;
+/* ByteMD 高度链和滚动修复 */
+.editor-wrapper {
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
-.edit-editor-full .bytemd-body {
+
+.editor-wrapper .bytemd {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
-.edit-editor-full .bytemd-editor,
-.edit-editor-full .bytemd-preview {
-  height: 100% !important;
+
+.editor-wrapper .bytemd-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.editor-wrapper .bytemd-editor,
+.editor-wrapper .bytemd-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.editor-wrapper .bytemd-editor .CodeMirror {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+
+.editor-wrapper .bytemd-editor .CodeMirror-scroll {
+  height: auto !important;
+  max-height: 100%;
+  overflow-y: scroll !important;
+}
+
+.editor-wrapper .bytemd-preview {
   overflow-y: auto !important;
 }
 </style>

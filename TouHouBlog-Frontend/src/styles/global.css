@@ -3,3 +3,20 @@
     overflow-x: auto;
     white-space: pre;
 }
+
+/* 可选：代码块左上角三个圆点（Mac 风格） */
+.prose pre {
+    position: relative;
+    padding-top: 2rem !important;
+}
+.prose pre::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 16px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fc625d;
+    box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
+}

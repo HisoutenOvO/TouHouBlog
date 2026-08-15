@@ -381,15 +381,15 @@ const cancelEdit = () => {
 
 const saveArticle = async () => {
   if (!editTitle.value.trim()) {
-    alert('请输入文章标题')
+    await window.$alert('请输入文章标题')
     return
   }
   if (!editCategoryId.value) {
-    alert('请选择文章分类')
+    await window.$alert('请选择文章分类')
     return
   }
   if (editSelectedTags.value.length === 0) {
-    alert('请至少选择一个标签')
+    await window.$alert('请至少选择一个标签')
     return
   }
   const payload = {

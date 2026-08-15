@@ -1,6 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
-import request from '../utils/request'
+import GlobalModal from '../components/common/GlobalModal.vue';
 const siteTitle = "TouHouBlog"
 ---
 
@@ -29,53 +29,70 @@ const siteTitle = "TouHouBlog"
     </nav>
 </header>
 
-
 <main class="p-6 pt-20"><slot /></main>
+
+<!-- 全局弹窗组件 -->
+<GlobalModal client:load />
 
 <script>
     // @ts-nocheck
-    function decodeJwtPayload(token) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join('')
-        );
-        return JSON.parse(jsonPayload);
-    }
-
-    function updateUserArea() {
-        const token = localStorage.getItem('touhou_token');
-        const userArea = document.getElementById('user-area');
-        if (!userArea) return;
-        if (token) {
-            try {
-                const payload = decodeJwtPayload(token);
-                const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
-                let html = '';
-                // 无论管理员还是普通用户，都只显示头像
-                html = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
-                userArea.innerHTML = html;
-                // 绑定退出事件
-                const avatarEl = document.getElementById('user-avatar');
-                if (avatarEl) {
-                    avatarEl.addEventListener('click', function() {
-                        if (confirm('确定退出登录吗？')) {
-                            localStorage.removeItem('touhou_token');
-                            window.location.reload();
-                        }
-                    });
-                }
-            } catch(e) {
-                userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
+        function decodeJwtPayload(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+                atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join('')
+                );
+            return JSON.parse(jsonPayload);
             }
-        } else {
-            userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
-        }
-    }
-    updateUserArea();
-    document.addEventListener('astro:page-load', updateUserArea);
+
+        // 全局 $alert / $confirm 方法
+        window.$alert = (msg) => {
+            return new Promise((resolve) => {
+                window.dispatchEvent(new CustomEvent('global-alert', {
+                    detail: { message: msg, resolve }
+                    }))
+                })
+            }
+
+        window.$confirm = (msg) => {
+            return new Promise((resolve) => {
+                window.dispatchEvent(new CustomEvent('global-confirm', {
+                    detail: { message: msg, resolve }
+                    }))
+                })
+            }
+
+        function updateUserArea() {
+            const token = localStorage.getItem('touhou_token');
+            const userArea = document.getElementById('user-area');
+            if (!userArea) return;
+            if (token) {
+                try {
+                    const payload = decodeJwtPayload(token);
+                    const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
+                    userArea.innerHTML = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
+                    const avatarEl = document.getElementById('user-avatar');
+                    if (avatarEl) {
+                        avatarEl.addEventListener('click', async function() {
+                            const confirmed = await window.$confirm('确定退出登录吗？');
+                            if (confirmed) {
+                                localStorage.removeItem('touhou_token');
+                                window.location.reload();
+                                }
+                            });
+                        }
+                    } catch(e) {
+                    userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
+                    }
+                } else {
+                userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
+                }
+            }
+
+        updateUserArea();
+        document.addEventListener('astro:page-load', updateUserArea);
 </script>
 </body>
 </html>

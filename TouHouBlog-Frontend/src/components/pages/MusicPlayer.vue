@@ -5,7 +5,13 @@
   <div v-if="currentMode === 'full'" class="full-mode">
     <div class="record-player">
       <!-- 黑胶形态 -->
-      <div v-show="currentView === 'player'">
+      <div v-show="currentView === 'player'" class="player-content">
+        <!-- 左上角歌词切换按钮 -->
+        <button class="view-switch-btn top-left" @click="currentView = 'lyric'">🎤</button>
+        <!-- 右上角歌单切换按钮 -->
+        <button class="view-switch-btn top-right" @click="currentView = 'playlist'">📋</button>
+
+        <!-- 上半部分：黑胶唱片居中 -->
         <div class="turntable">
           <div class="tonearm" :class="{ playing: isPlaying }">
             <div class="tonearm-base"></div>
@@ -23,40 +29,47 @@
           </div>
         </div>
 
-        <div class="song-info">
-          <h3>{{ currentName || '未选择' }}</h3>
-          <p>{{ currentArtist }}</p>
-        </div>
-
-        <div class="progress-bar">
-          <div class="bg-gray-200 h-1 rounded-full overflow-hidden">
-            <div class="bg-gray-800 h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
+        <!-- 下半部分：信息与控制 -->
+        <div class="player-bottom">
+          <!-- 歌曲信息居中 -->
+          <div class="song-info">
+            <h3>{{ currentName || '未选择' }}</h3>
+            <p>{{ currentArtist }}</p>
           </div>
-          <div class="flex justify-between text-xs text-gray-400 mt-1">
-            <span>{{ formatTime(currentTime) }}</span>
-            <span>{{ formatTime(duration) }}</span>
+
+          <!-- 进度条 -->
+          <div class="progress-bar">
+            <div class="bg-gray-200 h-1 rounded-full overflow-hidden">
+              <div class="bg-gray-800 h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+              <span>{{ formatTime(currentTime) }}</span>
+              <span>{{ formatTime(duration) }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="controls">
-          <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
-            {{ modeIcon }}
-          </button>
-          <button @click="prevTrack" class="ctrl-btn" title="上一首">⏮</button>
-          <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
-            {{ isPlaying ? '⏸' : '▶' }}
-          </button>
-          <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
-          <!-- 刷新歌单按钮移到此处 -->
-          <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
-        </div>
+          <!-- 控制栏和音量放在同一行 -->
+          <div class="controls-area">
+            <div class="controls">
+              <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
+                {{ modeIcon }}
+              </button>
+              <button @click="prevTrack" class="ctrl-btn" title="上一首">⏮</button>
+              <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
+                {{ isPlaying ? '⏸' : '▶' }}
+              </button>
+              <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
+              <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
+            </div>
 
-        <div class="volume-control">
-          <span class="text-sm mr-2">🔊</span>
-          <input type="range" min="0" max="1" step="0.01"
-                 v-model="sliderValue"
-                 @input="onSliderChange"
-                 class="volume-slider" />
+            <div class="volume-control">
+              <span class="text-sm mr-2">🔊</span>
+              <input type="range" min="0" max="1" step="0.01"
+                     v-model="sliderValue"
+                     @input="onSliderChange"
+                     class="volume-slider" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -117,11 +130,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 左侧歌词切换按钮 -->
-    <button v-if="currentView === 'player'" class="view-switch-btn left" @click="currentView = 'lyric'">🎤</button>
-    <!-- 右侧歌单切换按钮 -->
-    <button v-if="currentView === 'player'" class="view-switch-btn right" @click="currentView = 'playlist'">📋</button>
   </div>
 
   <!-- 迷你卡片模式 -->
@@ -531,20 +539,78 @@ onBeforeUnmount(() => {
 <style scoped>
 /* ========== 全屏模式 ========== */
 .full-mode {
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 10px 10px;
-  overflow: visible;
+  padding: 0;
+  overflow: hidden;
   position: relative;
 }
 
 .record-player {
-  text-align: center;
-  max-width: 320px;
   width: 100%;
+  height: 100%;
+  max-width: none;
+  text-align: center;
   position: relative;
-  height: 440px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(31, 38, 135, 0.12);
+  padding: 1.25rem;
+}
+
+/* 黑胶内容容器 */
+.player-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.player-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* 左上角切换按钮 */
+.view-switch-btn {
+  position: absolute;
+  top: 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 1rem;
+  z-index: 25;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.top-left {
+  left: 0.75rem;
+}
+.top-right {
+  right: 0.75rem;
+}
+.view-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #bbb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 /* 黑胶唱片外框 */
@@ -552,7 +618,7 @@ onBeforeUnmount(() => {
   position: relative;
   width: 230px;
   height: 230px;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto;
 }
 
 .vinyl-record {
@@ -680,41 +746,70 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
 
-/* 歌曲信息 */
-.song-info { margin-top: 0.5rem; }
-.song-info h3 { font-weight: bold; margin: 0; font-size: 0.95rem; }
-.song-info p { color: #666; margin: 0.2rem 0 0; font-size: 0.75rem; }
-
-.progress-bar {
-  width: 220px;
-  margin: 0.5rem auto 0;
+/* 歌曲信息居中 */
+.song-info {
+  text-align: center;
+  width: 100%;
+}
+.song-info h3 {
+  font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+  margin: 0;
+  letter-spacing: 0.02em;
 }
 
-/* 控制栏 */
-.controls {
+.song-info p {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.3rem;
+  letter-spacing: 0.03em;
+  font-style: italic;
+}
+
+.progress-bar {
+  width: 90%;
+  margin: 0 auto;
+}
+
+/* 控制栏和音量区域 */
+.controls-area {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
 }
 .ctrl-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.3rem;
-  color: #444;
+  color: #4b5563;
   transition: color 0.2s, transform 0.2s;
   padding: 0.25rem;
 }
 .ctrl-btn:hover {
-  color: #000;
+  color: #111827;
   transform: scale(1.15);
 }
 .play-btn {
   font-size: 1.8rem;
-  color: #222;
-  background: #f3f4f6;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -722,23 +817,24 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .play-btn:hover {
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.9);
   transform: scale(1.1);
 }
 .mode-btn {
   font-size: 1.2rem;
-  color: #666;
+  color: #6b7280;
 }
 
-/* 音量控制 */
 .volume-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.75rem;
-  padding-bottom: 0.25rem;
+  gap: 0.5rem;
+  background: transparent;
 }
 .volume-slider {
   width: 120px;
@@ -781,18 +877,24 @@ onBeforeUnmount(() => {
 
 /* ========== 歌词容器 ========== */
 .lyric-container {
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 1rem 0.75rem;
   box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(31, 38, 135, 0.12);
 }
 .lyric-top {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
 }
 .lyric-cover {
   width: 36px;
@@ -808,14 +910,14 @@ onBeforeUnmount(() => {
 .lyric-song-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #111;
+  color: #111827;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .lyric-song-artist {
   font-size: 0.7rem;
-  color: #777;
+  color: #6b7280;
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -825,13 +927,13 @@ onBeforeUnmount(() => {
   background: none;
   border: none;
   font-size: 0.75rem;
-  color: #888;
+  color: #6b7280;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
 }
 .lyric-back-btn:hover {
-  color: #111;
+  color: #111827;
 }
 .lyric-scroll {
   flex: 1;
@@ -841,13 +943,13 @@ onBeforeUnmount(() => {
   scroll-behavior: smooth;
   text-align: center;
   padding: 0.5rem 0;
-  scrollbar-width: none;          /* Firefox 隐藏滚动条 */
+  scrollbar-width: none;
 }
 .lyric-scroll::-webkit-scrollbar {
-  display: none;                  /* Chrome/Safari 隐藏滚动条 */
+  display: none;
 }
 .lyric-empty {
-  color: #bbb;
+  color: #9ca3af;
   font-size: 0.8rem;
   margin-top: 2rem;
 }
@@ -866,22 +968,22 @@ onBeforeUnmount(() => {
 }
 .lyric-main {
   font-size: 0.9rem;
-  color: #555;
+  color: #4b5563;
   transition: color 0.3s, font-weight 0.3s;
 }
 .lyric-trans {
   font-size: 0.75rem;
-  color: #aaa;
+  color: #9ca3af;
   margin-top: 0.25rem;
   transition: color 0.3s;
 }
 .lyric-line.active .lyric-main {
-  color: #000;
+  color: #111827;
   font-weight: bold;
   transform: scale(1.08);
 }
 .lyric-line.active .lyric-trans {
-  color: #666;
+  color: #4b5563;
 }
 .lyric-bottom {
   display: flex;
@@ -889,39 +991,47 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 1.5rem;
   padding-top: 0.5rem;
+  background: transparent;
 }
 
 /* ========== 歌单形态 ========== */
 .playlist-view {
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 1rem 0.75rem;
   box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(31, 38, 135, 0.12);
 }
 .playlist-view-top {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
 }
 .playlist-title {
   font-size: 0.9rem;
   font-weight: bold;
-  color: #111;
+  color: #111827;
   flex: 1;
   text-align: left;
 }
 .playlist-count {
   font-size: 0.8rem;
-  color: #777;
+  color: #6b7280;
 }
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
   margin-top: 0.5rem;
   scrollbar-width: none;
+  background: transparent;
 }
 .playlist-view-list::-webkit-scrollbar {
   display: none;
@@ -931,15 +1041,15 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transition: background 0.2s;
 }
 .playlist-view-item:hover {
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.4);
 }
 .playlist-view-item.active {
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.6);
 }
 .playlist-view-cover {
   width: 40px;
@@ -954,56 +1064,30 @@ onBeforeUnmount(() => {
 }
 .playlist-view-name {
   font-size: 0.85rem;
-  color: #111;
+  color: #111827;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .playlist-view-artist {
   font-size: 0.75rem;
-  color: #777;
+  color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .playlist-playing-icon {
   font-size: 0.9rem;
-  color: #000;
+  color: #111827;
   flex-shrink: 0;
-}
-
-/* ========== 侧边切换按钮 ========== */
-.view-switch-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  font-size: 1rem;
-  z-index: 25;
-  transition: all 0.2s;
-  backdrop-filter: blur(4px);
-}
-.view-switch-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: #bbb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-.view-switch-btn.left {
-  left: 0.25rem;
-}
-.view-switch-btn.right {
-  right: 0.25rem;
 }
 
 /* ========== 迷你模式 ========== */
 .mini-bar {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 0.5rem;
   padding: 0.5rem;
   display: flex;
@@ -1016,7 +1100,7 @@ onBeforeUnmount(() => {
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  color: #333;
+  color: #374151;
 }
-.mini-ctrl:hover { color: #000; }
+.mini-ctrl:hover { color: #111827; }
 </style>

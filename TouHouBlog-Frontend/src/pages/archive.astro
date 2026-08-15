@@ -11,17 +11,28 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
     <div class="text-center py-12">
         <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest">归档与探索</h1>
         <p class="mt-4 text-base text-gray-400" id="totalArticles">共 … 篇研究</p>
-        <div class="mt-6 flex justify-center items-center gap-4">
-            <input
-                    id="searchInput"
-                    type="text"
-                    placeholder="搜索文章..."
-                    class="w-80 px-4 py-2.5 border border-gray-200 rounded-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white shadow-sm"
-            />
+        <div class="mt-6 flex justify-center items-center gap-3 flex-wrap">
+            <!-- 写文章按钮放左侧 -->
             <a id="new-article-btn" href="/write" style="display:none"
                class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm hover:bg-gray-900 no-underline">
                 写文章
             </a>
+
+            <!-- 搜索框 + 搜索按钮 -->
+            <div class="flex items-center gap-2">
+                <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="搜索文章..."
+                        class="w-64 px-4 py-2.5 border border-gray-200 rounded-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent bg-white/70 backdrop-blur-sm"
+                />
+                <button
+                        id="search-btn"
+                        class="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors"
+                >
+                    搜索
+                </button>
+            </div>
         </div>
         <div class="mt-4 flex justify-center">
             <div class="inline-flex items-center bg-gray-100 rounded-full p-1 relative w-48" id="viewSwitch">
@@ -53,57 +64,98 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 </Layout>
 
 <script>
-    //@ts-nocheck
-    // 每次 astro 页面加载完成时执行
+    // @ts-nocheck
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('search-btn');
+    const totalSpan = document.getElementById('totalArticles');
+    const writeBtn = document.getElementById('new-article-btn');
+    const switchContainer = document.getElementById('viewSwitch');
+    const indicator = document.getElementById('switchIndicator');
+    const switchButtons = switchContainer?.querySelectorAll('button');
+
+    async function fetchTotal(keyword = '') {
+        if (!totalSpan) return;
+        const params = { page: '1', pageSize: '1' };
+        if (keyword) params.keyword = keyword;
+        const urlParams = new URLSearchParams(window.location.search);
+        const cat = urlParams.get('categoryId');
+        const tag = urlParams.get('tagId');
+        if (cat && cat !== 'null') params.categoryId = cat;
+        if (tag && tag !== 'null') params.tagId = tag;
+        try {
+            const res = await fetch('/api/articles/list?' + new URLSearchParams(params).toString());
+            const data = await res.json();
+            if (data.code === 1 && totalSpan) {
+                totalSpan.textContent = `共 ${data.data.total} 篇研究`;
+            }
+        } catch (e) {
+            console.error('获取文章总数失败', e);
+        }
+    }
+
+    function performSearch() {
+        const keyword = searchInput?.value.trim() || '';
+        fetchTotal(keyword);
+        window.dispatchEvent(new CustomEvent('search-change', { detail: { keyword } }));
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+    }
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+    }
+
+    // 写文章按钮
+    function setWriteButton() {
+        if (!writeBtn) return;
+        const token = localStorage.getItem('touhou_token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                writeBtn.style.display = (payload.role === 1) ? 'inline-block' : 'none';
+            } catch (e) { writeBtn.style.display = 'none'; }
+        } else {
+            writeBtn.style.display = 'none';
+        }
+    }
+
+    // 时间线切换
+    function setSwitchStyle(view) {
+        if (!indicator || !switchButtons) return;
+        indicator.style.transform = view === 'timeline' ? 'translateX(100%)' : 'translateX(0)';
+        switchButtons[0]?.classList.toggle('text-gray-900', view === 'list');
+        switchButtons[0]?.classList.toggle('text-gray-500', view !== 'list');
+        switchButtons[1]?.classList.toggle('text-gray-900', view === 'timeline');
+        switchButtons[1]?.classList.toggle('text-gray-500', view !== 'timeline');
+    }
+
+    function switchView(view) {
+        window.__archiveView = view;
+        setSwitchStyle(view);
+        window.dispatchEvent(new CustomEvent('archive-view-change', { detail: { view } }));
+    }
+
+    // 初始化
+    window.__archiveView = window.__archiveView || 'list';
+    setSwitchStyle(window.__archiveView);
+
+    switchButtons?.forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchView(btn.dataset.view);
+        });
+    });
+
+    // 首次加载
+    fetchTotal();
+    setWriteButton();
+
+    // 监听 Astro 页面切换
     document.addEventListener('astro:page-load', () => {
-        // 通知组件重新获取总数
-        window.dispatchEvent(new CustomEvent('refresh-article-total'))
-        const switchContainer = document.getElementById('viewSwitch')
-        const indicator = document.getElementById('switchIndicator')
-        const buttons = switchContainer?.querySelectorAll('button')
-
-        function setSwitchStyle(view) {
-            if (!indicator || !buttons) return
-            indicator.style.transform = view === 'timeline' ? 'translateX(100%)' : 'translateX(0)'
-            buttons[0].classList.toggle('text-gray-900', view === 'list')
-            buttons[0].classList.toggle('text-gray-500', view !== 'list')
-            buttons[1].classList.toggle('text-gray-900', view === 'timeline')
-            buttons[1].classList.toggle('text-gray-500', view !== 'timeline')
-            }
-
-        function switchView(view) {
-            window.__archiveView = view
-            setSwitchStyle(view)
-            window.dispatchEvent(new CustomEvent('archive-view-change', { detail: { view } }))
-            }
-
-        // 初始化
-        setSwitchStyle(window.__archiveView || 'list')
-
-        // 绑定点击事件
-        buttons?.forEach(btn => {
-            btn.addEventListener('click', () => {
-                switchView(btn.dataset.view)
-                })
-            })
-        // 确保写文章按钮也重新检查
-        const btn = document.getElementById('new-article-btn')
-        if (btn) {
-            const token = localStorage.getItem('touhou_token')
-            if (token) {
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]))
-                    btn.style.display = (payload.role === 1) ? 'inline-block' : 'none'
-                } catch (e) { btn.style.display = 'none' }
-            } else { btn.style.display = 'none' }
-        }
-    })
-
-    // 监听总数变化事件，每次触发都重新从 DOM 获取元素，防止引用失效
-    window.addEventListener('article-total', function(e) {
-        const totalSpan = document.getElementById('totalArticles')
-        if (totalSpan) {
-            totalSpan.textContent = '共 ' + e.detail.total + ' 篇研究'
-        }
-    })
+        fetchTotal();
+        setWriteButton();
+        setSwitchStyle(window.__archiveView || 'list');
+    });
 </script>

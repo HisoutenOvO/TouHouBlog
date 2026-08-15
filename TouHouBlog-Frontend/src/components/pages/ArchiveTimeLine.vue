@@ -2,39 +2,36 @@
   <div>
     <div v-if="loading" class="text-center py-10 text-gray-500">加载中...</div>
 
-    <!-- 整个时间线容器：只有一条连续竖线 -->
-    <div v-else-if="groupedYears.length" class="relative pl-10 border-l border-gray-300">
-      <!-- 年份和月份都放在同一条竖线内 -->
-      <div v-for="yearGroup in groupedYears" :key="yearGroup.year" class="relative mb-16 last:mb-0">
-        <!-- 年份标题（靠近竖线，对齐） -->
-        <div class="flex items-center gap-3 mb-8">
-          <span class="year-title">{{ yearGroup.year }}</span>
-          <span class="text-base text-gray-400">{{ yearGroup.total }} 篇</span>
+    <div v-else-if="groupedYears.length" class="archive-timeline glass-card">
+      <!-- 年份循环 -->
+      <div v-for="yearGroup in groupedYears" :key="yearGroup.year" class="year-section">
+        <!-- 年份标题 -->
+        <div class="year-header">
+          <span class="year-text">{{ yearGroup.year }}</span>
+          <span class="year-count">{{ yearGroup.total }} 篇</span>
         </div>
 
         <!-- 月份列表 -->
-        <div class="space-y-12">
-          <div v-for="month in yearGroup.months" :key="month.month" class="relative">
-            <!-- 圆点：精确定位在竖线上 -->
-            <span class="absolute top-2 w-4 h-4 rounded-full bg-white border-2 border-gray-400 dot"></span>
-
-            <!-- 月份标题（可折叠） -->
-            <div class="flex items-center gap-3 ml-6 cursor-pointer select-none" @click="toggleMonth(month.month)">
-              <h3 class="month-title">{{ formatMonth(month.month) }}</h3>
-              <span class="text-sm text-gray-400">{{ month.articles.length }} 篇</span>
-              <span class="text-gray-400 text-sm">{{ isMonthOpen(month.month) ? '▲' : '▼' }}</span>
+        <div class="months-container">
+          <div v-for="month in yearGroup.months" :key="month.month" class="month-block">
+            <!-- 圆点 + 月份标题 -->
+            <div class="month-header" @click="toggleMonth(month.month)">
+              <span class="month-dot"></span>
+              <span class="month-title">{{ formatMonth(month.month) }}</span>
+              <span class="month-count">{{ month.articles.length }} 篇</span>
+              <span class="month-arrow">{{ isMonthOpen(month.month) ? '▲' : '▼' }}</span>
             </div>
 
-            <!-- 文章列表 -->
-            <ul v-if="isMonthOpen(month.month)" class="space-y-4 ml-6 mt-3">
+            <!-- 文章列表（折叠时隐藏） -->
+            <ul v-if="isMonthOpen(month.month)" class="article-list">
               <li
                   v-for="article in month.articles"
                   :key="article.id"
-                  class="flex items-center justify-between text-base cursor-pointer hover:text-gray-900 transition-colors"
+                  class="article-item"
                   @click="goArticle(article.id)"
               >
-                <span class="text-gray-700">{{ article.title }}</span>
-                <span class="text-sm text-gray-400">{{ formatDate(article.createTime) }}</span>
+                <span class="article-title">{{ article.title }}</span>
+                <span class="article-date">{{ formatDate(article.createTime) }}</span>
               </li>
             </ul>
           </div>
@@ -111,19 +108,128 @@ onMounted(fetchArchive)
 </script>
 
 <style scoped>
-.year-title {
-  font-size: 2.5rem;          /* 年份更大 */
-  font-weight: 800;
-  line-height: 1;
+.archive-timeline {
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+.year-section {
+  margin-bottom: 2rem;
+}
+
+.year-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.year-text {
+  font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+}
+
+.year-count {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.months-container {
+  position: relative;
+  padding-left: 2rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.month-block {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.month-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.month-header:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.month-dot {
+  position: absolute;
+  left: -2.5rem;                 /* 2rem(竖线距离内容区) + 0.5rem(圆点半径) */
+  top: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #b388eb;
+  box-shadow: 0 0 6px rgba(179, 136, 235, 0.5);
 }
 
 .month-title {
-  font-size: 1.75rem;       /* 月份更小 */
+  font-size: 1.25rem;
   font-weight: 600;
+  color: #4b5563;
 }
 
-.dot {
-  left: -2.5rem;            /* 对应容器 pl-10 的 2.5rem */
-  transform: translateX(-50%);
+.month-count {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.month-arrow {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+.article-list {
+  list-style: none;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.article-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.article-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateX(4px);
+}
+
+.article-title {
+  font-size: 0.95rem;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-left: 1rem;
+  flex-shrink: 0;
 }
 </style>

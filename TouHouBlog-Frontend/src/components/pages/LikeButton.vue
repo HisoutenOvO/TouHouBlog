@@ -6,13 +6,18 @@
       :class="{ 'bg-red-50 border-red-200': liked }"
       :title="isLoggedIn ? '' : '请先登录'"
   >
-    <span :class="liked ? 'text-red-500' : 'text-gray-400'">❤️</span>
+    <Icon
+        :icon="liked ? 'lucide:heart' : 'lucide:heart'"
+        class="w-4 h-4"
+        :class="liked ? 'text-red-500' : 'text-gray-400'"
+    />
     <span class="text-xs" :class="liked ? 'text-red-500' : 'text-gray-500'">{{ likes }}</span>
   </button>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth.js'
 

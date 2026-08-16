@@ -2,13 +2,16 @@
   <div class="max-w-3xl mx-auto px-4 py-8">
     <div v-if="loading" class="text-center py-20 text-gray-500">加载中...</div>
 
-    <div v-else-if="talk" class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-      <!-- 昵称 + 日期 -->
+    <div v-else-if="talk" class="glass-card p-6">
+      <!-- 昵称 + 日期 + 删除 -->
       <div class="flex justify-between items-center mb-3">
         <span class="font-bold text-gray-900">Hisouten</span>
         <div class="flex items-center gap-3">
           <span class="text-sm text-gray-400">{{ formatDate(talk.createTime) }}</span>
-          <button v-if="isAdmin" @click="deleteTalk" class="text-xs text-red-500 hover:underline">删除</button>
+          <button v-if="isAdmin" @click="deleteTalk" class="admin-action-btn delete">
+            <Icon icon="lucide:trash-2" class="w-4 h-4" />
+            删除
+          </button>
         </div>
       </div>
 
@@ -17,7 +20,9 @@
 
       <!-- 图片（点击放大） -->
       <div v-if="talk.picture" class="mb-4">
-        <img v-if="talk.picture" :src="talk.picture" class="w-full rounded-lg border border-gray-100 cursor-pointer" @click="showImageOverlay = true" />
+        <img :src="talk.picture" alt="杂谈图片"
+             class="w-full rounded-lg border border-gray-100 cursor-pointer"
+             @click="showImageOverlay = true" />
       </div>
 
       <!-- 互动行：时间、点赞、评论按钮 -->
@@ -27,14 +32,15 @@
           <button
               @click="toggleLike"
               :disabled="likeLoading"
-              class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 transition-colors"
-              :class="{ 'bg-red-50 border-red-200': liked }"
+              class="talk-action-btn"
+              :class="{ active: liked }"
           >
-            <span :class="liked ? 'text-red-500' : 'text-gray-400'">❤️</span>
-            <span class="text-xs" :class="liked ? 'text-red-500' : 'text-gray-500'">{{ likes }}</span>
+            <Icon icon="lucide:heart" class="w-4 h-4" />
+            <span>{{ likes }}</span>
           </button>
-          <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-            💬 <span class="text-xs">{{ commentTotal }}</span>
+          <button class="talk-action-btn">
+            <Icon icon="lucide:message-circle" class="w-4 h-4" />
+            <span>{{ commentTotal }}</span>
           </button>
         </div>
       </div>
@@ -44,7 +50,6 @@
 
     <!-- 评论区 -->
     <div v-if="talk" class="mt-6">
-      <h3 class="text-lg font-bold text-gray-900 mb-4">💬 评论 ({{ commentTotal }})</h3>
       <TalkCommentSection :talk-id="talkId" @total-change="commentTotal = $event" />
     </div>
 
@@ -53,7 +58,9 @@
     </div>
 
     <!-- 图片放大遮罩 -->
-    <div v-if="showImageOverlay" class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4" @click="showImageOverlay = false">
+    <div v-if="showImageOverlay"
+         class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4"
+         @click="showImageOverlay = false">
       <img :src="talk.picture" class="max-w-full max-h-full rounded-lg shadow-2xl" @click.stop />
     </div>
   </div>
@@ -61,10 +68,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth'
 import TalkCommentSection from './TalkCommentSection.vue'
-
 
 const props = defineProps({ talkId: String })
 
@@ -75,12 +82,12 @@ const liked = ref(false)
 const likeLoading = ref(false)
 const showImageOverlay = ref(false)
 const commentTotal = ref(0)
+const isAdmin = ref(false)
 
 const fetchTalk = async () => {
   try {
     const res = await request.get(`/api/talks/${props.talkId}`)
     talk.value = res.data.data
-    // 获取点赞状态
     await fetchLikeStatus()
   } catch (e) {
     talk.value = null
@@ -114,30 +121,80 @@ const toggleLike = async () => {
     })
     likes.value = res.data.data.likes
     liked.value = res.data.data.liked
-  } catch (e) {}
-  finally {
+  } catch (e) {
+    // 全局拦截器已提示
+  } finally {
     likeLoading.value = false
   }
 }
 
-const isAdmin = ref(false)
-
-onMounted(async () => {
-  const user = getUserFromToken()
-  isAdmin.value = !!(user && user.role === 1)
-  await fetchTalk()
-})
-
 const deleteTalk = async () => {
-  const confirmed = confirm('确定要删除这条杂谈吗？')
+  const confirmed = await window.$confirm('确定要删除这条杂谈吗？')
   if (!confirmed) return
   try {
     await request.delete(`/api/talks/${props.talkId}`)
     window.location.href = '/talks'
   } catch (e) {}
 }
-const formatDate = (d) => d ? new Date(d).toLocaleDateString('zh-CN') : ''
-const formatTime = (d) => d ? new Date(d).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) : ''
 
-onMounted(fetchTalk)
+const formatDate = (d) => d ? new Date(d).toLocaleDateString('zh-CN') : ''
+const formatTime = (d) => d ? new Date(d).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''
+
+onMounted(async () => {
+  const user = getUserFromToken()
+  isAdmin.value = !!(user && user.role === 1)
+  await fetchTalk()
+})
 </script>
+
+<style scoped>
+.talk-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+  color: #6b7280;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.talk-action-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: #374151;
+}
+.talk-action-btn.active {
+  background: rgba(254, 226, 226, 0.6);
+  color: #b91c1c;
+  border-color: rgba(254, 202, 202, 0.8);
+}
+
+/* 管理员操作按钮（删除） */
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.admin-action-btn.delete {
+  background: linear-gradient(135deg, #fde2e2, #fbc4c4);
+  color: #b91c1c;
+}
+.admin-action-btn.delete:hover {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  color: #991b1b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+</style>

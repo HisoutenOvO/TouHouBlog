@@ -1,9 +1,7 @@
 <template>
   <div>
-    <h2 class="text-3xl font-bold text-center py-10">杂谈与思考</h2>
-    <p class="text-center text-base text-gray-400 -mt-6 mb-8">
-      把日常里值得记住的一瞬，沿着时间慢慢收进这里
-    </p>
+    <h1 class="talks-title">杂谈与思考</h1>
+    <p class="talks-subtitle">把日常里值得记住的一瞬，沿着时间慢慢收进这里</p>
 
     <!-- 发布框（仅管理员可见） -->
     <div v-if="isAdmin" class="max-w-3xl mx-auto mb-8 px-4">
@@ -57,11 +55,13 @@
         <div class="flex justify-between items-center text-sm text-gray-400">
           <span>{{ formatTime(talk.createTime) }}</span>
           <div class="flex gap-3">
-            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-              ❤️ <span class="text-xs">{{ talk.likeCount || 0 }}</span>
+            <button class="talk-action-btn">
+              <Icon icon="lucide:heart" class="w-4 h-4" />
+              <span>{{ talk.likeCount || 0 }}</span>
             </button>
-            <button class="flex items-center gap-1 px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
-              💬 <span class="text-xs">{{ talk.commentCount || 0 }}</span>
+            <button class="talk-action-btn">
+              <Icon icon="lucide:message-circle" class="w-4 h-4" />
+              <span>{{ talk.commentCount || 0 }}</span>
             </button>
           </div>
         </div>
@@ -97,6 +97,7 @@ import request from '../../utils/request'
 import OSS from 'ali-oss'
 import { getUserFromToken } from '../../utils/auth'
 import { navigate } from 'astro:transitions/client'
+import { Icon } from '@iconify/vue'
 
 const talks = ref([])
 const loading = ref(true)
@@ -205,3 +206,23 @@ onMounted(async () => {
   await fetchTalks()
 })
 </script>
+<style scoped>
+.talk-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(4px);
+  color: #6b7280;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.talk-action-btn:hover {
+  background: rgba(255,255,255,0.8);
+  color: #374151;
+}
+</style>

@@ -1,7 +1,10 @@
 <template>
   <div class="glass-card p-4">
     <div class="flex justify-between items-center mb-3">
-      <h3 class="font-bold text-gray-900">🏷️ 标签</h3>
+      <h3 class="font-bold text-gray-900 flex items-center gap-1.5">
+        <Icon icon="lucide:tag" class="w-5 h-5 text-gray-600" />
+        标签
+      </h3>
       <button
           v-if="isAdmin"
           @click="showManager = !showManager"
@@ -27,16 +30,23 @@
                 class="ml-1 w-4 h-4 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
                 title="删除标签"
             >
-              ×
+              <Icon icon="lucide:x" class="w-3 h-3" />
             </button>
           </span>
         </div>
 
         <!-- 新增标签 -->
         <div class="flex gap-2 pt-2 border-t border-gray-100">
-          <input v-model="newTagName" @keyup.enter="addTag" placeholder="新增标签"
-                 class="manager-input flex-1 min-w-0" />
-          <button @click="addTag" :disabled="!newTagName.trim()" class="manager-btn primary">新增</button>
+          <input
+              v-model="newTagName"
+              @keyup.enter="addTag"
+              placeholder="新增标签"
+              class="manager-input flex-1 min-w-0"
+          />
+          <button @click="addTag" :disabled="!newTagName.trim()" class="manager-btn primary">
+            <Icon icon="lucide:plus" class="w-3.5 h-3.5" />
+            新增
+          </button>
         </div>
       </div>
 
@@ -45,7 +55,7 @@
         <span
             v-for="tag in tags"
             :key="tag.id"
-            class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors"
+            class="tag-chip-list cursor-pointer"
             @click="goToTag(tag.id)"
         >
           {{ tag.name }}
@@ -58,6 +68,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth'
 import { navigate } from 'astro:transitions/client'
@@ -110,7 +121,29 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 管理按钮 */
+.manager-toggle-btn {
+  padding: 0.25rem 0.8rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.manager-toggle-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
+/* 管理状态下的小按钮 */
 .manager-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.3rem 0.6rem;
   border: none;
   border-radius: 0.4rem;
@@ -134,22 +167,8 @@ onMounted(async () => {
   color: #523b52;
   box-shadow: 0 3px 8px rgba(0,0,0,0.06);
 }
-.manager-toggle-btn {
-  padding: 0.25rem 0.8rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-.manager-toggle-btn:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-}
+
+/* 输入框 */
 .manager-input {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid #e8d5f5;
@@ -163,5 +182,26 @@ onMounted(async () => {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
   outline: none;
+}
+
+/* 普通标签胶囊 */
+.tag-chip-list {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+}
+.tag-chip-list:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  transform: translateY(-1px);
 }
 </style>

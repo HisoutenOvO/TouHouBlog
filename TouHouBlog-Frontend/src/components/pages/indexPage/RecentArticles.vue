@@ -19,10 +19,9 @@
           </div>
           <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
           <div class="flex flex-wrap gap-1.5">
-      <span v-for="tag in article.tags" :key="tag.id"
-            class="px-2.5 py-1 text-xs rounded-full bg-gray-100 text-gray-500">
-        {{ tag.name }}
-      </span>
+            <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
+             {{ tag.name }}
+           </span>
           </div>
         </div>
       </a>
@@ -108,3 +107,25 @@ onMounted(() => {
 
 
 </script>
+<style scoped>
+.tag-chip-list {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.tag-chip-list:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  transform: translateY(-1px);
+}
+</style>

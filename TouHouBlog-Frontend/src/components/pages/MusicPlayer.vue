@@ -4,12 +4,17 @@
   <!-- 留声机全屏模式 -->
   <div v-if="currentMode === 'full'" class="full-mode">
     <div class="record-player">
+      <Transition name="fade" mode="out-in">
       <!-- 黑胶形态 -->
-      <div v-show="currentView === 'player'" class="player-content">
+      <div v-if="currentView === 'player'" class="player-content">
         <!-- 左上角歌词切换按钮 -->
-        <button class="view-switch-btn top-left" @click="currentView = 'lyric'">🎤</button>
+        <button class="view-switch-btn top-left" @click="currentView = 'lyric'">
+          <Icon icon="lucide:mic-2" class="w-6 h-6" />
+        </button>
         <!-- 右上角歌单切换按钮 -->
-        <button class="view-switch-btn top-right" @click="currentView = 'playlist'">📋</button>
+        <button class="view-switch-btn top-right" @click="currentView = 'playlist'">
+          <Icon icon="lucide:list-music" class="w-6 h-6" />
+        </button>
 
         <!-- 上半部分：黑胶唱片居中 -->
         <div class="turntable">
@@ -18,13 +23,10 @@
             <div class="tonearm-arm"></div>
             <div class="tonearm-head"></div>
           </div>
-          <div class="vinyl-record" :class="{ spinning: isPlaying }" @click="togglePlay">
+          <div class="vinyl-record" :class="{ spinning: isPlaying }">
             <div class="vinyl-grooves"></div>
             <div class="vinyl-label">
               <img :src="currentCover" class="label-cover" />
-            </div>
-            <div class="play-overlay">
-              <span class="text-4xl text-white">{{ isPlaying ? '⏸' : '▶' }}</span>
             </div>
           </div>
         </div>
@@ -51,19 +53,26 @@
           <!-- 控制栏和音量放在同一行 -->
           <div class="controls-area">
             <div class="controls">
+              <!-- 模式切换：直接用三元表达式映射图标 -->
               <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
-                {{ modeIcon }}
+                <Icon :icon="playMode === 'list' ? 'lucide:repeat' : playMode === 'single' ? 'lucide:repeat-1' : 'lucide:shuffle'" class="w-5 h-5" />
               </button>
-              <button @click="prevTrack" class="ctrl-btn" title="上一首">⏮</button>
+              <button @click="prevTrack" class="ctrl-btn" title="上一首">
+                <Icon icon="lucide:skip-back" class="w-5 h-5" />
+              </button>
               <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
-                {{ isPlaying ? '⏸' : '▶' }}
+                <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-6 h-6" />
               </button>
-              <button @click="nextTrack" class="ctrl-btn" title="下一首">⏭</button>
-              <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">🔄</button>
+              <button @click="nextTrack" class="ctrl-btn" title="下一首">
+                <Icon icon="lucide:skip-forward" class="w-5 h-5" />
+              </button>
+              <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">
+                <Icon icon="lucide:refresh-cw" class="w-5 h-5" />
+              </button>
             </div>
 
             <div class="volume-control">
-              <span class="text-sm mr-2">🔊</span>
+              <Icon icon="lucide:volume-2" class="text-sm mr-2" />
               <input type="range" min="0" max="1" step="0.01"
                      v-model="sliderValue"
                      @input="onSliderChange"
@@ -74,7 +83,7 @@
       </div>
 
       <!-- 歌词形态 -->
-      <div v-show="currentView === 'lyric'" class="lyric-container">
+      <div v-else-if="currentView === 'lyric'" class="lyric-container">
         <div class="lyric-top">
           <img :src="currentCover" class="lyric-cover" />
           <div class="lyric-song-info">
@@ -98,14 +107,20 @@
         </div>
 
         <div class="lyric-bottom">
-          <button @click="prevTrack" class="mini-ctrl">⏮</button>
-          <button @click="togglePlay" class="mini-ctrl">{{ isPlaying ? '⏸' : '▶' }}</button>
-          <button @click="nextTrack" class="mini-ctrl">⏭</button>
+          <button @click="prevTrack" class="mini-ctrl">
+            <Icon icon="lucide:skip-back" class="w-5 h-5" />
+          </button>
+          <button @click="togglePlay" class="mini-ctrl">
+            <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-5 h-5" />
+          </button>
+          <button @click="nextTrack" class="mini-ctrl">
+            <Icon icon="lucide:skip-forward" class="w-5 h-5" />
+          </button>
         </div>
       </div>
 
       <!-- 歌单形态 -->
-      <div v-show="currentView === 'playlist'" class="playlist-view">
+      <div v-else-if="currentView === 'playlist'" class="playlist-view">
         <div class="playlist-view-top">
           <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
           <span class="playlist-title">歌单</span>
@@ -125,10 +140,13 @@
               <p class="playlist-view-name">{{ song.name }}</p>
               <p class="playlist-view-artist">{{ song.artist }}</p>
             </div>
-            <span v-if="index === currentIndex" class="playlist-playing-icon">▶</span>
+            <span v-if="index === currentIndex" class="playlist-playing-icon">
+              <Icon icon="lucide:play" class="w-4 h-4" />
+            </span>
           </div>
         </div>
       </div>
+      </Transition>
     </div>
   </div>
 
@@ -140,9 +158,15 @@
       <p class="text-xs text-gray-400 truncate">{{ currentArtist }}</p>
     </div>
     <div class="flex items-center gap-2">
-      <button @click="prevTrack" class="mini-ctrl">⏮</button>
-      <button @click="togglePlay" class="mini-ctrl">{{ isPlaying ? '⏸' : '▶' }}</button>
-      <button @click="nextTrack" class="mini-ctrl">⏭</button>
+      <button @click="prevTrack" class="mini-ctrl">
+        <Icon icon="lucide:skip-back" class="w-5 h-5" />
+      </button>
+      <button @click="togglePlay" class="mini-ctrl">
+        <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-5 h-5" />
+      </button>
+      <button @click="nextTrack" class="mini-ctrl">
+        <Icon icon="lucide:skip-forward" class="w-5 h-5" />
+      </button>
     </div>
   </div>
 </template>
@@ -150,6 +174,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import request from '../../utils/request'
+import { Icon } from '@iconify/vue'
 
 const props = defineProps({
   mode: { type: String, default: 'mini' }
@@ -343,6 +368,7 @@ const playSong = (index) => {
   if (!ap) return
   switchToIndex(index)
   showPlaylist.value = false
+  currentView.value = 'player'
 }
 const formatTime = (s) => {
   if (isNaN(s)) return '0:00'
@@ -588,17 +614,17 @@ onBeforeUnmount(() => {
 .view-switch-btn {
   position: absolute;
   top: 0.75rem;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.25rem;
   z-index: 25;
-  transition: all 0.2s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  transition: color 0.2s, transform 0.2s;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .top-left {
   left: 0.75rem;
@@ -607,9 +633,8 @@ onBeforeUnmount(() => {
   right: 0.75rem;
 }
 .view-switch-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: #bbb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  color: #111827;
+  transform: scale(1.1);
 }
 
 /* 黑胶唱片外框 */
@@ -1102,4 +1127,25 @@ onBeforeUnmount(() => {
   color: #374151;
 }
 .mini-ctrl:hover { color: #111827; }
+/* 音乐播放器视图切换动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
 </style>

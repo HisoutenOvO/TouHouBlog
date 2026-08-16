@@ -112,3 +112,199 @@ select {
     padding-right: 2rem;
     cursor: pointer;
 }
+/* ========== 归档页控件美化 ========== */
+
+/* 写文章按钮 */
+.archive-write-btn {
+    display: inline-block;
+    padding: 0.5rem 1.2rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+    color: #6b4b6b;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.archive-write-btn:hover {
+    background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+    color: #523b52;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* 搜索输入框 */
+.archive-search-input {
+    padding: 0.5rem 1.2rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.35);   /* 更透明，背景图透出更多 */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #1f2937;                          /* 加深文字颜色 */
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.archive-search-input:focus {
+    border-color: #d8b4e8;
+    box-shadow: 0 0 0 3px rgba(216, 180, 232, 0.25);
+    outline: none;
+    background: rgba(255, 255, 255, 0.5);   /* 聚焦时稍微实一点，更好输入 */
+}
+
+/* 搜索按钮 */
+.archive-search-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+    color: #3730a3;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.archive-search-btn:hover {
+    background: linear-gradient(135deg, #c7d2fe, #b1bcf5);
+    color: #312e81;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* 视图切换容器：增加柔光渐变背景和内阴影 */
+.archive-view-switch {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 9999px;
+    padding: 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 14px rgba(31, 38, 135, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    position: relative;
+}
+
+/* 滑块指示器：增加光晕和立体感 */
+.archive-view-indicator {
+    position: absolute;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    width: calc(50% - 0.35rem);
+    background: linear-gradient(135deg, #f9d5e5 0%, #e8d5f5 50%, #dbeafe 100%);
+    border-radius: 9999px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+/* 按钮文字 */
+.archive-view-btn {
+    flex: 1;
+    padding: 0.5rem 0;
+    border: none;
+    background: transparent;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    position: relative;
+    z-index: 1;
+    color: #6b7280;
+}
+
+/* 激活状态 */
+.archive-view-btn.active {
+    color: #4c3b6b;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* 悬停 */
+.archive-view-btn:hover {
+    color: #374151;
+}
+/* 归档页大标题 */
+.archive-title {
+    font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+    font-size: 4.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+    margin-bottom: 0.5rem;
+}
+
+/* 归档页统计小字 */
+.archive-subtitle {
+    font-style: italic;
+    color: #6b7280;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+}
+/* 导航栏链接字体 */
+.nav-link {
+    font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: #5b4b6b;               /* 灰紫色，不抢标题 */
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: -2px;
+    height: 2px;
+    background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+    border-radius: 999px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+}
+
+.nav-link:hover::after {
+    transform: scaleX(1);
+}
+/* 杂谈页面标题 */
+.talks-title {
+    font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+    font-size: 4rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+    text-align: center;
+    padding-top: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.talks-subtitle {
+    font-style: italic;
+    color: #6b7280;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    text-align: center;
+    margin-bottom: 2rem;
+}

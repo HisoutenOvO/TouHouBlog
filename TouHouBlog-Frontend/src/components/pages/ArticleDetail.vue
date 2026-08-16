@@ -111,14 +111,16 @@
 
         <div class="article-content-card">
           <!-- 标题行 -->
-          <div class="flex items-center gap-4 mb-2">
+          <div class="flex items-center gap-3 mb-2">
             <h1 class="text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
             <button v-if="isAdmin" @click="enterEditMode"
-                    class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 text-gray-600">
+                    class="admin-action-btn edit">
+              <Icon icon="lucide:pencil" class="w-4 h-4" />
               编辑
             </button>
             <button v-if="isAdmin" @click="deleteArticle"
-                    class="text-sm px-3 py-1 border border-red-300 rounded text-red-600 hover:bg-red-50">
+                    class="admin-action-btn delete">
+              <Icon icon="lucide:trash-2" class="w-4 h-4" />
               删除
             </button>
           </div>
@@ -127,7 +129,15 @@
           <div class="flex items-center text-sm text-gray-500 space-x-4 pb-4 mb-4 border-b border-gray-100">
             <span>发布于 {{ formatDate(article.createTime) }}</span>
             <span v-if="article.updateTime">最后修改于 {{ formatDate(article.updateTime) }}</span>
-            <span v-if="article.categoryName" class="bg-gray-100 px-2 py-0.5 rounded">{{ article.categoryName }}</span>
+            <a
+                v-if="article.categoryName"
+                @click="goCategory(article.categoryId)"
+                class="category-chip"
+                title="查看该分类下的文章"
+            >
+              <Icon icon="lucide:folder" class="w-3.5 h-3.5" />
+              {{ article.categoryName }}
+            </a>
             <LikeButton :article-id="articleId" />
           </div>
 
@@ -137,10 +147,16 @@
 
         <!-- 标签 -->
         <div v-if="article.tags && article.tags.length" class="flex flex-wrap gap-2 mt-6">
-          <span v-for="tag in article.tags" :key="tag.id"
-                class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+          <a
+              v-for="tag in article.tags"
+              :key="tag.id"
+              @click="goTag(tag.id)"
+              class="tag-chip"
+              title="查看该标签下的文章"
+          >
+            <Icon icon="lucide:tag" class="w-3.5 h-3.5" />
             {{ tag.name }}
-          </span>
+          </a>
         </div>
 
         <!-- 评论区 -->
@@ -183,6 +199,8 @@ import LikeButton from './LikeButton.vue'
 import CommentSection from './CommentSection.vue'
 import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
+import { Icon } from '@iconify/vue'
+import { navigate } from 'astro:transitions/client'
 
 const props = defineProps({ articleId: String })
 
@@ -243,6 +261,13 @@ const extractHeadings = (html) => {
     text: el.textContent,
     id: el.id
   }))
+}
+const goCategory = (id) => {
+  navigate(`/archive?categoryId=${id}`)
+}
+
+const goTag = (id) => {
+  navigate(`/archive?tagId=${id}`)
 }
 
 const updateHeadings = () => {
@@ -670,5 +695,87 @@ onMounted(fetchArticle)
 .editor-wrapper .bytemd-preview {
   overflow-y: auto !important;
 }
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
 
+.admin-action-btn.edit {
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+}
+.admin-action-btn.edit:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.admin-action-btn.delete {
+  background: linear-gradient(135deg, #fde2e2, #fbc4c4);
+  color: #b91c1c;
+}
+.admin-action-btn.delete:hover {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  color: #991b1b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #dbeafe, #c7d2fe);  /* 淡蓝紫 */
+  color: #3730a3;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.category-chip:hover {
+  background: linear-gradient(135deg, #c7d2fe, #b1bcf5);
+  color: #312e81;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+
+.tag-chip:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
 </style>

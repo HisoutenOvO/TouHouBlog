@@ -1,7 +1,10 @@
 <template>
   <div class="glass-card p-4">
     <div class="flex justify-between items-center mb-3">
-      <h3 class="font-bold text-gray-900">📂 分类</h3>
+      <h3 class="font-bold text-gray-900 flex items-center gap-1.5">
+        <Icon icon="lucide:folder" class="w-5 h-5 text-gray-600" />
+        分类
+      </h3>
       <button
           v-if="isAdmin"
           @click="showManager = !showManager"
@@ -22,7 +25,7 @@
                 v-model="editCatName"
                 @keyup.enter="updateCategory(cat.id)"
                 @keyup.esc="cancelEdit"
-                class="flex-1 min-w-0 px-2 py-1 border border-gray-200 rounded text-sm"
+                class="manager-input flex-1 min-w-0"
             />
             <div class="flex gap-1 ml-2">
               <button @click="updateCategory(cat.id)" class="manager-btn primary">保存</button>
@@ -32,17 +35,30 @@
           <template v-else>
             <span class="text-gray-700">{{ cat.name }}</span>
             <div class="flex items-center gap-2">
-              <button @click="startEdit(cat)" class="manager-btn">编辑</button>
-              <button @click="deleteCategory(cat.id)" class="manager-btn danger">删除</button>
+              <button @click="startEdit(cat)" class="manager-btn">
+                <Icon icon="lucide:pencil" class="w-3.5 h-3.5" />
+                编辑
+              </button>
+              <button @click="deleteCategory(cat.id)" class="manager-btn danger">
+                <Icon icon="lucide:trash-2" class="w-3.5 h-3.5" />
+                删除
+              </button>
             </div>
           </template>
         </div>
 
         <!-- 新增分类 -->
         <div class="flex gap-2 pt-2 border-t border-gray-100">
-          <input v-model="newCatName" @keyup.enter="addCategory" placeholder="新增分类"
-                 class="manager-input flex-1 min-w-0" />
-          <button @click="addCategory" :disabled="!newCatName.trim()" class="manager-btn primary">新增</button>
+          <input
+              v-model="newCatName"
+              @keyup.enter="addCategory"
+              placeholder="新增分类"
+              class="manager-input flex-1 min-w-0"
+          />
+          <button @click="addCategory" :disabled="!newCatName.trim()" class="manager-btn primary">
+            <Icon icon="lucide:plus" class="w-3.5 h-3.5" />
+            新增
+          </button>
         </div>
       </div>
 
@@ -65,6 +81,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth'
 import { navigate } from 'astro:transitions/client'
@@ -138,7 +155,27 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.manager-toggle-btn {
+  padding: 0.25rem 0.8rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.manager-toggle-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
 .manager-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.3rem 0.6rem;
   border: none;
   border-radius: 0.4rem;
@@ -168,22 +205,7 @@ onMounted(async () => {
 .manager-btn.danger:hover {
   background: #fee2e2;
 }
-.manager-toggle-btn {
-  padding: 0.25rem 0.8rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-.manager-toggle-btn:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-}
+
 .manager-input {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid #e8d5f5;

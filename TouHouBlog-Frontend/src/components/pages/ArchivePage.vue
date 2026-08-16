@@ -1,6 +1,5 @@
 <template>
   <div class="archive-view-container min-h-[500px]">
-    <!-- 文章列表视图 -->
     <div v-show="currentView === 'list'">
       <RecentArticles
           v-if="isFilterReady"
@@ -12,7 +11,6 @@
       <div v-else class="text-center text-gray-400 py-20">加载中...</div>
     </div>
 
-    <!-- 时间线视图 -->
     <div v-show="currentView === 'timeline'">
       <ArchiveTimeline />
     </div>
@@ -31,6 +29,7 @@ const tagId = ref(null)
 const isFilterReady = ref(false)
 const currentView = ref('list')
 
+// 从 URL 读取筛选参数
 const initFilterParams = () => {
   const urlParams = new URLSearchParams(window.location.search)
   const cat = urlParams.get('categoryId')
@@ -40,6 +39,7 @@ const initFilterParams = () => {
   isFilterReady.value = true
 }
 
+// 监听搜索和视图切换事件
 if (typeof window !== 'undefined') {
   window.addEventListener('search-change', (e) => {
     searchKeyword.value = e.detail.keyword
@@ -47,11 +47,17 @@ if (typeof window !== 'undefined') {
   window.addEventListener('archive-view-change', (e) => {
     currentView.value = e.detail.view
   })
-  const initialView = window.__archiveView || 'list'
-  currentView.value = initialView
+  // 初始化视图状态
+  currentView.value = window.__archiveView || 'list'
 }
 
 onMounted(() => {
   initFilterParams()
 })
 </script>
+
+<style scoped>
+.archive-view-container {
+  min-height: 500px;
+}
+</style>

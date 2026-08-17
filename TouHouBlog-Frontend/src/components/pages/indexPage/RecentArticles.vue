@@ -8,38 +8,42 @@
         class="space-y-3"
         appear
     >
-      <a
+      <RevealOnScroll
           v-for="(article, index) in articles"
           :key="article.id"
-          :href="`/article/${article.id}`"
-          class="glass-card flex article-card-hover cursor-pointer min-h-[12rem]"
-          :style="{ transitionDelay: `${index * 80}ms` }"
+          :delay="index * 60"
       >
-        <!-- 左侧封面 -->
-        <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center overflow-hidden relative">
-          <img
-              v-if="article.coverUrl"
-              :src="article.coverUrl"
-              class="absolute inset-0 w-full h-full object-cover rounded-l-lg"
-          />
-          <span v-else class="text-gray-400 text-lg">封面占位</span>
-        </div>
-        <!-- 右侧文字 -->
-        <div class="w-1/2 p-5 flex flex-col justify-between">
-          <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">{{ article.title }}</h3>
-            <div class="text-sm text-gray-400">
-              {{ article.categoryName }} · {{ article.createTime }}
+        <a
+            :href="`/article/${article.id}`"
+            class="glass-card flex article-card-hover cursor-pointer min-h-[12rem]"
+            :style="{ transitionDelay: `${index * 80}ms` }"
+        >
+          <!-- 左侧封面 -->
+          <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center overflow-hidden relative">
+            <img
+                v-if="article.coverUrl"
+                :src="article.coverUrl"
+                class="absolute inset-0 w-full h-full object-cover rounded-l-lg"
+            />
+            <span v-else class="text-gray-400 text-lg">封面占位</span>
+          </div>
+          <!-- 右侧文字 -->
+          <div class="w-1/2 p-5 flex flex-col justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 mb-1">{{ article.title }}</h3>
+              <div class="text-sm text-gray-400">
+                {{ article.categoryName }} · {{ article.createTime }}
+              </div>
+            </div>
+            <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
+            <div class="flex flex-wrap gap-1.5">
+        <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
+          {{ tag.name }}
+        </span>
             </div>
           </div>
-          <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
-              {{ tag.name }}
-            </span>
-          </div>
-        </div>
-      </a>
+        </a>
+      </RevealOnScroll>
     </TransitionGroup>
     <div v-else class="text-gray-500">暂无文章。</div>
 
@@ -69,6 +73,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import request from '../../../utils/request'
+import RevealOnScroll from "../../common/RevealOnScroll.vue";
 
 const props = defineProps({
   pageSize: { type: Number, default: 5 },

@@ -56,14 +56,15 @@ onBeforeUnmount(() => {
 /* 背景漂移动画：持续向右缓慢移动 */
 @keyframes bgDrift {
   0%, 100% {
-    transform: translateX(0);
+    transform: scale(1.1) translateX(0);
   }
   50% {
-    transform: translateX(20px);
+    transform: scale(1.1) translateX(15px);
   }
 }
 
 .bg-drift {
-  animation: bgDrift 14s ease-in-out infinite;
+  animation: bgDrift 12s ease-in-out infinite;
 }
+
 </style>

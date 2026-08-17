@@ -7,8 +7,8 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
-    <!-- 标题区域：横跨整行 -->
-    <div class="text-center py-12">
+    <!-- 标题区域：横跨整行，淡入动画 -->
+    <div class="text-center py-12 fade-in-simple">
         <h1 class="archive-title">归档与探索</h1>
         <p class="archive-subtitle" id="totalArticles">共 … 篇研究</p>
 
@@ -34,7 +34,8 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 
     <!-- 三栏布局 -->
     <div class="flex gap-6 max-w-7xl mx-auto px-4">
-        <aside class="w-56 flex-shrink-0">
+        <!-- 左侧栏：从左侧屏幕外滑入 -->
+        <aside class="w-56 flex-shrink-0 slide-in-left">
             <div class="sticky top-24">
                 <CategoryList client:load />
             </div>
@@ -44,7 +45,8 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
             <ArchivePage client:load />
         </main>
 
-        <aside class="w-56 flex-shrink-0">
+        <!-- 右侧栏：从右侧屏幕外滑入 -->
+        <aside class="w-56 flex-shrink-0 slide-in-right">
             <div class="sticky top-24 space-y-4">
                 <TagList client:load />
                 <MusicPlayer client:only="vue" mode="mini" transition:persist />
@@ -55,97 +57,97 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 
 <script>
     // @ts-nocheck
-    function initArchivePage() {
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('search-btn');
-        const totalSpan = document.getElementById('totalArticles');
-        const writeBtn = document.getElementById('new-article-btn');
-        const indicator = document.getElementById('switchIndicator');
-        const switchButtons = document.querySelectorAll('#viewSwitch button');
+        function initArchivePage() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('search-btn');
+            const totalSpan = document.getElementById('totalArticles');
+            const writeBtn = document.getElementById('new-article-btn');
+            const indicator = document.getElementById('switchIndicator');
+            const switchButtons = document.querySelectorAll('#viewSwitch button');
 
-        // 更新文章总数
-        async function fetchTotal(keyword = '') {
-            if (!totalSpan) return;
-            const params = { page: '1', pageSize: '1' };
-            if (keyword) params.keyword = keyword;
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('categoryId');
-            const tag = urlParams.get('tagId');
-            if (cat && cat !== 'null') params.categoryId = cat;
-            if (tag && tag !== 'null') params.tagId = tag;
-            try {
-                const res = await fetch('/api/articles/list?' + new URLSearchParams(params).toString());
-                const data = await res.json();
-                if (data.code === 1 && totalSpan) {
-                    totalSpan.textContent = `共 ${data.data.total} 篇研究`;
-                }
-            } catch (e) {
-                console.error('获取文章总数失败', e);
-            }
-        }
-
-        function performSearch() {
-            const keyword = searchInput?.value.trim() || '';
-            fetchTotal(keyword);
-            window.dispatchEvent(new CustomEvent('search-change', { detail: { keyword } }));
-        }
-
-        // 避免重复绑定
-        if (searchBtn && !searchBtn.__bound) {
-            searchBtn.addEventListener('click', performSearch);
-            searchBtn.__bound = true;
-        }
-        if (searchInput && !searchInput.__bound) {
-            searchInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') performSearch();
-            });
-            searchInput.__bound = true;
-        }
-
-        function setWriteButton() {
-            if (!writeBtn) return;
-            const token = localStorage.getItem('touhou_token');
-            if (token) {
+            // 更新文章总数
+            async function fetchTotal(keyword = '') {
+                if (!totalSpan) return;
+                const params = { page: '1', pageSize: '1' };
+                if (keyword) params.keyword = keyword;
+                const urlParams = new URLSearchParams(window.location.search);
+                const cat = urlParams.get('categoryId');
+                const tag = urlParams.get('tagId');
+                if (cat && cat !== 'null') params.categoryId = cat;
+                if (tag && tag !== 'null') params.tagId = tag;
                 try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    writeBtn.style.display = payload.role === 1 ? 'inline-block' : 'none';
-                } catch (e) {
-                    writeBtn.style.display = 'none';
+                    const res = await fetch('/api/articles/list?' + new URLSearchParams(params).toString());
+                    const data = await res.json();
+                    if (data.code === 1 && totalSpan) {
+                        totalSpan.textContent = `共 ${data.data.total} 篇研究`;
+                        }
+                    } catch (e) {
+                    console.error('获取文章总数失败', e);
+                    }
                 }
-            } else {
-                writeBtn.style.display = 'none';
-            }
-        }
 
-        function setSwitchStyle(view) {
-            if (!indicator || !switchButtons.length) return;
-            indicator.style.transform = view === 'timeline' ? 'translateX(100%)' : 'translateX(0)';
+            function performSearch() {
+                const keyword = searchInput?.value.trim() || '';
+                fetchTotal(keyword);
+                window.dispatchEvent(new CustomEvent('search-change', { detail: { keyword } }));
+                }
+
+            // 避免重复绑定
+            if (searchBtn && !searchBtn.__bound) {
+                searchBtn.addEventListener('click', performSearch);
+                searchBtn.__bound = true;
+                }
+            if (searchInput && !searchInput.__bound) {
+                searchInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                    });
+                searchInput.__bound = true;
+                }
+
+            function setWriteButton() {
+                if (!writeBtn) return;
+                const token = localStorage.getItem('touhou_token');
+                if (token) {
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        writeBtn.style.display = payload.role === 1 ? 'inline-block' : 'none';
+                        } catch (e) {
+                        writeBtn.style.display = 'none';
+                        }
+                    } else {
+                    writeBtn.style.display = 'none';
+                    }
+                }
+
+            function setSwitchStyle(view) {
+                if (!indicator || !switchButtons.length) return;
+                indicator.style.transform = view === 'timeline' ? 'translateX(100%)' : 'translateX(0)';
+                switchButtons.forEach(btn => {
+                    const isActive = (btn.dataset.view === view);
+                    btn.classList.toggle('active', isActive);
+                    });
+                }
+
+            function switchView(view) {
+                window.__archiveView = view;
+                setSwitchStyle(view);
+                window.dispatchEvent(new CustomEvent('archive-view-change', { detail: { view } }));
+                }
+
             switchButtons.forEach(btn => {
-                const isActive = (btn.dataset.view === view);
-                btn.classList.toggle('active', isActive);
-            });
-        }
+                if (!btn.__bound) {
+                    btn.addEventListener('click', () => switchView(btn.dataset.view));
+                    btn.__bound = true;
+                    }
+                });
 
-        function switchView(view) {
-            window.__archiveView = view;
-            setSwitchStyle(view);
-            window.dispatchEvent(new CustomEvent('archive-view-change', { detail: { view } }));
-        }
-
-        switchButtons.forEach(btn => {
-            if (!btn.__bound) {
-                btn.addEventListener('click', () => switchView(btn.dataset.view));
-                btn.__bound = true;
+            // 初始化
+            const savedView = window.__archiveView || 'list';
+            setSwitchStyle(savedView);
+            fetchTotal();
+            setWriteButton();
             }
-        });
 
-        // 初始化
-        const savedView = window.__archiveView || 'list';
-        setSwitchStyle(savedView);
-        fetchTotal();
-        setWriteButton();
-    }
-
-    initArchivePage();
-    document.addEventListener('astro:page-load', initArchivePage);
+        initArchivePage();
+        document.addEventListener('astro:page-load', initArchivePage);
 </script>

@@ -67,11 +67,11 @@
         <div
             v-for="cat in categories"
             :key="cat.id"
-            class="flex justify-between text-sm cursor-pointer hover:text-gray-900 transition-colors"
+            class="category-item flex justify-between text-sm cursor-pointer"
             @click="goToCategory(cat.id)"
         >
-          <span class="text-gray-700">{{ cat.name }}</span>
-          <span class="text-gray-400">{{ cat.articleCount || 0 }}</span>
+          <span class="text-gray-700 category-name">{{ cat.name }}</span>
+          <span class="text-gray-400 category-count">{{ cat.articleCount || 0 }}</span>
         </div>
       </div>
       <div v-else class="text-sm text-gray-500">暂无分类</div>
@@ -219,5 +219,24 @@ onMounted(async () => {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
   outline: none;
+}
+.category-item {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.category-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
+}
+
+.category-item:hover .category-name {
+  color: #1f2937;
+}
+
+.category-item:hover .category-count {
+  color: #7c3aed;
 }
 </style>

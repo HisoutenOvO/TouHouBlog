@@ -12,7 +12,7 @@
           v-for="(article, index) in articles"
           :key="article.id"
           :href="`/article/${article.id}`"
-          class="glass-card flex hover:shadow-md transition-shadow cursor-pointer min-h-[12rem]"
+          class="glass-card flex article-card-hover cursor-pointer min-h-[12rem]"
           :style="{ transitionDelay: `${index * 80}ms` }"
       >
         <!-- 左侧封面 -->
@@ -135,5 +135,14 @@ onMounted(() => {
 }
 .article-list-leave-to {
   opacity: 0;
+}
+/* 文章卡片悬停特效 */
+.article-card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(124, 58, 237, 0.18), 0 6px 12px rgba(0, 0, 0, 0.06);
 }
 </style>

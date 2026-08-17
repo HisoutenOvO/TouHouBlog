@@ -1,38 +1,54 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import LoginButtons from '../components/pages/LoginButtons.vue'
 ---
 
 <Layout>
-    <div class="flex items-center justify-center min-h-[70vh]">
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-10 w-full max-w-sm text-center">
-            <div class="text-4xl mb-4">🎵</div>
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">登录 TouHouBlog</h1>
-            <p class="text-sm text-gray-500 mb-8">使用第三方账号快速登录，参与互动</p>
+    <div class="flex items-center justify-center min-h-[70vh] px-4">
+        <div class="login-card glass-card">
+            <div class="text-5xl mb-4">🎵</div>
+            <h1 class="login-title">登录 TouHouBlog</h1>
+            <p class="login-subtitle">选择一种方式，进入幻想世界</p>
 
-            <div class="space-y-3">
-                <a
-                        href="http://localhost:8080/oauth2/authorization/github"
-                        class="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors no-underline font-medium"
-                >
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                    使用 GitHub 登录
-                </a>
-                <a
-                        href="http://localhost:8080/oauth2/authorization/gitee"
-                        class="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors no-underline font-medium"
-                >
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M11.984 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.016 0zm6.09 5.333c.328 0 .593.266.593.593v1.482a.594.594 0 0 1-.593.593H9.777c-.982 0-1.778.796-1.778 1.778v5.63c0 .327.266.592.593.592h1.482a.594.594 0 0 0 .593-.592v-4.445h2.964v4.445c0 .327.266.592.593.592h1.482a.594.594 0 0 0 .593-.592V9.778c0-.982-.796-1.778-1.778-1.778H8.593V6.222h9.481z"/>
-                    </svg>
-                    使用 Gitee 登录
-                </a>
-            </div>
+            <LoginButtons client:load />
 
-            <p class="mt-6 text-xs text-gray-400">
-                登录后可以发表评论、点赞等功能哦，一起来互动吧～
-            </p>
+            <p class="login-footer">登录后可以发表评论、点赞，博主还会获得特殊标识哦</p>
         </div>
     </div>
 </Layout>
+
+<style>
+    .login-card {
+        max-width: 380px;
+        width: 100%;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+
+    .login-title {
+        font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        font-style: italic;
+        color: #6b7280;
+        font-size: 0.95rem;
+        letter-spacing: 0.03em;
+        margin-bottom: 1.75rem;
+    }
+
+    .login-footer {
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+</style>

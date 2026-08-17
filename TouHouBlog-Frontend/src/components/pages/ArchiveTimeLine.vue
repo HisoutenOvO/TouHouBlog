@@ -22,18 +22,28 @@
               <span class="month-arrow">{{ isMonthOpen(month.month) ? '▲' : '▼' }}</span>
             </div>
 
-            <!-- 文章列表（折叠时隐藏） -->
-            <ul v-if="isMonthOpen(month.month)" class="article-list">
-              <li
-                  v-for="article in month.articles"
-                  :key="article.id"
-                  class="article-item"
-                  @click="goArticle(article.id)"
-              >
-                <span class="article-title">{{ article.title }}</span>
-                <span class="article-date">{{ formatDate(article.createTime) }}</span>
-              </li>
-            </ul>
+            <!-- 文章列表：带高度和透明度过渡 -->
+            <Transition
+                name="fold"
+                @before-enter="beforeEnter"
+                @enter="enter"
+                @after-enter="afterEnter"
+                @before-leave="beforeLeave"
+                @leave="leave"
+                @after-leave="afterLeave"
+            >
+              <ul v-if="isMonthOpen(month.month)" class="article-list">
+                <li
+                    v-for="article in month.articles"
+                    :key="article.id"
+                    class="article-item"
+                    @click="goArticle(article.id)"
+                >
+                  <span class="article-title">{{ article.title }}</span>
+                  <span class="article-date">{{ formatDate(article.createTime) }}</span>
+                </li>
+              </ul>
+            </Transition>
           </div>
         </div>
       </div>
@@ -104,6 +114,48 @@ const formatDate = (datetime) => {
   return d.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
 }
 
+// 过渡钩子：实现高度平滑变化
+const beforeEnter = (el) => {
+  el.style.height = '0'
+  el.style.opacity = '0'
+  el.style.overflow = 'hidden'
+}
+const enter = (el, done) => {
+  const height = el.scrollHeight
+  el.style.transition = 'height 0.3s ease, opacity 0.3s ease'
+  el.style.height = height + 'px'
+  el.style.opacity = '1'
+  const onTransitionEnd = () => {
+    el.style.height = 'auto'
+    el.style.overflow = 'visible'
+    el.removeEventListener('transitionend', onTransitionEnd)
+    done()
+  }
+  el.addEventListener('transitionend', onTransitionEnd)
+}
+const afterEnter = (el) => {
+  el.style.height = 'auto'
+  el.style.overflow = 'visible'
+}
+const beforeLeave = (el) => {
+  el.style.height = el.scrollHeight + 'px'
+  el.style.overflow = 'hidden'
+}
+const leave = (el, done) => {
+  el.style.transition = 'height 0.3s ease, opacity 0.3s ease'
+  el.style.height = '0'
+  el.style.opacity = '0'
+  const onTransitionEnd = () => {
+    el.removeEventListener('transitionend', onTransitionEnd)
+    done()
+  }
+  el.addEventListener('transitionend', onTransitionEnd)
+}
+const afterLeave = (el) => {
+  el.style.height = '0'
+  el.style.overflow = 'hidden'
+}
+
 onMounted(fetchArchive)
 </script>
 
@@ -169,7 +221,7 @@ onMounted(fetchArchive)
 
 .month-dot {
   position: absolute;
-  left: -2.5rem;                 /* 2rem(竖线距离内容区) + 0.5rem(圆点半径) */
+  left: -2.5rem;
   top: 0.5rem;
   width: 1rem;
   height: 1rem;
@@ -200,6 +252,8 @@ onMounted(fetchArchive)
   list-style: none;
   padding-left: 1.5rem;
   margin-top: 0.5rem;
+  margin-bottom: 0;
+  overflow: hidden;
 }
 
 .article-item {

@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import GlobalModal from '../components/common/GlobalModal.vue';
+import BackgroundCarousel from '../components/common/BackgroundCarousel.vue';
 const siteTitle = "TouHouBlog"
 ---
 
@@ -14,6 +15,7 @@ const siteTitle = "TouHouBlog"
     <ClientRouter />
 </head>
 <body class="bg-white text-gray-900">
+<BackgroundCarousel client:load transition:persist />
 <header class="glass-navbar p-4 fixed top-0 w-full z-50">
     <nav class="max-w-4xl mx-auto flex justify-between items-center">
         <a href="/" class="site-title no-underline">TouHouBlog</a>

@@ -92,12 +92,15 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     @Transactional
-    public void addArticle(ArticleAddDTO articleAddDTO) {
+    public Long addArticle(ArticleAddDTO articleAddDTO) {
         Article article = new Article();
-        BeanUtils.copyProperties(articleAddDTO,article);
+        BeanUtils.copyProperties(articleAddDTO, article);
         articleMapper.insert(article);
         List<Integer> tagIds = articleAddDTO.getTagIds();
-        tagMapper.insertBatch(article.getId(),tagIds);
+        if (tagIds != null && !tagIds.isEmpty()) {
+            tagMapper.insertBatch(article.getId(), tagIds);
+        }
+        return article.getId();
     }
 
     /**
@@ -200,5 +203,21 @@ public class ArticleServiceImpl implements ArticleService {
         // 月份倒序
         result.sort((a, b) -> b.getMonth().compareTo(a.getMonth()));
         return result;
+    }
+
+    @Override
+    public ArticleVO getDraft() {
+        // 查询最新一篇草稿（status=0）
+        ArticlePageQueryDTO dto = new ArticlePageQueryDTO();
+        dto.setPage(1);
+        dto.setPageSize(1);
+        // 这里需要在 SQL 中过滤 status=0，或者先查出 status=0 的最新一条
+        // 简单做法：直接查询全部 status=0 的文章，取第一条，但这里用 XML 扩展
+        ArticleVO draft = articleMapper.selectLatestDraft();
+        if (draft == null) return null;
+        // 查询标签
+        List<TagVO> tags = articleMapper.getTagsByArticleIds(List.of(draft.getId()));
+        draft.setTags(tags);
+        return draft;
     }
 }

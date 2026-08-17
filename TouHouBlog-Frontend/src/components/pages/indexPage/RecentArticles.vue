@@ -1,12 +1,27 @@
 <template>
   <div>
     <div v-if="loading" class="text-gray-500">加载中...</div>
-    <div v-else-if="articles.length" class="space-y-3">
-      <a v-for="article in articles" :key="article.id" :href="`/article/${article.id}`"
-         class="glass-card flex hover:shadow-md transition-shadow cursor-pointer min-h-[12rem]">
+    <TransitionGroup
+        v-else-if="articles.length"
+        name="article-list"
+        tag="div"
+        class="space-y-3"
+        appear
+    >
+      <a
+          v-for="(article, index) in articles"
+          :key="article.id"
+          :href="`/article/${article.id}`"
+          class="glass-card flex hover:shadow-md transition-shadow cursor-pointer min-h-[12rem]"
+          :style="{ transitionDelay: `${index * 80}ms` }"
+      >
         <!-- 左侧封面 -->
         <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center overflow-hidden relative">
-          <img v-if="article.coverUrl" :src="article.coverUrl" class="absolute inset-0 w-full h-full object-cover rounded-l-lg" />
+          <img
+              v-if="article.coverUrl"
+              :src="article.coverUrl"
+              class="absolute inset-0 w-full h-full object-cover rounded-l-lg"
+          />
           <span v-else class="text-gray-400 text-lg">封面占位</span>
         </div>
         <!-- 右侧文字 -->
@@ -20,12 +35,12 @@
           <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
           <div class="flex flex-wrap gap-1.5">
             <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
-             {{ tag.name }}
-           </span>
+              {{ tag.name }}
+            </span>
           </div>
         </div>
       </a>
-    </div>
+    </TransitionGroup>
     <div v-else class="text-gray-500">暂无文章。</div>
 
     <!-- 分页 -->
@@ -50,18 +65,20 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import request from '../../../utils/request'
+
 const props = defineProps({
   pageSize: { type: Number, default: 5 },
   search: { type: String, default: '' },
-  categoryId: { default: null },    // 不再限制类型，接受任何值包括 null
-  tagId: { default: null }          // 同理
+  categoryId: { type: [String, Number], default: null },
+  tagId: { type: [String, Number], default: null }
 })
 
 const articles = ref([])
-const loading = ref(false)
+const loading = ref(true)
 const pageNum = ref(1)
 const total = ref(0)
 const totalPages = ref(0)
@@ -71,15 +88,15 @@ const fetchArticles = async () => {
   try {
     const params = { page: pageNum.value, pageSize: props.pageSize }
     if (props.search) params.keyword = props.search
-    if (props.categoryId && props.categoryId !== 'null') params.categoryId = props.categoryId
-    if (props.tagId && props.tagId !== 'null') params.tagId = props.tagId
+    if (props.categoryId) params.categoryId = props.categoryId
+    if (props.tagId) params.tagId = props.tagId
 
     const res = await request.get('/api/articles/list', { params })
     articles.value = res.data.data.records
     total.value = res.data.data.total
     totalPages.value = Math.ceil(total.value / props.pageSize)
   } catch (e) {
-
+    console.error('获取文章失败', e)
   } finally {
     loading.value = false
   }
@@ -91,7 +108,6 @@ const changePage = (page) => {
   fetchArticles()
 }
 
-// 监听筛选条件变化
 watch(
     () => [props.search, props.categoryId, props.tagId],
     () => {
@@ -100,32 +116,24 @@ watch(
     }
 )
 
-// 组件挂载时请求数据（此时 props 已由父组件提供正确的值）
 onMounted(() => {
   fetchArticles()
 })
-
-
 </script>
-<style scoped>
-.tag-chip-list {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: background 0.2s, transform 0.2s;
-}
 
-.tag-chip-list:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  transform: translateY(-1px);
+<style scoped>
+/* 文章卡片逐个上浮动画 */
+.article-list-enter-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.article-list-enter-from {
+  opacity: 0;
+  transform: translateY(40px);
+}
+.article-list-leave-active {
+  transition: opacity 0.3s ease;
+}
+.article-list-leave-to {
+  opacity: 0;
 }
 </style>

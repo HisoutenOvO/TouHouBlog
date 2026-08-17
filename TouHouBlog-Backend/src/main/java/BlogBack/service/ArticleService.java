@@ -29,7 +29,7 @@ public interface ArticleService {
      * 新增文章
      * @param articleAddDTO
      */
-    void addArticle(ArticleAddDTO articleAddDTO);
+    Long addArticle(ArticleAddDTO articleAddDTO);
 
     /**
      * 修改文章
@@ -61,4 +61,6 @@ public interface ArticleService {
     LikeVO getLikeStatus(Long articleId, Long userId);
 
     List<ArchiveMonthVO> getArchiveList();
+
+    ArticleVO getDraft();
 }

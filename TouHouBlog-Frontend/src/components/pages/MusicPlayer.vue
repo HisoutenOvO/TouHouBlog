@@ -384,7 +384,7 @@ const changeMode = () => {
 
   localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)
   playMode.value = nextMode
-
+  const APlayerCtor = APlayerClass || window.__APlayerClass
   if (APlayerClass && ap) {
     const oldIndex = ap.list.index
     const oldTime = ap.audio.currentTime
@@ -456,6 +456,7 @@ onMounted(async () => {
   if (window[INSTANCE_KEY]) {
     ap = window[INSTANCE_KEY]
     console.log('[Player] 复用已有实例')
+    APlayerClass = window.__APlayerClass || null   // 从全局恢复
     const savedMode = getStoredMode()
     playMode.value = savedMode
     syncUI()
@@ -475,6 +476,7 @@ onMounted(async () => {
     ])
     const APlayer = APlayerModule.default
     APlayerClass = APlayer
+    window.__APlayerClass = APlayer   // 新增：保存到全局，防止页面切换后丢失
 
     let songs = []
     const cached = localStorage.getItem(PLAYLIST_CACHE_KEY)

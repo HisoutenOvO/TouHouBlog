@@ -61,10 +61,10 @@ public class ArticleController {
      */
     @PostMapping
     @Operation(summary = "新增文章")
-    public Result AddArticle(@RequestBody ArticleAddDTO articleAddDTO){
-        log.info("新增文章:{}",articleAddDTO.getTitle());
-        articleService.addArticle(articleAddDTO);
-        return Result.success();
+    public Result AddArticle(@RequestBody ArticleAddDTO articleAddDTO) {
+        log.info("新增文章:{}", articleAddDTO.getTitle());
+        Long newId = articleService.addArticle(articleAddDTO);
+        return Result.success(newId);
     }
 
     /**
@@ -123,5 +123,17 @@ public class ArticleController {
     public Result<List<ArchiveMonthVO>> getArchiveList() {
         log.info("获取文章归档时间线");
         return Result.success(articleService.getArchiveList());
+    }
+
+    /**
+     * 获取最新草稿
+     * @return
+     */
+    @GetMapping("/draft")
+    @Operation(summary = "获取最新草稿")
+    public Result<ArticleVO> getDraft() {
+        log.info("获取最新草稿");
+        ArticleVO draft = articleService.getDraft();
+        return Result.success(draft);
     }
 }

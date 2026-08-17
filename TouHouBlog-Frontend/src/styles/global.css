@@ -20,15 +20,7 @@
     background: #fc625d;
     box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
 }
-body {
-    background-color: #f8e8ee; /* 基础底色 */
-    background-image:
-            linear-gradient(135deg, rgba(252, 228, 236, 0.75), rgba(232, 234, 246, 0.75), rgba(237, 231, 246, 0.75)),
-            url('/public/images/bg.jpg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-}
+
 /* 全局滚动条 */
 ::-webkit-scrollbar {
     width: 8px;

@@ -43,4 +43,5 @@ public class Article {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
+    private Integer status;   // 0=草稿，1=已发布
 }

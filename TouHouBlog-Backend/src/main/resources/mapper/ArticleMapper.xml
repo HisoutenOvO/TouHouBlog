@@ -21,6 +21,9 @@
             <if test="article.coverUrl != null">
                 cover_url = #{article.coverUrl},
             </if>
+            <if test="article.status != null">
+                status = #{article.status},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -30,6 +33,7 @@
         from article a
         left join category c on a.category_id = c.id
         <where>
+            and status = 1
             <if test="id != null">
                 and a.id = #{id}
             </if>
@@ -61,5 +65,15 @@
         select id, title, create_time
         from article
         order by create_time desc
+    </select>
+
+    <select id="selectLatestDraft" resultType="BlogBack.pojo.vo.ArticleVO">
+        select a.id, a.title, a.content, a.category_id, c.name as categoryName,
+               a.create_time as createTime, a.update_time as updateTime, a.cover_url as coverUrl
+        from article a
+                 left join category c on a.category_id = c.id
+        where a.status = 0
+        order by a.update_time desc
+        limit 1
     </select>
 </mapper>

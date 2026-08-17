@@ -89,4 +89,6 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
 
     List<ArchiveArticleVO> selectArchiveList();
+
+    ArticleVO selectLatestDraft();
 }

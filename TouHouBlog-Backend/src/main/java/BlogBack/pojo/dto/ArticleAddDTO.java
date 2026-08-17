@@ -21,4 +21,6 @@ public class ArticleAddDTO {
     private Long categoryId;
 
     private List<Integer> tagIds;
+
+    private Integer status;   // 0=草稿，1=已发布
 }

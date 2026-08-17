@@ -150,4 +150,24 @@ onMounted(() => {
   transform: translateY(-6px);
   box-shadow: 0 16px 32px rgba(124, 58, 237, 0.18), 0 6px 12px rgba(0, 0, 0, 0.06);
 }
+.tag-chip-list {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.tag-chip-list:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  transform: translateY(-1px);
+}
 </style>

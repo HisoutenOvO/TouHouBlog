@@ -26,12 +26,14 @@
         <!-- 分类 -->
         <div class="setting-group">
           <label class="setting-label">分类</label>
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-center">
             <select v-model="categoryId" class="setting-select">
               <option value="">未分类</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
-            <button @click="showAddCategory = true" class="setting-add-btn">＋</button>
+            <button @click="showAddCategory = true" class="setting-add-btn">
+              <Icon icon="lucide:plus" class="w-4 h-4" />
+            </button>
           </div>
           <div v-if="showAddCategory" class="flex gap-2 mt-2">
             <input
@@ -51,8 +53,8 @@
           <div class="cover-upload" @click="triggerCoverInput">
             <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
             <div v-else class="cover-placeholder">
-              <span class="text-3xl">＋</span>
-              <span class="text-xs">添加封面</span>
+              <Icon icon="lucide:image-plus" class="w-8 h-8 text-gray-400" />
+              <span class="text-xs text-gray-400 mt-1">添加封面</span>
             </div>
           </div>
           <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
@@ -82,16 +84,29 @@
                 @keyup.enter="createTag"
             />
             <button @click="createTag" :disabled="!newTagName.trim() || creatingTag" class="setting-confirm-btn">
-              {{ creatingTag ? '...' : '新增' }}
+              <Icon icon="lucide:plus" class="w-3.5 h-3.5" />
+              新增
             </button>
           </div>
         </div>
 
         <!-- 操作按钮组 -->
-        <div class="flex gap-2 mt-auto">
-          <button @click="cancelEdit" class="cancel-btn">取消</button>
-          <button @click="saveDraft" class="draft-btn">保存草稿</button>
-          <button @click="publishArticle" class="publish-btn">发布</button>
+        <!-- 操作按钮组：发布在上，保存和取消在下 -->
+        <div class="mt-auto flex flex-col gap-2">
+          <button @click="publishArticle" class="publish-btn w-full">
+            <Icon icon="lucide:send" class="w-4 h-4" />
+            发布
+          </button>
+          <div class="flex gap-2">
+            <button @click="saveDraft" class="draft-btn flex-1">
+              <Icon icon="lucide:save" class="w-4 h-4" />
+              保存草稿
+            </button>
+            <button @click="cancelEdit" class="cancel-btn flex-1">
+              <Icon icon="lucide:x" class="w-4 h-4" />
+              取消
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -107,6 +122,7 @@ import request from '../../utils/request'
 import OSS from 'ali-oss'
 import gfm from '@bytemd/plugin-gfm'
 import { navigate } from 'astro:transitions/client'
+import { Icon } from '@iconify/vue'
 
 const plugins = [gfm()]
 
@@ -376,7 +392,6 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-/* 伪元素：模糊背景图叠加，并设置透明度让渐变透出 */
 .edit-page-container::before {
   content: '';
   position: absolute;
@@ -460,37 +475,87 @@ onMounted(async () => {
   color: #374151;
 }
 
+/* 美化后的下拉框 */
 .setting-select {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e8d5f5;
   border-radius: 6px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
   font-size: 0.9rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setting-select:focus {
+  border-color: #d8b4e8;
+  box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
+  outline: none;
 }
 
+/* 圆形添加按钮 */
+.setting-add-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.setting-add-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  transform: scale(1.1);
+}
+
+/* 输入框 */
 .setting-input {
   flex: 1;
   padding: 0.45rem 0.65rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e8d5f5;
   border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setting-input:focus {
+  border-color: #d8b4e8;
+  box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
+  outline: none;
 }
 
-.setting-add-btn,
+/* 确认按钮淡粉紫 */
 .setting-confirm-btn {
   padding: 0.5rem 0.8rem;
-  background: #111827;
-  color: #fff;
-  border: none;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+.setting-confirm-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
 }
 
 .setting-cancel-btn {
   padding: 0.5rem 0.8rem;
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.6);
   color: #374151;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -498,25 +563,30 @@ onMounted(async () => {
   font-size: 0.85rem;
 }
 
+/* 封面图上传区域 */
 .cover-upload {
   width: 100%;
   height: 120px;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px dashed #d8b4e8;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
-
+.cover-upload:hover {
+  border-color: #c084fc;
+  box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
+  background: rgba(255, 255, 255, 0.7);
+}
 .cover-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .cover-placeholder {
   display: flex;
   flex-direction: column;
@@ -524,61 +594,85 @@ onMounted(async () => {
   color: #9ca3af;
 }
 
+/* 标签胶囊 */
 .tag-item {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.6);
   color: #4b5563;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+}
+.tag-item:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.8);
 }
 .tag-item.active {
-  background: #111827;
-  color: #fff;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
+/* 底部按钮组 */
 .publish-btn {
-  padding: 0.7rem 1rem;
-  background: #111827;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 .publish-btn:hover {
-  background: #1f2937;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .draft-btn {
-  padding: 0.7rem 1rem;
-  background: rgba(255, 255, 255, 0.7);
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 6px;
+  font-size: 0.9rem;
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: background 0.2s;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  transition: all 0.2s ease;
 }
 .draft-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  transform: translateY(-1px);
 }
 
 .cancel-btn {
-  padding: 0.7rem 1rem;
-  background: transparent;
-  color: #9ca3af;
-  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
+  font-size: 0.9rem;
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.5);
+  color: #6b7280;
+  transition: all 0.2s ease;
 }
 .cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
   color: #111827;
-  border-color: #e5e7eb;
 }
 
 @keyframes fadeIn {
@@ -591,7 +685,6 @@ onMounted(async () => {
     transform: scale(1);
   }
 }
-
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -605,7 +698,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
 }
-
 .editor-wrapper .bytemd {
   flex: 1;
   min-height: 0;
@@ -613,14 +705,12 @@ onMounted(async () => {
   flex-direction: column;
   overflow: hidden;
 }
-
 .editor-wrapper .bytemd-body {
   flex: 1;
   min-height: 0;
   display: flex;
   overflow: hidden;
 }
-
 .editor-wrapper .bytemd-editor,
 .editor-wrapper .bytemd-preview {
   flex: 1;
@@ -628,19 +718,16 @@ onMounted(async () => {
   overflow: hidden;
   display: flex;
 }
-
 .editor-wrapper .bytemd-editor .CodeMirror {
   flex: 1;
   min-height: 0;
   height: auto !important;
 }
-
 .editor-wrapper .bytemd-editor .CodeMirror-scroll {
   height: auto !important;
   max-height: 100%;
   overflow-y: scroll !important;
 }
-
 .editor-wrapper .bytemd-preview {
   overflow-y: auto !important;
 }

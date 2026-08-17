@@ -32,12 +32,14 @@
             <!-- 分类 -->
             <div class="setting-group">
               <label class="setting-label">分类</label>
-              <div class="flex gap-2">
+              <div class="flex gap-2 items-center">
                 <select v-model="editCategoryId" class="setting-select">
                   <option value="">未分类</option>
                   <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                 </select>
-                <button @click="showAddCategory = true" class="setting-add-btn">＋</button>
+                <button @click="showAddCategory = true" class="setting-add-btn">
+                  <Icon icon="lucide:plus" class="w-4 h-4" />
+                </button>
               </div>
               <div v-if="showAddCategory" class="flex gap-2 mt-2">
                 <input
@@ -57,8 +59,8 @@
               <div class="cover-upload" @click="triggerCoverInput">
                 <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
                 <div v-else class="cover-placeholder">
-                  <span class="text-3xl">＋</span>
-                  <span class="text-xs">添加封面</span>
+                  <Icon icon="lucide:image-plus" class="w-8 h-8 text-gray-400" />
+                  <span class="text-xs text-gray-400 mt-1">添加封面</span>
                 </div>
               </div>
               <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
@@ -88,14 +90,23 @@
                     @keyup.enter="createTag"
                 />
                 <button @click="createTag" :disabled="!newTagName.trim() || creatingTag" class="setting-confirm-btn">
-                  {{ creatingTag ? '...' : '新增' }}
+                  <Icon icon="lucide:plus" class="w-3.5 h-3.5" />
+                  新增
                 </button>
               </div>
             </div>
 
-            <!-- 操作按钮 -->
-            <button @click="saveArticle" class="publish-btn">保存修改</button>
-            <button @click="cancelEdit" class="cancel-btn">取消</button>
+            <!-- 操作按钮：仅编辑模式 -->
+            <div class="mt-auto flex flex-col gap-2">
+              <button @click="saveArticle" class="publish-btn w-full">
+                <Icon icon="lucide:save" class="w-4 h-4" />
+                保存修改
+              </button>
+              <button @click="cancelEdit" class="cancel-btn w-full">
+                <Icon icon="lucide:x" class="w-4 h-4" />
+                取消
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -461,12 +472,10 @@ onMounted(fetchArticle)
   right: 0;
   bottom: 0;
   z-index: 200;
-  /* 背景色：粉蓝紫渐变，与全局一致 */
   background: linear-gradient(135deg, #fce4ec 0%, #e8eaf6 40%, #ede7f6 100%);
   overflow: hidden;
 }
 
-/* 伪元素：模糊背景图叠加，并设置透明度让渐变透出 */
 .edit-page-container::before {
   content: '';
   position: absolute;
@@ -476,9 +485,10 @@ onMounted(fetchArticle)
   bottom: 0;
   background: url('/images/bg.jpg') center/cover no-repeat;
   filter: blur(6px);
-  opacity: 0.5; /* 调整透明度，使背景色和背景图融合 */
-  z-index: -1;  /* 置于内容后方 */
+  opacity: 0.5;
+  z-index: -1;
 }
+
 .edit-layout {
   display: flex;
   height: 100%;
@@ -509,9 +519,6 @@ onMounted(fetchArticle)
 .title-input:focus {
   border-color: #111827;
   background: rgba(255, 255, 255, 0.8);
-}
-.title-input:focus {
-  border-bottom-color: #111827;
 }
 
 .editor-wrapper {
@@ -555,34 +562,80 @@ onMounted(fetchArticle)
 .setting-select {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e8d5f5;
   border-radius: 6px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
   font-size: 0.9rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setting-select:focus {
+  border-color: #d8b4e8;
+  box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
+  outline: none;
 }
 
 .setting-input {
   flex: 1;
   padding: 0.45rem 0.65rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e8d5f5;
   border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setting-input:focus {
+  border-color: #d8b4e8;
+  box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
+  outline: none;
 }
 
-.setting-add-btn,
+.setting-add-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.setting-add-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  transform: scale(1.1);
+}
+
 .setting-confirm-btn {
   padding: 0.5rem 0.8rem;
-  background: #111827;
-  color: #fff;
-  border: none;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+.setting-confirm-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
 }
 
 .setting-cancel-btn {
   padding: 0.5rem 0.8rem;
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.6);
   color: #374151;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -593,22 +646,26 @@ onMounted(fetchArticle)
 .cover-upload {
   width: 100%;
   height: 120px;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px dashed #d8b4e8;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
-
+.cover-upload:hover {
+  border-color: #c084fc;
+  box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
+  background: rgba(255, 255, 255, 0.7);
+}
 .cover-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .cover-placeholder {
   display: flex;
   flex-direction: column;
@@ -619,30 +676,82 @@ onMounted(fetchArticle)
 .tag-item {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.6);
   color: #4b5563;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+}
+.tag-item:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.8);
 }
 .tag-item.active {
-  background: #111827;
-  color: #fff;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .publish-btn {
-  padding: 0.7rem 1rem;
-  background: #111827;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 .publish-btn:hover {
-  background: #1f2937;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
+
+.draft-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  transition: all 0.2s ease;
+}
+.draft-btn:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: #111827;
+}
+
 /* 编辑/查看模式切换动画 */
 .edit-enter-active,
 .edit-leave-active {
@@ -656,20 +765,88 @@ onMounted(fetchArticle)
   opacity: 0;
   transform: scale(0.98);
 }
-.cancel-btn {
-  padding: 0.7rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+
+/* 管理员操作按钮 */
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
   cursor: pointer;
-  font-size: 0.95rem;
-  text-align: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
-.cancel-btn:hover {
-  background: #e5e7eb;
+.admin-action-btn.edit {
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+}
+.admin-action-btn.edit:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.admin-action-btn.delete {
+  background: linear-gradient(135deg, #fde2e2, #fbc4c4);
+  color: #b91c1c;
+}
+.admin-action-btn.delete:hover {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  color: #991b1b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+  color: #3730a3;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.category-chip:hover {
+  background: linear-gradient(135deg, #c7d2fe, #b1bcf5);
+  color: #312e81;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
+  color: #6b4b6b;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.tag-chip:hover {
+  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
+  color: #523b52;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
 </style>
 
 <style>
@@ -710,88 +887,5 @@ onMounted(fetchArticle)
 
 .editor-wrapper .bytemd-preview {
   overflow-y: auto !important;
-}
-.admin-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 1rem;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-.admin-action-btn.edit {
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-}
-.admin-action-btn.edit:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-
-.admin-action-btn.delete {
-  background: linear-gradient(135deg, #fde2e2, #fbc4c4);
-  color: #b91c1c;
-}
-.admin-action-btn.delete:hover {
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
-  color: #991b1b;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-.category-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: linear-gradient(135deg, #dbeafe, #c7d2fe);  /* 淡蓝紫 */
-  color: #3730a3;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-.category-chip:hover {
-  background: linear-gradient(135deg, #c7d2fe, #b1bcf5);
-  color: #312e81;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-.tag-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-
-
-.tag-chip:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-  transform: translateY(-1px);
 }
 </style>

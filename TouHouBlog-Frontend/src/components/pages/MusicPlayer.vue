@@ -18,17 +18,28 @@
 
         <!-- 上半部分：黑胶唱片居中 -->
         <div class="turntable">
-          <div class="tonearm" :class="{ playing: isPlaying }">
+          <!-- 唱针 -->
+          <div class="tonearm" :class="{ playing: isPlaying, switching: isSwitching }">
             <div class="tonearm-base"></div>
             <div class="tonearm-arm"></div>
             <div class="tonearm-head"></div>
           </div>
-          <div class="vinyl-record" :class="{ spinning: isPlaying }">
-            <div class="vinyl-grooves"></div>
-            <div class="vinyl-label">
-              <img :src="currentCover" class="label-cover" />
+
+          <!-- 唱片外层：定位与切换动画 -->
+          <Transition :name="discTransitionName" mode="out-in" @after-enter="onDiscEnter">
+            <div
+                :key="currentIndex"
+                class="vinyl-record"
+            >
+              <!-- 唱片内层：纹理、标签和旋转动画 -->
+              <div class="vinyl-disc" :class="{ spinning: isPlaying }">
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-label">
+                  <img :src="currentCover" class="label-cover" />
+                </div>
+              </div>
             </div>
-          </div>
+          </Transition>
         </div>
 
         <!-- 下半部分：信息与控制 -->
@@ -176,13 +187,32 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import request from '../../utils/request'
 import { Icon } from '@iconify/vue'
 
+let wasPlayingBeforeSwitch = false
+const onDiscEnter = () => {
+  // 唱片归位，放下唱针
+  isSwitching.value = false
+
+  // 如果切歌前正在播放，则继续播放
+  if (wasPlayingBeforeSwitch && ap) {
+    ap.play()
+    wasPlayingBeforeSwitch = false
+  }
+
+  // 清除过渡名，避免后续非切歌触发动画
+  discTransitionName.value = ''
+}
 const props = defineProps({
   mode: { type: String, default: 'mini' }
 })
+const discDirection = ref('next') // 'next' 或 'prev'
+const isSwitching = ref(false)
 
 const apContainer = ref(null)
 let ap = null
 let APlayerClass = null
+const discTransitionName = ref('')   // 初始为空，无动画
+let switchTimer = null               // 唱针动作定时器
+
 
 const currentMode = ref(props.mode)
 
@@ -288,8 +318,26 @@ const switchToIndex = (index) => {
   ap.list.switch(target)
   ap.play()
 }
-const nextTrack = () => ap?.skipForward()
-const prevTrack = () => ap?.skipBack()
+const prevTrack = () => {
+  if (!ap) return
+  if (switchTimer) clearTimeout(switchTimer)
+  wasPlayingBeforeSwitch = !ap.audio.paused
+  ap.pause()                       // 先暂停，等动画完成再播放
+  discTransitionName.value = 'disc-prev'
+  isSwitching.value = true         // 立即抬起唱针
+  ap.skipBack()                    // 触发唱片切换动画
+}
+
+const nextTrack = () => {
+  if (!ap) return
+  if (switchTimer) clearTimeout(switchTimer)
+  wasPlayingBeforeSwitch = !ap.audio.paused
+  ap.pause()
+  discTransitionName.value = 'disc-next'
+  isSwitching.value = true
+  ap.skipForward()
+}
+
 
 // 加载歌词
 const loadLyric = async (songId) => {
@@ -366,6 +414,11 @@ const togglePlay = () => ap?.toggle()
 const togglePlaylist = () => { showPlaylist.value = !showPlaylist.value }
 const playSong = (index) => {
   if (!ap) return
+  if (switchTimer) clearTimeout(switchTimer)
+  wasPlayingBeforeSwitch = !ap.audio.paused
+  ap.pause()
+  discTransitionName.value = index > currentIndex.value ? 'disc-next' : 'disc-prev'
+  isSwitching.value = true
   switchToIndex(index)
   showPlaylist.value = false
   currentView.value = 'player'
@@ -558,23 +611,24 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  if (switchTimer) clearTimeout(switchTimer)
   if (uiTimer) clearInterval(uiTimer)
   if (saveTimer) clearInterval(saveTimer)
 })
 </script>
 
 <style scoped>
-/* ========== 全屏模式 ========== */
-.full-mode {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  overflow: hidden;
-  position: relative;
-}
+   /* ========== 全屏模式 ========== */
+ .full-mode {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 0;
+   overflow: hidden;
+   position: relative;
+ }
 
 .record-player {
   width: 100%;
@@ -593,7 +647,6 @@ onBeforeUnmount(() => {
   padding: 1.25rem;
 }
 
-/* 黑胶内容容器 */
 .player-content {
   display: flex;
   flex-direction: column;
@@ -612,7 +665,6 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-/* 左上角切换按钮 */
 .view-switch-btn {
   position: absolute;
   top: 0.75rem;
@@ -628,18 +680,10 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
 }
-.top-left {
-  left: 0.75rem;
-}
-.top-right {
-  right: 0.75rem;
-}
-.view-switch-btn:hover {
-  color: #111827;
-  transform: scale(1.1);
-}
+.top-left { left: 0.75rem; }
+.top-right { right: 0.75rem; }
+.view-switch-btn:hover { color: #111827; transform: scale(1.1); }
 
-/* 黑胶唱片外框 */
 .turntable {
   position: relative;
   width: 230px;
@@ -647,34 +691,45 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 }
 
+/* 唱片外层：只负责定位和切换动画 */
 .vinyl-record {
   width: 160px;
   height: 160px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5), 0 0 0 6px rgba(20,20,20,0.8);
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+  overflow: hidden;
+}
+.vinyl-record:hover {
+  box-shadow: 0 0 35px rgba(0,0,0,0.7), 0 0 0 6px rgba(20,20,20,0.9);
+}
+
+/* 唱片内层：负责纹理和旋转，不再参与定位，避免 transform 冲突 */
+.vinyl-disc {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: radial-gradient(circle at center,
   #111 0%, #1a1a1a 20%, #222 22%, #111 24%,
   #222 26%, #111 28%, #222 30%, #111 32%,
   #222 34%, #111 36%, #222 38%, #111 40%,
   #1a1a1a 60%, #333 62%, #1a1a1a 65%, #111 100%);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 25px rgba(0,0,0,0.5),
-  0 0 0 6px rgba(20,20,20,0.8);
-  cursor: pointer;
-  transition: box-shadow 0.3s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.vinyl-record:hover {
-  box-shadow: 0 0 35px rgba(0,0,0,0.7),
-  0 0 0 6px rgba(20,20,20,0.9);
-}
-.vinyl-record.spinning {
+.vinyl-disc.spinning {
   animation: spin 20s linear infinite;
 }
 @keyframes spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .vinyl-label {
@@ -698,21 +753,6 @@ onBeforeUnmount(() => {
   border-radius: 50%;
 }
 
-.play-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s;
-  z-index: 3;
-}
-.vinyl-record:hover .play-overlay {
-  background: rgba(0,0,0,0.5);
-}
-
 /* 唱针系统 */
 .tonearm {
   position: absolute;
@@ -722,12 +762,14 @@ onBeforeUnmount(() => {
   height: 0;
   z-index: 15;
   transform-origin: 100% 50%;
-  transform: rotate(-110deg);
+  transform: rotate(-115deg);
   transition: transform 0.4s ease;
   pointer-events: none;
 }
-.tonearm.playing {
-  transform: rotate(-80deg);
+.tonearm.playing { transform: rotate(-80deg); }
+.tonearm.switching {
+  transform: rotate(-115deg);
+  transition: transform 0.3s ease;
 }
 .tonearm-arm {
   position: absolute;
@@ -772,7 +814,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
 
-/* 歌曲信息居中 */
+/* 歌曲信息 */
 .song-info {
   text-align: center;
   width: 100%;
@@ -790,7 +832,6 @@ onBeforeUnmount(() => {
   margin: 0;
   letter-spacing: 0.02em;
 }
-
 .song-info p {
   font-size: 0.8rem;
   color: #6b7280;
@@ -804,7 +845,6 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 }
 
-/* 控制栏和音量区域 */
 .controls-area {
   display: flex;
   justify-content: center;
@@ -812,7 +852,6 @@ onBeforeUnmount(() => {
   gap: 1rem;
   flex-wrap: wrap;
 }
-
 .controls {
   display: flex;
   justify-content: center;
@@ -828,10 +867,7 @@ onBeforeUnmount(() => {
   transition: color 0.2s, transform 0.2s;
   padding: 0.25rem;
 }
-.ctrl-btn:hover {
-  color: #111827;
-  transform: scale(1.15);
-}
+.ctrl-btn:hover { color: #111827; transform: scale(1.15); }
 .play-btn {
   font-size: 1.8rem;
   color: #111827;
@@ -850,10 +886,7 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.9);
   transform: scale(1.1);
 }
-.mode-btn {
-  font-size: 1.2rem;
-  color: #6b7280;
-}
+.mode-btn { font-size: 1.2rem; color: #6b7280; }
 
 .volume-control {
   display: flex;
@@ -901,7 +934,7 @@ onBeforeUnmount(() => {
   border-radius: 3px;
 }
 
-/* ========== 歌词容器 ========== */
+/* 歌词容器 */
 .lyric-container {
   width: 100%;
   height: 100%;
@@ -929,10 +962,7 @@ onBeforeUnmount(() => {
   object-fit: cover;
   flex-shrink: 0;
 }
-.lyric-song-info {
-  flex: 1;
-  min-width: 0;
-}
+.lyric-song-info { flex: 1; min-width: 0; }
 .lyric-song-name {
   font-size: 0.85rem;
   font-weight: 600;
@@ -958,9 +988,7 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.lyric-back-btn:hover {
-  color: #111827;
-}
+.lyric-back-btn:hover { color: #111827; }
 .lyric-scroll {
   flex: 1;
   overflow-y: auto;
@@ -971,18 +999,9 @@ onBeforeUnmount(() => {
   padding: 0.5rem 0;
   scrollbar-width: none;
 }
-.lyric-scroll::-webkit-scrollbar {
-  display: none;
-}
-.lyric-empty {
-  color: #9ca3af;
-  font-size: 0.8rem;
-  margin-top: 2rem;
-}
-.lyric-line {
-  padding: 0.5rem 0;
-  transition: all 0.25s;
-}
+.lyric-scroll::-webkit-scrollbar { display: none; }
+.lyric-empty { color: #9ca3af; font-size: 0.8rem; margin-top: 2rem; }
+.lyric-line { padding: 0.5rem 0; transition: all 0.25s; }
 .lyric-main,
 .lyric-trans {
   width: 100%;
@@ -1008,9 +1027,7 @@ onBeforeUnmount(() => {
   font-weight: bold;
   transform: scale(1.08);
 }
-.lyric-line.active .lyric-trans {
-  color: #4b5563;
-}
+.lyric-line.active .lyric-trans { color: #4b5563; }
 .lyric-bottom {
   display: flex;
   justify-content: center;
@@ -1020,7 +1037,7 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
-/* ========== 歌单形态 ========== */
+/* 歌单形态 */
 .playlist-view {
   width: 100%;
   height: 100%;
@@ -1048,10 +1065,7 @@ onBeforeUnmount(() => {
   flex: 1;
   text-align: left;
 }
-.playlist-count {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+.playlist-count { font-size: 0.8rem; color: #6b7280; }
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
@@ -1059,9 +1073,7 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
   background: transparent;
 }
-.playlist-view-list::-webkit-scrollbar {
-  display: none;
-}
+.playlist-view-list::-webkit-scrollbar { display: none; }
 .playlist-view-item {
   display: flex;
   align-items: center;
@@ -1071,12 +1083,8 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: background 0.2s;
 }
-.playlist-view-item:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-.playlist-view-item.active {
-  background: rgba(255, 255, 255, 0.6);
-}
+.playlist-view-item:hover { background: rgba(255, 255, 255, 0.4); }
+.playlist-view-item.active { background: rgba(255, 255, 255, 0.6); }
 .playlist-view-cover {
   width: 40px;
   height: 40px;
@@ -1084,10 +1092,7 @@ onBeforeUnmount(() => {
   object-fit: cover;
   flex-shrink: 0;
 }
-.playlist-view-info {
-  flex: 1;
-  min-width: 0;
-}
+.playlist-view-info { flex: 1; min-width: 0; }
 .playlist-view-name {
   font-size: 0.85rem;
   color: #111827;
@@ -1108,7 +1113,7 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
-/* ========== 迷你模式 ========== */
+/* 迷你模式 */
 .mini-bar {
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(12px);
@@ -1129,25 +1134,59 @@ onBeforeUnmount(() => {
   color: #374151;
 }
 .mini-ctrl:hover { color: #111827; }
-/* 音乐播放器视图切换动画 */
+
+/* 视图切换淡入淡出 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-.fade-enter-from {
-  opacity: 0;
   transform: scale(0.98);
 }
-.fade-leave-to {
-  opacity: 0;
-  transform: scale(0.98);
+
+/* 唱片切换动画：下一首 */
+.disc-next-enter-active,
+.disc-next-leave-active {
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.disc-next-enter-from {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(100%);
+}
+.disc-next-enter-to {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(0);
+}
+.disc-next-leave-from {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(0);
+}
+.disc-next-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(-100%);
+}
+
+/* 唱片切换动画：上一首 */
+.disc-prev-enter-active,
+.disc-prev-leave-active {
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.disc-prev-enter-from {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(-100%);
+}
+.disc-prev-enter-to {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(0);
+}
+.disc-prev-leave-from {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(0);
+}
+.disc-prev-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateX(100%);
 }
 </style>

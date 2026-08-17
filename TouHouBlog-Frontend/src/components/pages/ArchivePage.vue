@@ -1,25 +1,26 @@
 <template>
   <div class="archive-view-container min-h-[500px]">
-    <div v-show="currentView === 'list'">
-      <RecentArticles
-          v-if="isFilterReady"
-          :page-size="8"
-          :search="searchKeyword"
-          :category-id="categoryId"
-          :tag-id="tagId"
-      />
-      <div v-else class="text-center text-gray-400 py-20">加载中...</div>
-    </div>
+    <Transition name="view" mode="out-in">
+      <div v-if="currentView === 'list'" key="list">
+        <RecentArticles
+            v-if="isFilterReady"
+            :page-size="8"
+            :search="searchKeyword"
+            :category-id="categoryId"
+            :tag-id="tagId"
+        />
+        <div v-else class="text-center text-gray-400 py-20">加载中...</div>
+      </div>
 
-    <div v-show="currentView === 'timeline'">
-      <ArchiveTimeline />
-    </div>
+      <div v-else key="timeline">
+        <ArchiveTimeline />
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import request from '../../utils/request'
 import RecentArticles from './indexPage/RecentArticles.vue'
 import ArchiveTimeline from './ArchiveTimeLine.vue'
 
@@ -29,7 +30,7 @@ const tagId = ref(null)
 const isFilterReady = ref(false)
 const currentView = ref('list')
 
-// 从 URL 读取筛选参数
+// 初始化：从 URL 读取筛选参数
 const initFilterParams = () => {
   const urlParams = new URLSearchParams(window.location.search)
   const cat = urlParams.get('categoryId')
@@ -59,5 +60,15 @@ onMounted(() => {
 <style scoped>
 .archive-view-container {
   min-height: 500px;
+}
+
+/* 视图切换过渡 */
+.view-enter-active,
+.view-leave-active {
+  transition: opacity 0.2s ease;
+}
+.view-enter-from,
+.view-leave-to {
+  opacity: 0;
 }
 </style>

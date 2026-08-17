@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!isAdmin" class="flex items-center justify-center h-screen text-gray-500">无权限访问</div>
-  <div v-else class="edit-page-container">
+  <div v-if="!isAdmin" class="fade-in flex items-center justify-center h-screen text-gray-500">无权限访问</div>
+  <div v-else class="edit-page-container fade-in">
     <div class="edit-layout">
       <!-- 左侧写作区 -->
       <div class="edit-main">
@@ -48,10 +48,7 @@
         <!-- 封面图 -->
         <div class="setting-group">
           <label class="setting-label">封面图</label>
-          <div
-              class="cover-upload"
-              @click="triggerCoverInput"
-          >
+          <div class="cover-upload" @click="triggerCoverInput">
             <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
             <div v-else class="cover-placeholder">
               <span class="text-3xl">＋</span>
@@ -90,10 +87,12 @@
           </div>
         </div>
 
-        <!-- 发布按钮 -->
-        <button @click="saveArticle" class="publish-btn">
-          {{ isEdit ? '更新文章' : '发布文章' }}
-        </button>
+        <!-- 操作按钮组 -->
+        <div class="flex gap-2 mt-auto">
+          <button @click="cancelEdit" class="cancel-btn">取消</button>
+          <button @click="saveDraft" class="draft-btn">保存草稿</button>
+          <button @click="publishArticle" class="publish-btn">发布</button>
+        </div>
       </div>
     </div>
   </div>
@@ -107,6 +106,8 @@ import { getUserFromToken } from '../../utils/auth'
 import request from '../../utils/request'
 import OSS from 'ali-oss'
 import gfm from '@bytemd/plugin-gfm'
+import { navigate } from 'astro:transitions/client'
+
 const plugins = [gfm()]
 
 const props = defineProps({
@@ -118,7 +119,9 @@ const title = ref('')
 const content = ref('')
 const categoryId = ref('')
 const categories = ref([])
-const isEdit = ref(false)
+
+// 当前文章ID：空字符串表示新建，有值表示编辑
+const currentArticleId = ref(props.articleId || '')
 
 // 标签
 const allTags = ref([])
@@ -201,7 +204,7 @@ const toggleTag = (tagId) => {
 const deleteTag = async (tagId) => {
   const tag = allTags.value.find(t => t.id === tagId)
   const name = tag ? tag.name : '该标签'
-  const confirmed = confirm(`确定要删除标签「${name}」吗？`)
+  const confirmed = await window.$confirm(`确定要删除标签「${name}」吗？`)
   if (!confirmed) return
   try {
     await request.delete(`/api/tags/${tagId}`)
@@ -238,7 +241,7 @@ const addCategory = async () => {
 
 const loadArticle = async () => {
   if (props.articleId) {
-    isEdit.value = true
+    currentArticleId.value = props.articleId
     const res = await request.get(`/api/articles/${props.articleId}`)
     const article = res.data.data
     title.value = article.title
@@ -249,7 +252,72 @@ const loadArticle = async () => {
   }
 }
 
-const saveArticle = async () => {
+// 检查是否有未发布的草稿
+const checkDraft = async () => {
+  // 只在新建模式（没有 articleId）时检查
+  if (props.articleId) return
+  try {
+    const res = await request.get('/api/articles/draft')
+    const draft = res.data.data
+    if (draft && draft.id) {
+      const shouldContinue = await window.$confirm('检测到未完成的草稿，是否继续编辑？\n')
+      if (shouldContinue) {
+        // 继续编辑草稿：加载内容，并将 currentArticleId 设为草稿ID
+        currentArticleId.value = String(draft.id)
+        title.value = draft.title || ''
+        content.value = draft.content || ''
+        categoryId.value = draft.categoryId || ''
+        selectedTags.value = draft.tags ? draft.tags.map(t => t.id) : []
+        editCoverUrl.value = draft.coverUrl || ''
+      } else {
+        // 删除草稿并新建
+        await request.delete(`/api/articles/${draft.id}`)
+        // 不加载任何内容，保持空白新建
+      }
+    }
+  } catch (e) {
+    console.error('检查草稿失败', e)
+  }
+}
+
+// 取消：弹出确认框，确认后跳转
+const cancelEdit = async () => {
+  const confirmed = await window.$confirm('确定要退出编辑吗？未保存的修改将丢失。')
+  if (!confirmed) return
+  if (currentArticleId.value) {
+    navigate(`/article/${currentArticleId.value}`)
+  } else {
+    navigate('/archive')
+  }
+}
+
+// 保存草稿：保存后回到归档页
+const saveDraft = async () => {
+  if (!title.value.trim()) {
+    await window.$alert('请输入文章标题')
+    return
+  }
+  const payload = {
+    title: title.value.trim(),
+    content: content.value,
+    categoryId: categoryId.value || null,
+    tagIds: selectedTags.value,
+    coverUrl: editCoverUrl.value || null,
+    status: 0   // 草稿
+  }
+  try {
+    if (currentArticleId.value) {
+      await request.put(`/api/articles/${currentArticleId.value}`, payload)
+    } else {
+      await request.post('/api/articles', payload)
+    }
+    await window.$alert('草稿已保存')
+    navigate('/archive')   // 保存后返回归档页
+  } catch (e) {}
+}
+
+// 发布：保存并发布，跳转详情页
+const publishArticle = async () => {
   if (!title.value.trim()) {
     await window.$alert('请输入文章标题')
     return
@@ -265,17 +333,22 @@ const saveArticle = async () => {
   const payload = {
     title: title.value.trim(),
     content: content.value,
-    categoryId: categoryId.value,
+    categoryId: categoryId.value || null,
     tagIds: selectedTags.value,
-    coverUrl: editCoverUrl.value || null
+    coverUrl: editCoverUrl.value || null,
+    status: 1   // 已发布
   }
   try {
-    if (isEdit.value) {
-      await request.put(`/api/articles/${props.articleId}`, payload)
+    if (currentArticleId.value) {
+      await request.put(`/api/articles/${currentArticleId.value}`, payload)
+      await window.$alert('文章已发布')
+      navigate(`/article/${currentArticleId.value}`)
     } else {
-      await request.post('/api/articles', payload)
+      const res = await request.post('/api/articles', payload)
+      const newId = res.data.data
+      await window.$alert('文章已发布')
+      navigate(`/article/${newId}`)
     }
-    window.location.href = '/archive'
   } catch (e) {}
 }
 
@@ -286,6 +359,7 @@ onMounted(async () => {
     await loadCategories()
     await loadTags()
     await loadArticle()
+    await checkDraft()   // 检查草稿
   }
 })
 </script>
@@ -346,9 +420,6 @@ onMounted(async () => {
 .title-input:focus {
   border-color: #111827;
   background: rgba(255, 255, 255, 0.8);
-}
-.title-input:focus {
-  border-bottom-color: #111827;
 }
 
 .editor-wrapper {
@@ -468,7 +539,6 @@ onMounted(async () => {
 }
 
 .publish-btn {
-  margin-top: auto;
   padding: 0.7rem 1rem;
   background: #111827;
   color: #fff;
@@ -480,6 +550,50 @@ onMounted(async () => {
 }
 .publish-btn:hover {
   background: #1f2937;
+}
+
+.draft-btn {
+  padding: 0.7rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.draft-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.cancel-btn {
+  padding: 0.7rem 1rem;
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+.cancel-btn:hover {
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 </style>
 

@@ -2,184 +2,189 @@
   <!-- 加载状态 -->
   <div v-if="loading" class="text-center py-20 text-gray-500">加载中...</div>
 
-  <!-- 编辑模式：完全采用 ArticleEditor 的布局 -->
-  <div v-else-if="isEditing" class="edit-page-container">
-    <div class="edit-layout">
-      <!-- 左侧写作区 -->
-      <div class="edit-main">
-        <input
-            v-model="editTitle"
-            type="text"
-            placeholder="文章标题"
-            class="title-input"
-        />
-        <div class="editor-wrapper">
-          <Editor
-              :value="editContent"
-              :plugins="plugins"
-              :upload-images="uploadImages"
-              locale="zh-Hans"
-              @change="v => editContent = v"
-          />
-        </div>
-      </div>
-
-      <!-- 右侧设置面板 -->
-      <div class="edit-settings">
-        <!-- 分类 -->
-        <div class="setting-group">
-          <label class="setting-label">分类</label>
-          <div class="flex gap-2">
-            <select v-model="editCategoryId" class="setting-select">
-              <option value="">未分类</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
-            <button @click="showAddCategory = true" class="setting-add-btn">＋</button>
-          </div>
-          <div v-if="showAddCategory" class="flex gap-2 mt-2">
+  <!-- 编辑/查看模式切换过渡 -->
+  <div v-else>
+    <Transition name="edit" mode="out-in">
+      <!-- 编辑模式 -->
+      <div v-if="isEditing" key="editor" class="edit-page-container">
+        <div class="edit-layout">
+          <!-- 左侧写作区 -->
+          <div class="edit-main">
             <input
-                v-model="newCategoryName"
-                @keyup.enter="addCategory"
-                placeholder="新分类名"
-                class="setting-input"
+                v-model="editTitle"
+                type="text"
+                placeholder="文章标题"
+                class="title-input"
             />
-            <button @click="addCategory" :disabled="!newCategoryName.trim()" class="setting-confirm-btn">确定</button>
-            <button @click="showAddCategory = false" class="setting-cancel-btn">取消</button>
-          </div>
-        </div>
-
-        <!-- 封面图 -->
-        <div class="setting-group">
-          <label class="setting-label">封面图</label>
-          <div class="cover-upload" @click="triggerCoverInput">
-            <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
-            <div v-else class="cover-placeholder">
-              <span class="text-3xl">＋</span>
-              <span class="text-xs">添加封面</span>
+            <div class="editor-wrapper">
+              <Editor
+                  :value="editContent"
+                  :plugins="plugins"
+                  :upload-images="uploadImages"
+                  locale="zh-Hans"
+                  @change="v => editContent = v"
+              />
             </div>
           </div>
-          <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
-          <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500 mt-1">移除封面</button>
-        </div>
 
-        <!-- 标签 -->
-        <div class="setting-group">
-          <label class="setting-label">标签</label>
-          <div class="flex flex-wrap gap-1.5">
-            <span
-                v-for="tag in allTags"
-                :key="tag.id"
-                class="tag-item"
-                :class="{ active: editSelectedTags.includes(tag.id) }"
-                @click="toggleTag(tag.id)"
-            >
-              {{ tag.name }}
-            </span>
+          <!-- 右侧设置面板 -->
+          <div class="edit-settings">
+            <!-- 分类 -->
+            <div class="setting-group">
+              <label class="setting-label">分类</label>
+              <div class="flex gap-2">
+                <select v-model="editCategoryId" class="setting-select">
+                  <option value="">未分类</option>
+                  <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                </select>
+                <button @click="showAddCategory = true" class="setting-add-btn">＋</button>
+              </div>
+              <div v-if="showAddCategory" class="flex gap-2 mt-2">
+                <input
+                    v-model="newCategoryName"
+                    @keyup.enter="addCategory"
+                    placeholder="新分类名"
+                    class="setting-input"
+                />
+                <button @click="addCategory" :disabled="!newCategoryName.trim()" class="setting-confirm-btn">确定</button>
+                <button @click="showAddCategory = false" class="setting-cancel-btn">取消</button>
+              </div>
+            </div>
+
+            <!-- 封面图 -->
+            <div class="setting-group">
+              <label class="setting-label">封面图</label>
+              <div class="cover-upload" @click="triggerCoverInput">
+                <img v-if="editCoverUrl" :src="editCoverUrl" class="cover-image" />
+                <div v-else class="cover-placeholder">
+                  <span class="text-3xl">＋</span>
+                  <span class="text-xs">添加封面</span>
+                </div>
+              </div>
+              <input ref="coverInputRef" type="file" accept="image/*" @change="uploadCover" class="hidden" />
+              <button v-if="editCoverUrl" @click="editCoverUrl = ''" class="text-xs text-red-500 mt-1">移除封面</button>
+            </div>
+
+            <!-- 标签 -->
+            <div class="setting-group">
+              <label class="setting-label">标签</label>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                    v-for="tag in allTags"
+                    :key="tag.id"
+                    class="tag-item"
+                    :class="{ active: editSelectedTags.includes(tag.id) }"
+                    @click="toggleTag(tag.id)"
+                >
+                  {{ tag.name }}
+                </span>
+              </div>
+              <div class="flex gap-2 mt-2">
+                <input
+                    v-model="newTagName"
+                    type="text"
+                    placeholder="新增标签"
+                    class="setting-input"
+                    @keyup.enter="createTag"
+                />
+                <button @click="createTag" :disabled="!newTagName.trim() || creatingTag" class="setting-confirm-btn">
+                  {{ creatingTag ? '...' : '新增' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <button @click="saveArticle" class="publish-btn">保存修改</button>
+            <button @click="cancelEdit" class="cancel-btn">取消</button>
           </div>
-          <div class="flex gap-2 mt-2">
-            <input
-                v-model="newTagName"
-                type="text"
-                placeholder="新增标签"
-                class="setting-input"
-                @keyup.enter="createTag"
-            />
-            <button @click="createTag" :disabled="!newTagName.trim() || creatingTag" class="setting-confirm-btn">
-              {{ creatingTag ? '...' : '新增' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <button @click="saveArticle" class="publish-btn">保存修改</button>
-        <button @click="cancelEdit" class="cancel-btn">取消</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 查看模式：原有布局 -->
-  <div v-else-if="article" class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex gap-6">
-      <!-- 左侧内容区 -->
-      <div class="flex-1 min-w-0">
-        <!-- 封面图 -->
-        <div v-if="article.coverUrl" class="mb-6">
-          <div class="w-full" style="aspect-ratio: 16 / 5; overflow: hidden; border-radius: 0.5rem;">
-            <img :src="article.coverUrl" class="w-full h-full object-cover" />
-          </div>
-        </div>
-
-        <div class="article-content-card">
-          <!-- 标题行 -->
-          <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
-            <button v-if="isAdmin" @click="enterEditMode"
-                    class="admin-action-btn edit">
-              <Icon icon="lucide:pencil" class="w-4 h-4" />
-              编辑
-            </button>
-            <button v-if="isAdmin" @click="deleteArticle"
-                    class="admin-action-btn delete">
-              <Icon icon="lucide:trash-2" class="w-4 h-4" />
-              删除
-            </button>
-          </div>
-
-          <!-- 日期、分类、点赞 -->
-          <div class="flex items-center text-sm text-gray-500 space-x-4 pb-4 mb-4 border-b border-gray-100">
-            <span>发布于 {{ formatDate(article.createTime) }}</span>
-            <span v-if="article.updateTime">最后修改于 {{ formatDate(article.updateTime) }}</span>
-            <a
-                v-if="article.categoryName"
-                @click="goCategory(article.categoryId)"
-                class="category-chip"
-                title="查看该分类下的文章"
-            >
-              <Icon icon="lucide:folder" class="w-3.5 h-3.5" />
-              {{ article.categoryName }}
-            </a>
-            <LikeButton :article-id="articleId" />
-          </div>
-
-          <!-- 正文 -->
-          <div class="prose prose-lg max-w-none ..." v-html="renderedContent"></div>
-        </div>
-
-        <!-- 标签 -->
-        <div v-if="article.tags && article.tags.length" class="flex flex-wrap gap-2 mt-6">
-          <a
-              v-for="tag in article.tags"
-              :key="tag.id"
-              @click="goTag(tag.id)"
-              class="tag-chip"
-              title="查看该标签下的文章"
-          >
-            <Icon icon="lucide:tag" class="w-3.5 h-3.5" />
-            {{ tag.name }}
-          </a>
-        </div>
-
-        <!-- 评论区 -->
-        <CommentSection :article-id="articleId" />
-
-        <div class="mt-8">
-          <a href="/archive" class="text-sm text-gray-400 hover:text-gray-600 no-underline">← 返回归档</a>
         </div>
       </div>
 
-      <!-- 右侧侧边栏 -->
-      <aside class="w-72 flex-shrink-0 space-y-4">
-        <div class="sticky top-24 space-y-4">
-          <HomeIntro />
-          <MusicPlayer />
-          <TableOfContents :headings="headings" />
-        </div>
-      </aside>
-    </div>
-  </div>
+      <!-- 查看模式 -->
+      <div v-else-if="article" key="viewer" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex gap-6">
+          <!-- 左侧内容区 -->
+          <div class="flex-1 min-w-0">
+            <!-- 封面图 -->
+            <div v-if="article.coverUrl" class="mb-6">
+              <div class="w-full" style="aspect-ratio: 16 / 5; overflow: hidden; border-radius: 0.5rem;">
+                <img :src="article.coverUrl" class="w-full h-full object-cover" />
+              </div>
+            </div>
 
-  <!-- 文章不存在 -->
-  <div v-else class="text-center py-20 text-gray-500">文章不存在。</div>
+            <div class="article-content-card">
+              <!-- 标题行 -->
+              <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
+                <button v-if="isAdmin" @click="enterEditMode"
+                        class="admin-action-btn edit">
+                  <Icon icon="lucide:pencil" class="w-4 h-4" />
+                  编辑
+                </button>
+                <button v-if="isAdmin" @click="deleteArticle"
+                        class="admin-action-btn delete">
+                  <Icon icon="lucide:trash-2" class="w-4 h-4" />
+                  删除
+                </button>
+              </div>
+
+              <!-- 日期、分类、点赞 -->
+              <div class="flex items-center text-sm text-gray-500 space-x-4 pb-4 mb-4 border-b border-gray-100">
+                <span>发布于 {{ formatDate(article.createTime) }}</span>
+                <span v-if="article.updateTime">最后修改于 {{ formatDate(article.updateTime) }}</span>
+                <a
+                    v-if="article.categoryName"
+                    @click="goCategory(article.categoryId)"
+                    class="category-chip"
+                    title="查看该分类下的文章"
+                >
+                  <Icon icon="lucide:folder" class="w-3.5 h-3.5" />
+                  {{ article.categoryName }}
+                </a>
+                <LikeButton :article-id="articleId" />
+              </div>
+
+              <!-- 正文 -->
+              <div class="prose prose-lg max-w-none ..." v-html="renderedContent"></div>
+            </div>
+
+            <!-- 标签 -->
+            <div v-if="article.tags && article.tags.length" class="flex flex-wrap gap-2 mt-6">
+              <a
+                  v-for="tag in article.tags"
+                  :key="tag.id"
+                  @click="goTag(tag.id)"
+                  class="tag-chip"
+                  title="查看该标签下的文章"
+              >
+                <Icon icon="lucide:tag" class="w-3.5 h-3.5" />
+                {{ tag.name }}
+              </a>
+            </div>
+
+            <!-- 评论区 -->
+            <CommentSection :article-id="articleId" />
+
+            <div class="mt-8">
+              <a href="/archive" class="text-sm text-gray-400 hover:text-gray-600 no-underline">← 返回归档</a>
+            </div>
+          </div>
+
+          <!-- 右侧侧边栏 -->
+          <aside class="w-72 flex-shrink-0 space-y-4">
+            <div class="sticky top-24 space-y-4">
+              <HomeIntro />
+              <MusicPlayer />
+              <TableOfContents :headings="headings" />
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- 文章不存在 -->
+      <div v-else key="notfound" class="text-center py-20 text-gray-500">文章不存在。</div>
+    </Transition>
+  </div>
 </template>
 
 <script setup>
@@ -201,7 +206,6 @@ import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
 import { Icon } from '@iconify/vue'
 import { navigate } from 'astro:transitions/client'
-
 const props = defineProps({ articleId: String })
 
 const article = ref(null)
@@ -234,7 +238,7 @@ const plugins = [gfm()]
 let ossClient = null
 
 const md = new MarkdownIt({
-  html: true, breaks: true, linkify: true,
+  html: false, breaks: true, linkify: true,
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
@@ -432,11 +436,11 @@ const saveArticle = async () => {
 }
 
 const deleteArticle = async () => {
-  const confirmed = confirm('确定要删除这篇文章吗？删除后无法恢复。')
+  const confirmed = await window.$confirm('确定要删除这篇文章吗？删除后无法恢复。')
   if (!confirmed) return
   try {
     await request.delete(`/api/articles/${props.articleId}`)
-    window.location.href = '/archive'
+    navigate('/archive')   // 使用客户端导航，不刷新页面，音乐不断
   } catch (e) {}
 }
 
@@ -639,7 +643,19 @@ onMounted(fetchArticle)
 .publish-btn:hover {
   background: #1f2937;
 }
-
+/* 编辑/查看模式切换动画 */
+.edit-enter-active,
+.edit-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.edit-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+.edit-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
 .cancel-btn {
   padding: 0.7rem 1rem;
   background: #f3f4f6;

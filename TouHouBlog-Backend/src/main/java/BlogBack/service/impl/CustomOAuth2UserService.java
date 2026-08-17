@@ -58,6 +58,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     user.setNickname(displayName);
                 }
                 userMapper.updateById(user);
+                // 对于已有用户，根据当前配置重新判断角色
+                user.setRole(giteeId.equals(adminGiteeId) ? 1 : 0);
+                userMapper.updateById(user);
             }
             return user;
         }
@@ -90,6 +93,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 }
                 userMapper.updateById(user);
             }
+            // 对于已有用户，根据当前配置重新判断角色
+            user.setRole(githubId.equals(adminGithubId) ? 1 : 0);
+            userMapper.updateById(user);
             return user;
         }
 

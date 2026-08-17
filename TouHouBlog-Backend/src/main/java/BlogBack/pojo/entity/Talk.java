@@ -23,7 +23,7 @@ public class Talk {
 
     private String content;
 
-    private String picture;
+    private String pictures;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public class TalkDetailVO {
 
     private String content;
 
-    private String picture;
+    private List<String> pictures;
 
     private LocalDateTime createTime;
 

@@ -71,6 +71,7 @@
 </template>
 
 <script setup>
+// @ts-nocheck
 import { ref, watch, onMounted } from 'vue'
 import request from '../../../utils/request'
 import RevealOnScroll from "../../common/RevealOnScroll.vue";

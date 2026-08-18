@@ -1,7 +1,9 @@
 <template>
   <div>
-    <h1 class="talks-title">杂谈与思考</h1>
-    <p class="talks-subtitle">把日常里值得记住的一瞬，沿着时间慢慢收进这里</p>
+    <div class="text-center fade-in-simple">
+      <h1 class="talks-title">杂谈与思考</h1>
+      <p class="talks-subtitle">把日常里值得记住的一瞬，沿着时间慢慢收进这里</p>
+    </div>
 
     <!-- 发布框（仅管理员可见） -->
     <div v-if="isAdmin" class="max-w-3xl mx-auto mb-8 px-4">

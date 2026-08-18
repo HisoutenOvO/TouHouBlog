@@ -15,13 +15,15 @@ const recentProps = { pageSize: 5, search: "", categoryId: null, tagId: null };
 	<div class="px-6 py-8">
 		<!-- 顶部区域：左边图片 + 中间音乐（正方形） + 右边杂谈 -->
 		<div class="flex gap-6 mb-8 min-h-[28rem]">
+			<div class="w-[28rem] h-[28rem] flex items-center justify-center flex-shrink-0">
+				<MusicPlayer client:only="vue" mode="full" transition:persist />
+			</div>
+
+
 			<div class="w-[28rem] h-[28rem] flex-shrink-0">
 				<WelcomeHero client:load />
 			</div>
 
-			<div class="w-[28rem] h-[28rem] flex items-center justify-center flex-shrink-0">
-				<MusicPlayer client:only="vue" mode="full" transition:persist />
-			</div>
 
 			<div class="flex-1 min-w-0">
 				<LatestTalk client:load />

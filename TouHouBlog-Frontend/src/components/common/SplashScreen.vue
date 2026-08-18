@@ -190,7 +190,7 @@ onBeforeUnmount(() => {
 
 .splash-blog-name {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.8rem;
+  font-size: 2.8rem;
   background: linear-gradient(135deg, #ff8ac2, #f472b6, #e879f9);
   -webkit-background-clip: text;
   background-clip: text;

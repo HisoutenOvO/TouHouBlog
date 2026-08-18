@@ -1,7 +1,7 @@
 <template>
   <div class="glass-card p-4">
     <div class="flex justify-between items-center mb-3">
-      <h3 class="font-bold text-gray-900 text-lg">💬 最新杂谈</h3>
+      <h3 class="latest-talk-title">最近的杂谈～</h3>
       <a href="/talks" class="text-sm text-gray-400 hover:text-gray-600 no-underline">查看全部 →</a>
     </div>
 
@@ -54,3 +54,13 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.latest-talk-title {
+  font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #6b4b6b;
+  letter-spacing: 0.02em;
+}
+</style>

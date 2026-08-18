@@ -1,21 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import PictureGrid from '../components/pages/PictureGrid.vue'
-import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
     <div class="max-w-6xl mx-auto px-4 py-8">
-        <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest text-center py-12">
-            图集
-        </h1>
-        <p class="text-center text-base text-gray-400 mb-10">
-            这里将收藏我喜欢的图片作品，敬请期待
-        </p>
+        <div class="text-center pt-4 pb-8 fade-in-simple">
+            <h1 class="archive-title">图集</h1>
+            <p class="archive-subtitle">这里将收藏我喜欢的图片作品，敬请欣赏</p>
+        </div>
         <PictureGrid client:load />
-    </div>
-    <!-- 播放器放在右下角固定位置（使用 Tailwind 固定定位） -->
-    <div class="fixed bottom-4 right-4 z-50">
-        <MusicPlayer client:only="vue" mode="mini" transition:persist />
     </div>
 </Layout>

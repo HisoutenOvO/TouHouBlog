@@ -21,6 +21,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
+
 const images = ref([
   '/images/bg.jpg',
   '/images/bg2.jpg',
@@ -37,21 +38,37 @@ const images = ref([
 
 const currentIndex = ref(0)
 let timer = null
-const isArticleDetail = ref(false)   // 是否在文章详情页
 
 const startCarousel = () => {
-  if (isArticleDetail.value) return
+  if (timer) clearInterval(timer)
   timer = setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % images.value.length
-  }, 6000)
+    nextImage()
+  }, 5000)
+}
+
+const nextImage = () => {
+  currentIndex.value = (currentIndex.value + 1) % images.value.length
+  // 保存到全局，即使组件重建也能恢复
+  if (typeof window !== 'undefined') {
+    window.__bgCurrentIndex = currentIndex.value
+  }
+}
+
+const stopCarousel = () => {
+  if (timer) clearInterval(timer)
+  timer = null
 }
 
 onMounted(() => {
+  // 如果之前有保存的索引，恢复
+  if (typeof window !== 'undefined' && window.__bgCurrentIndex !== undefined) {
+    currentIndex.value = window.__bgCurrentIndex % images.value.length
+  }
   startCarousel()
 })
 
 onBeforeUnmount(() => {
-  if (timer) clearInterval(timer)
+  stopCarousel()
 })
 </script>
 

@@ -1,16 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import VersionTimeline from '../components/pages/VersionTimeline.vue'
+import DevLogPage from '../components/pages/DevLogPage.vue'
 ---
 
 <Layout>
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-6xl font-extrabold text-gray-900 tracking-widest text-center py-12">
-            开发者日志
-        </h1>
-        <p class="text-center text-base text-gray-400 mb-10">
-            记录博客每个重要版本的迭代与思考
-        </p>
-        <VersionTimeline client:load />
-    </div>
+    <DevLogPage client:load />
 </Layout>

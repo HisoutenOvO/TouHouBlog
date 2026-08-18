@@ -28,7 +28,7 @@
               欢迎来到我的幻想世界～
             </p>
             <p class="welcome-intro">这里致力于收集幻想乡的旋律与景色，并记录日常生活～</p>
-            <p class="welcome-intro">本站很多不完善的地方请多多包涵～</p>
+            <p class="welcome-intro">本站若有不完善的地方请多多包涵～</p>
             <p class="overview-hint text-sm text-gray-500 mt-2">
               点击下方图标，探索各个模块
             </p>
@@ -39,7 +39,7 @@
             <h3 class="module-title">🎵 关于音乐</h3>
             <p class="module-desc">
               这里是我的音乐小站，收藏了东方原曲与同人曲的各种精品～～
-              右侧的黑胶唱片播放器，左上角查看歌词，右上角查看歌单～～
+              左侧的黑胶唱片播放器，左上角查看歌词，右上角查看歌单～～
               下方最左侧可切换播放模式，中间可抓取最新歌单，右侧可调节音量，尽情享受来自幻想乡的旋律吧，全都值得一听哦～
             </p>
           </div>
@@ -123,15 +123,14 @@ const activeTab = ref('overview')
 
 .welcome-char {
   display: inline-block;
-  background: linear-gradient(135deg, #ff8ac2, #f472b6, #f9a8d4, #ffb3d9, #e879f9);
+  background: linear-gradient(135deg, #c026d3, #db2777, #7c3aed);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.6));
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
   animation: welcomeCharReveal 0.8s ease-out both;
 }
-
 .welcome-blog-name {
   font-family: "Georgia", "Times New Roman", serif;
   font-size: 1.5rem;

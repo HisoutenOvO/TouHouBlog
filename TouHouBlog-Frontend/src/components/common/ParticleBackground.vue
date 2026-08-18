@@ -15,7 +15,7 @@ import { ref, onMounted } from 'vue'
 const particles = ref([])
 
 const createParticles = () => {
-  const count = 35   // 减少数量
+  const count = 15   // 减少数量
   const temp = []
   for (let i = 0; i < count; i++) {
     const size = 12 + Math.random() * 14        // 12~26px

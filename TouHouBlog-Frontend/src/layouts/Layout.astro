@@ -6,6 +6,7 @@ import SakuraPetals from '../components/common/SakuraPetals.vue';
 import ClickRipple from '../components/common/ClickRipple.vue';
 import LoadingBar from '../components/common/LoadingBar.vue';
 import ParticleBackground from '../components/common/ParticleBackground.vue';
+import SplashScreen from '../components/common/SplashScreen.vue';
 const siteTitle = "TouHouBlog"
 ---
 
@@ -19,6 +20,7 @@ const siteTitle = "TouHouBlog"
     <ClientRouter />
 </head>
 <body class="bg-white text-gray-900">
+<SplashScreen client:load />
 <BackgroundCarousel client:load transition:persist />
 <SakuraPetals client:load transition:persist/>
 <ParticleBackground client:load transition:persist />

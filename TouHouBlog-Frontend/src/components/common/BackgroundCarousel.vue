@@ -27,9 +27,12 @@ const images = ref([
   '/images/bg3.jpg',
   '/images/bg4.jpg',
   '/images/bg5.jpg',
+  '/images/bg6.jpg',
   '/images/bgn1.jpg',
   '/images/bgn2.jpg',
   '/images/bgn3.jpg',
+  '/images/bgn4.jpg',
+  '/images/bgn5.jpg',
 ])
 
 const currentIndex = ref(0)

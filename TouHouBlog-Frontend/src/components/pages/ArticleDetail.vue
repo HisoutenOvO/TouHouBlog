@@ -7,22 +7,29 @@
     <Transition name="edit" mode="out-in">
       <!-- 编辑模式 -->
       <div v-if="isEditing" key="editor" class="edit-page-container">
-        <div class="edit-layout">
+        <div class="edit-layout" :class="{ 'is-fullscreen': isFullscreen }">
           <!-- 左侧写作区 -->
           <div class="edit-main">
-            <input
-                v-model="editTitle"
-                type="text"
-                placeholder="文章标题"
-                class="title-input"
-            />
+            <div class="flex items-center gap-3">
+              <input
+                  v-model="editTitle"
+                  type="text"
+                  placeholder="文章标题"
+                  class="title-input"
+              />
+              <!-- 全屏切换按钮 -->
+              <button class="setting-add-btn" @click="toggleFullscreen" :title="isFullscreen ? '退出全屏' : '全屏编辑'">
+                <Icon :icon="isFullscreen ? 'lucide:minimize-2' : 'lucide:maximize-2'" class="w-4 h-4" />
+              </button>
+            </div>
             <div class="editor-wrapper">
-              <Editor
-                  :value="editContent"
-                  :plugins="plugins"
-                  :upload-images="uploadImages"
-                  locale="zh-Hans"
-                  @change="v => editContent = v"
+              <MdEditor
+                  v-model="editContent"
+                  :onUploadImg="uploadImages"
+                  :toolbars="toolbars"
+                  :footers="[]"
+                  preview-theme="github"
+                  @onSave="saveArticle"
               />
             </div>
           </div>
@@ -205,9 +212,8 @@ import request from '../../utils/request'
 import MarkdownIt from 'markdown-it'
 import markdownItAnchor from 'markdown-it-anchor'
 import hljs from 'highlight.js'
-import { Editor } from '@bytemd/vue-next'
-import 'bytemd/dist/index.css'
-import gfm from '@bytemd/plugin-gfm'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import OSS from 'ali-oss'
 import HomeIntro from './indexPage/HomeIntro.vue'
 import TableOfContents from './TableOfContents.vue'
@@ -217,6 +223,7 @@ import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
 import { Icon } from '@iconify/vue'
 import { navigate } from 'astro:transitions/client'
+
 const props = defineProps({ articleId: String })
 
 const article = ref(null)
@@ -229,6 +236,12 @@ const editTitle = ref('')
 const editContent = ref('')
 const editCategoryId = ref('')
 const categories = ref([])
+
+// 全屏状态
+const isFullscreen = ref(false)
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value
+}
 
 // 标签相关
 const allTags = ref([])
@@ -245,7 +258,6 @@ const editCoverUrl = ref('')
 const coverInputRef = ref(null)
 const triggerCoverInput = () => coverInputRef.value?.click()
 
-const plugins = [gfm()]
 let ossClient = null
 
 const md = new MarkdownIt({
@@ -277,6 +289,7 @@ const extractHeadings = (html) => {
     id: el.id
   }))
 }
+
 const goCategory = (id) => {
   navigate(`/archive?categoryId=${id}`)
 }
@@ -326,10 +339,35 @@ const uploadImages = async (files) => {
   for (const file of files) {
     const key = `blog-images/${Date.now()}_${file.name}`
     const result = await ossClient.put(key, file)
-    urls.push({ url: result.url })
+    urls.push(result.url)
   }
   return urls
 }
+
+const toolbars = [
+  'bold',
+  'underline',
+  'italic',
+  'strikeThrough',
+  'sub',
+  'sup',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  'codeRow',
+  'code',
+  'link',
+  'image',
+  'table',
+  'revoke',
+  'next',
+  'save',
+  'preview',
+  'htmlPreview',
+  'catalog',
+  'github'
+]
 
 const loadCategories = async () => {
   const res = await request.get('/api/categories/list?page=1&pageSize=999')
@@ -451,7 +489,7 @@ const deleteArticle = async () => {
   if (!confirmed) return
   try {
     await request.delete(`/api/articles/${props.articleId}`)
-    navigate('/archive')   // 使用客户端导航，不刷新页面，音乐不断
+    navigate('/archive')
   } catch (e) {}
 }
 
@@ -464,7 +502,6 @@ onMounted(fetchArticle)
 </script>
 
 <style scoped>
-/* 编辑模式布局 */
 .edit-page-container {
   position: fixed;
   top: 0;
@@ -494,6 +531,19 @@ onMounted(fetchArticle)
   height: 100%;
 }
 
+.edit-layout.is-fullscreen .edit-settings {
+  display: none;
+}
+
+.edit-layout.is-fullscreen .edit-main {
+  padding: 0;
+}
+
+.edit-layout.is-fullscreen .editor-wrapper {
+  border-radius: 0;
+  height: 100vh;
+}
+
 .edit-main {
   flex: 1;
   min-width: 0;
@@ -516,6 +566,7 @@ onMounted(fetchArticle)
   transition: border-color 0.2s, background 0.2s;
   color: #111827;
 }
+
 .title-input:focus {
   border-color: #111827;
   background: rgba(255, 255, 255, 0.8);
@@ -575,6 +626,7 @@ onMounted(fetchArticle)
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .setting-select:focus {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
@@ -590,6 +642,7 @@ onMounted(fetchArticle)
   font-size: 0.85rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .setting-input:focus {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
@@ -610,6 +663,7 @@ onMounted(fetchArticle)
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
+
 .setting-add-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   transform: scale(1.1);
@@ -628,6 +682,7 @@ onMounted(fetchArticle)
   gap: 0.25rem;
   transition: all 0.2s ease;
 }
+
 .setting-confirm-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   color: #523b52;
@@ -656,16 +711,19 @@ onMounted(fetchArticle)
   overflow: hidden;
   transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
+
 .cover-upload:hover {
   border-color: #c084fc;
   box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
   background: rgba(255, 255, 255, 0.7);
 }
+
 .cover-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .cover-placeholder {
   display: flex;
   flex-direction: column;
@@ -683,10 +741,12 @@ onMounted(fetchArticle)
   border: 1px solid rgba(255, 255, 255, 0.6);
   transition: all 0.2s ease;
 }
+
 .tag-item:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.8);
 }
+
 .tag-item.active {
   background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
   color: #6b4b6b;
@@ -709,6 +769,7 @@ onMounted(fetchArticle)
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
+
 .publish-btn:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
@@ -728,6 +789,7 @@ onMounted(fetchArticle)
   color: #6b4b6b;
   transition: all 0.2s ease;
 }
+
 .draft-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   transform: translateY(-1px);
@@ -747,6 +809,7 @@ onMounted(fetchArticle)
   color: #6b7280;
   transition: all 0.2s ease;
 }
+
 .cancel-btn:hover {
   background: rgba(255, 255, 255, 0.8);
   color: #111827;
@@ -850,42 +913,8 @@ onMounted(fetchArticle)
 </style>
 
 <style>
-/* ByteMD 高度链和滚动修复 */
-.editor-wrapper .bytemd {
-  height: 100% !important;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.editor-wrapper .bytemd-body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  overflow: hidden;
-}
-
-.editor-wrapper .bytemd-editor,
-.editor-wrapper .bytemd-preview {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  display: flex;
-}
-
-.editor-wrapper .bytemd-editor .CodeMirror {
-  flex: 1;
-  min-height: 0;
-  height: auto !important;
-}
-
-.editor-wrapper .bytemd-editor .CodeMirror-scroll {
-  height: auto !important;
-  max-height: 100%;
-  overflow-y: scroll !important;
-}
-
-.editor-wrapper .bytemd-preview {
-  overflow-y: auto !important;
+/* md-editor-v3 容器填充 */
+.editor-wrapper .md-editor {
+  height: 100%;
 }
 </style>

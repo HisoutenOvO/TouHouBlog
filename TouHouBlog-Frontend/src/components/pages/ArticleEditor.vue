@@ -1,22 +1,30 @@
 <template>
   <div v-if="!isAdmin" class="fade-in flex items-center justify-center h-screen text-gray-500">无权限访问</div>
   <div v-else class="edit-page-container fade-in">
-    <div class="edit-layout">
+    <div class="edit-layout" :class="{ 'is-fullscreen': isFullscreen }">
       <!-- 左侧写作区 -->
       <div class="edit-main">
-        <input
-            v-model="title"
-            type="text"
-            placeholder="文章标题"
-            class="title-input"
-        />
+        <div class="flex items-center gap-3">
+          <input
+              v-model="title"
+              type="text"
+              placeholder="文章标题"
+              class="title-input"
+          />
+          <!-- 全屏切换按钮 -->
+          <button class="setting-add-btn" @click="toggleFullscreen" :title="isFullscreen ? '退出全屏' : '全屏编辑'">
+            <Icon :icon="isFullscreen ? 'lucide:minimize-2' : 'lucide:maximize-2'" class="w-4 h-4" />
+          </button>
+        </div>
+
         <div class="editor-wrapper">
-          <Editor
-              :value="content"
-              :plugins="plugins"
-              :upload-images="uploadImages"
-              locale="zh-Hans"
-              @change="handleChange"
+          <MdEditor
+              v-model="content"
+              :onUploadImg="uploadImages"
+              :toolbars="toolbars"
+              :footers="[]"
+              preview-theme="github"
+              @onSave="saveArticle"
           />
         </div>
       </div>
@@ -91,7 +99,6 @@
         </div>
 
         <!-- 操作按钮组 -->
-        <!-- 操作按钮组：发布在上，保存和取消在下 -->
         <div class="mt-auto flex flex-col gap-2">
           <button @click="publishArticle" class="publish-btn w-full">
             <Icon icon="lucide:send" class="w-4 h-4" />
@@ -115,16 +122,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Editor } from '@bytemd/vue-next'
-import 'bytemd/dist/index.css'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import { getUserFromToken } from '../../utils/auth'
 import request from '../../utils/request'
 import OSS from 'ali-oss'
-import gfm from '@bytemd/plugin-gfm'
 import { navigate } from 'astro:transitions/client'
 import { Icon } from '@iconify/vue'
-
-const plugins = [gfm()]
 
 const props = defineProps({
   articleId: { type: String, default: '' }
@@ -138,6 +142,12 @@ const categories = ref([])
 
 // 当前文章ID：空字符串表示新建，有值表示编辑
 const currentArticleId = ref(props.articleId || '')
+
+// 全屏状态
+const isFullscreen = ref(false)
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value
+}
 
 // 标签
 const allTags = ref([])
@@ -191,12 +201,35 @@ const uploadImages = async (files) => {
   for (const file of files) {
     const key = `blog-images/${Date.now()}_${file.name}`
     const result = await ossClient.put(key, file)
-    urls.push({ url: result.url })
+    urls.push(result.url)
   }
   return urls
 }
 
-const handleChange = (v) => { content.value = v }
+const toolbars = [
+  'bold',
+  'underline',
+  'italic',
+  'strikeThrough',
+  'sub',
+  'sup',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  'codeRow',
+  'code',
+  'link',
+  'image',
+  'table',
+  'revoke',
+  'next',
+  'save',
+  'preview',
+  'htmlPreview',
+  'catalog',
+  'github'
+]
 
 const loadCategories = async () => {
   const res = await request.get('/api/categories/list?page=1&pageSize=999')
@@ -268,9 +301,7 @@ const loadArticle = async () => {
   }
 }
 
-// 检查是否有未发布的草稿
 const checkDraft = async () => {
-  // 只在新建模式（没有 articleId）时检查
   if (props.articleId) return
   try {
     const res = await request.get('/api/articles/draft')
@@ -278,7 +309,6 @@ const checkDraft = async () => {
     if (draft && draft.id) {
       const shouldContinue = await window.$confirm('检测到未完成的草稿，是否继续编辑？\n')
       if (shouldContinue) {
-        // 继续编辑草稿：加载内容，并将 currentArticleId 设为草稿ID
         currentArticleId.value = String(draft.id)
         title.value = draft.title || ''
         content.value = draft.content || ''
@@ -286,9 +316,7 @@ const checkDraft = async () => {
         selectedTags.value = draft.tags ? draft.tags.map(t => t.id) : []
         editCoverUrl.value = draft.coverUrl || ''
       } else {
-        // 删除草稿并新建
         await request.delete(`/api/articles/${draft.id}`)
-        // 不加载任何内容，保持空白新建
       }
     }
   } catch (e) {
@@ -296,7 +324,6 @@ const checkDraft = async () => {
   }
 }
 
-// 取消：弹出确认框，确认后跳转
 const cancelEdit = async () => {
   const confirmed = await window.$confirm('确定要退出编辑吗？未保存的修改将丢失。')
   if (!confirmed) return
@@ -307,7 +334,6 @@ const cancelEdit = async () => {
   }
 }
 
-// 保存草稿：保存后回到归档页
 const saveDraft = async () => {
   if (!title.value.trim()) {
     await window.$alert('请输入文章标题')
@@ -319,7 +345,7 @@ const saveDraft = async () => {
     categoryId: categoryId.value || null,
     tagIds: selectedTags.value,
     coverUrl: editCoverUrl.value || null,
-    status: 0   // 草稿
+    status: 0
   }
   try {
     if (currentArticleId.value) {
@@ -328,11 +354,10 @@ const saveDraft = async () => {
       await request.post('/api/articles', payload)
     }
     await window.$alert('草稿已保存')
-    navigate('/archive')   // 保存后返回归档页
+    navigate('/archive')
   } catch (e) {}
 }
 
-// 发布：保存并发布，跳转详情页
 const publishArticle = async () => {
   if (!title.value.trim()) {
     await window.$alert('请输入文章标题')
@@ -352,7 +377,7 @@ const publishArticle = async () => {
     categoryId: categoryId.value || null,
     tagIds: selectedTags.value,
     coverUrl: editCoverUrl.value || null,
-    status: 1   // 已发布
+    status: 1
   }
   try {
     if (currentArticleId.value) {
@@ -375,7 +400,7 @@ onMounted(async () => {
     await loadCategories()
     await loadTags()
     await loadArticle()
-    await checkDraft()   // 检查草稿
+    await checkDraft()
   }
 })
 </script>
@@ -410,6 +435,19 @@ onMounted(async () => {
   height: 100%;
 }
 
+.edit-layout.is-fullscreen .edit-settings {
+  display: none;
+}
+
+.edit-layout.is-fullscreen .edit-main {
+  padding: 0;
+}
+
+.edit-layout.is-fullscreen .editor-wrapper {
+  border-radius: 0;
+  height: 100vh;
+}
+
 .edit-main {
   flex: 1;
   min-width: 0;
@@ -432,6 +470,7 @@ onMounted(async () => {
   transition: border-color 0.2s, background 0.2s;
   color: #111827;
 }
+
 .title-input:focus {
   border-color: #111827;
   background: rgba(255, 255, 255, 0.8);
@@ -475,7 +514,6 @@ onMounted(async () => {
   color: #374151;
 }
 
-/* 美化后的下拉框 */
 .setting-select {
   flex: 1;
   padding: 0.5rem 0.75rem;
@@ -492,13 +530,13 @@ onMounted(async () => {
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .setting-select:focus {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
   outline: none;
 }
 
-/* 圆形添加按钮 */
 .setting-add-btn {
   width: 32px;
   height: 32px;
@@ -513,12 +551,12 @@ onMounted(async () => {
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
+
 .setting-add-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   transform: scale(1.1);
 }
 
-/* 输入框 */
 .setting-input {
   flex: 1;
   padding: 0.45rem 0.65rem;
@@ -528,13 +566,13 @@ onMounted(async () => {
   font-size: 0.85rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .setting-input:focus {
   border-color: #d8b4e8;
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
   outline: none;
 }
 
-/* 确认按钮淡粉紫 */
 .setting-confirm-btn {
   padding: 0.5rem 0.8rem;
   background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
@@ -548,6 +586,7 @@ onMounted(async () => {
   gap: 0.25rem;
   transition: all 0.2s ease;
 }
+
 .setting-confirm-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   color: #523b52;
@@ -563,7 +602,6 @@ onMounted(async () => {
   font-size: 0.85rem;
 }
 
-/* 封面图上传区域 */
 .cover-upload {
   width: 100%;
   height: 120px;
@@ -577,16 +615,19 @@ onMounted(async () => {
   overflow: hidden;
   transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
+
 .cover-upload:hover {
   border-color: #c084fc;
   box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
   background: rgba(255, 255, 255, 0.7);
 }
+
 .cover-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .cover-placeholder {
   display: flex;
   flex-direction: column;
@@ -594,7 +635,6 @@ onMounted(async () => {
   color: #9ca3af;
 }
 
-/* 标签胶囊 */
 .tag-item {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
@@ -605,10 +645,12 @@ onMounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.6);
   transition: all 0.2s ease;
 }
+
 .tag-item:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.8);
 }
+
 .tag-item.active {
   background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
   color: #6b4b6b;
@@ -616,7 +658,6 @@ onMounted(async () => {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-/* 底部按钮组 */
 .publish-btn {
   display: inline-flex;
   align-items: center;
@@ -632,6 +673,7 @@ onMounted(async () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
+
 .publish-btn:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
@@ -651,6 +693,7 @@ onMounted(async () => {
   color: #6b4b6b;
   transition: all 0.2s ease;
 }
+
 .draft-btn:hover {
   background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
   transform: translateY(-1px);
@@ -670,65 +713,25 @@ onMounted(async () => {
   color: #6b7280;
   transition: all 0.2s ease;
 }
+
 .cancel-btn:hover {
   background: rgba(255, 255, 255, 0.8);
   color: #111827;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
+
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
 </style>
 
 <style>
-/* ByteMD 高度链和滚动修复 */
-.editor-wrapper {
+/* md-editor-v3 容器填充 */
+.editor-wrapper .md-editor {
   height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-.editor-wrapper .bytemd {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.editor-wrapper .bytemd-body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  overflow: hidden;
-}
-.editor-wrapper .bytemd-editor,
-.editor-wrapper .bytemd-preview {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  display: flex;
-}
-.editor-wrapper .bytemd-editor .CodeMirror {
-  flex: 1;
-  min-height: 0;
-  height: auto !important;
-}
-.editor-wrapper .bytemd-editor .CodeMirror-scroll {
-  height: auto !important;
-  max-height: 100%;
-  overflow-y: scroll !important;
-}
-.editor-wrapper .bytemd-preview {
-  overflow-y: auto !important;
 }
 </style>

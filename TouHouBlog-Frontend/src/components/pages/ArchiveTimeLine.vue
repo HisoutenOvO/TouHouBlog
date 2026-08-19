@@ -286,4 +286,46 @@ onMounted(fetchArchive)
   margin-left: 1rem;
   flex-shrink: 0;
 }
+/* ========== 暗色模式适配 ========== */
+[data-theme="dark"] .year-count,
+[data-theme="dark"] .month-title,
+[data-theme="dark"] .month-count,
+[data-theme="dark"] .month-arrow,
+[data-theme="dark"] .article-title,
+[data-theme="dark"] .article-date {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .year-count {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .month-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .article-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .article-date {
+  color: var(--text-muted) !important;
+}
+
+/* 容器和悬停背景调整 */
+[data-theme="dark"] .months-container {
+  border-left-color: var(--card-border);
+}
+
+[data-theme="dark"] .month-header:hover,
+[data-theme="dark"] .article-item:hover {
+  background: rgba(139, 92, 246, 0.15) !important;
+}
+
+/* 月份圆点边框在暗色下更明显 */
+[data-theme="dark"] .month-dot {
+  background: #1a1025;
+  border-color: #c084fc;
+  box-shadow: 0 0 6px rgba(192, 132, 252, 0.6);
+}
 </style>

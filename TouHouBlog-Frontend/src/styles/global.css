@@ -877,3 +877,23 @@ a, button, [role="button"],
 [data-theme="dark"] .article-content-card .prose {
     color: #f3f4f6 !important;
 }
+/* ========== 暗色模式归档视图切换优化 ========== */
+[data-theme="dark"] .archive-view-switch {
+    background: rgba(20, 15, 35, 0.8);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .archive-view-indicator {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(236, 72, 153, 0.75));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+[data-theme="dark"] .archive-view-btn {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .archive-view-btn.active {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}

@@ -1,8 +1,8 @@
 <template>
   <div class="welcome-hero glass-card h-full w-full relative overflow-hidden">
     <!-- 装饰光晕 -->
-    <div class="absolute -top-10 -left-10 w-40 h-40 bg-pink-200/30 rounded-full blur-2xl pointer-events-none"></div>
-    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-violet-200/30 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="glow-circle absolute -top-10 -left-10 w-40 h-40 bg-pink-200/30 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="glow-circle absolute -bottom-10 -right-10 w-40 h-40 bg-violet-200/30 rounded-full blur-2xl pointer-events-none"></div>
 
     <div class="relative z-10 h-full flex flex-col justify-center items-center text-center p-6">
       <!-- 标题区（始终显示） -->
@@ -11,25 +11,30 @@
             v-for="(char, index) in welcomeChars"
             :key="index"
             class="welcome-char"
+            :class="{ 'animate-char': animationStarted }"
             :style="{ animationDelay: `${index * 0.15}s` }"
         >{{ char }}</span>
       </h1>
-      <p class="welcome-blog-name mt-2">TouHouBlog</p>
+      <p class="welcome-blog-name mt-2" :class="{ 'animate-blog': animationStarted }">TouHouBlog</p>
 
-      <div class="welcome-divider my-3"></div>
+      <div class="welcome-divider my-3" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.4s;"></div>
 
       <!-- 内容区：根据当前 tab 切换 -->
       <div class="welcome-content flex-1 w-full flex items-center justify-center">
         <Transition name="fade" mode="out-in">
           <!-- 默认概览 -->
           <div v-if="activeTab === 'overview'" key="overview" class="overview-content">
-            <p class="welcome-intro">
-              👋 你好，我是 <span class="font-semibold text-gray-800">Hisouten👋</span><br/>
+            <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.6s;">
+              👋 你好，我是 <span class="font-semibold intro-highlight">Hisouten👋</span><br/>
               欢迎来到我的幻想世界～
             </p>
-            <p class="welcome-intro">这里致力于收集幻想乡的旋律与景色，并记录日常生活～</p>
-            <p class="welcome-intro">本站若有不完善的地方请多多包涵～</p>
-            <p class="overview-hint text-sm text-gray-500 mt-2">
+            <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.9s;">
+              这里致力于收集幻想乡的旋律与景色，并记录日常生活～
+            </p>
+            <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.2s;">
+              本站若有不完善的地方请多多包涵～
+            </p>
+            <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.5s;">
               点击下方图标，探索各个模块
             </p>
           </div>
@@ -68,27 +73,30 @@
       <div class="welcome-nav flex gap-4 mt-4">
         <button
             class="nav-icon-btn"
-            :class="{ active: activeTab === 'music' }"
+            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'music' }"
             @click="activeTab = 'music'"
             title="关于音乐"
+            style="animation-delay: 2.8s;"
         >
           <Icon icon="lucide:music" class="w-5 h-5" />
           <span class="nav-label">音乐</span>
         </button>
         <button
             class="nav-icon-btn"
-            :class="{ active: activeTab === 'articles' }"
+            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'articles' }"
             @click="activeTab = 'articles'"
             title="关于文章"
+            style="animation-delay: 3.0s;"
         >
           <Icon icon="lucide:file-text" class="w-5 h-5" />
           <span class="nav-label">文章</span>
         </button>
         <button
             class="nav-icon-btn"
-            :class="{ active: activeTab === 'gallery' }"
+            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'gallery' }"
             @click="activeTab = 'gallery'"
             title="关于图集"
+            style="animation-delay: 3.2s;"
         >
           <Icon icon="lucide:image" class="w-5 h-5" />
           <span class="nav-label">图集</span>
@@ -99,16 +107,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const welcomeChars = ['欢', '迎', '来', '到']
 const activeTab = ref('overview')
+const animationStarted = ref(false)
+
+const startAnimation = () => {
+  animationStarted.value = true
+}
+
+onMounted(() => {
+  // 如果开屏已经结束（例如刷新后开屏可能不再出现），立即播放
+  if (window.__splashDone) {
+    startAnimation()
+  } else {
+    window.addEventListener('splash-finished', startAnimation, { once: true })
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('splash-finished', startAnimation)
+})
 </script>
 
 <style scoped>
+/* 外层容器：过渡包含背景、边框、阴影、毛玻璃 */
 .welcome-hero {
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* 装饰光晕过渡 */
+.glow-circle {
+  transition: background 0.3s ease, opacity 0.3s ease;
 }
 
 .welcome-title {
@@ -123,23 +155,35 @@ const activeTab = ref('overview')
 
 .welcome-char {
   display: inline-block;
-  background: linear-gradient(135deg, #c026d3, #db2777, #7c3aed);
+  background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transition: background 0.3s ease, filter 0.3s ease;
+  opacity: 0; /* 初始隐藏，防止动画前闪烁 */
+}
+
+.animate-char {
   animation: welcomeCharReveal 0.8s ease-out both;
 }
+
 .welcome-blog-name {
   font-family: "Georgia", "Times New Roman", serif;
   font-size: 1.5rem;
-  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
   letter-spacing: 0.08em;
+  transition: background 0.3s ease, filter 0.3s ease;
+  opacity: 0; /* 初始隐藏 */
+}
+
+.animate-blog {
+  animation: fadeUp 0.8s ease-out 1.2s both; /* 延迟1.2s，等待欢迎字符动画完成 */
 }
 
 .welcome-divider {
@@ -147,6 +191,23 @@ const activeTab = ref('overview')
   height: 2px;
   background: linear-gradient(135deg, #f9a8d4, #c084fc);
   border-radius: 999px;
+  opacity: 0;
+}
+
+/* 通用淡入上浮动画类 */
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .welcome-content {
@@ -158,34 +219,46 @@ const activeTab = ref('overview')
   width: 100%;
 }
 
+/* 所有文字颜色使用变量，并添加过渡 */
 .welcome-intro {
   font-size: 1rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   line-height: 1.7;
   letter-spacing: 0.03em;
+  transition: color 0.3s ease;
+  opacity: 0; /* 初始隐藏 */
+}
+
+.intro-highlight {
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .overview-hint {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+  opacity: 0; /* 初始隐藏 */
 }
 
 .module-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  transition: background 0.3s ease, filter 0.3s ease;
 }
 
 .module-desc {
   font-size: 0.9rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   line-height: 1.6;
   letter-spacing: 0.02em;
+  transition: color 0.3s ease;
 }
 
 .welcome-nav {
@@ -201,24 +274,25 @@ const activeTab = ref('overview')
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #6b7280;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+  opacity: 0; /* 初始隐藏，通过动画显示 */
 }
 
 .nav-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.85);
-  color: #111827;
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
 .nav-icon-btn.active {
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  border-color: rgba(255, 255, 255, 0.7);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 

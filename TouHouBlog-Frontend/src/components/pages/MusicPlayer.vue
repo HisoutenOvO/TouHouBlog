@@ -5,158 +5,158 @@
   <div v-if="currentMode === 'full'" class="full-mode">
     <div class="record-player">
       <Transition name="fade" mode="out-in">
-      <!-- 黑胶形态 -->
-      <div v-if="currentView === 'player'" class="player-content">
-        <!-- 左上角歌词切换按钮 -->
-        <button class="view-switch-btn top-left" @click="currentView = 'lyric'">
-          <Icon icon="lucide:mic-2" class="w-6 h-6" />
-        </button>
-        <!-- 右上角歌单切换按钮 -->
-        <button class="view-switch-btn top-right" @click="currentView = 'playlist'">
-          <Icon icon="lucide:list-music" class="w-6 h-6" />
-        </button>
+        <!-- 黑胶形态 -->
+        <div v-if="currentView === 'player'" class="player-content">
+          <!-- 左上角歌词切换按钮 -->
+          <button class="view-switch-btn top-left" @click="currentView = 'lyric'">
+            <Icon icon="lucide:mic-2" class="w-6 h-6" />
+          </button>
+          <!-- 右上角歌单切换按钮 -->
+          <button class="view-switch-btn top-right" @click="currentView = 'playlist'">
+            <Icon icon="lucide:list-music" class="w-6 h-6" />
+          </button>
 
-        <!-- 上半部分：黑胶唱片居中 -->
-        <div class="turntable">
-          <!-- 唱针 -->
-          <div class="tonearm" :class="{ playing: isPlaying, switching: isSwitching }">
-            <div class="tonearm-base"></div>
-            <div class="tonearm-arm"></div>
-            <div class="tonearm-head"></div>
-          </div>
+          <!-- 上半部分：黑胶唱片居中 -->
+          <div class="turntable">
+            <!-- 唱针 -->
+            <div class="tonearm" :class="{ playing: isPlaying, switching: isSwitching }">
+              <div class="tonearm-base"></div>
+              <div class="tonearm-arm"></div>
+              <div class="tonearm-head"></div>
+            </div>
 
-          <!-- 唱片外层：定位与切换动画 -->
-          <Transition :name="discTransitionName" mode="out-in" @after-enter="onDiscEnter">
-            <div
-                :key="currentIndex"
-                class="vinyl-record"
-            >
-              <!-- 唱片内层：纹理、标签和旋转动画 -->
-              <div class="vinyl-disc" :class="{ spinning: isPlaying }">
-                <div class="vinyl-grooves"></div>
-                <div class="vinyl-label">
-                  <img :src="currentCover" class="label-cover" />
+            <!-- 唱片外层：定位与切换动画 -->
+            <Transition :name="discTransitionName" mode="out-in" @after-enter="onDiscEnter">
+              <div
+                  :key="currentIndex"
+                  class="vinyl-record"
+              >
+                <!-- 唱片内层：纹理、标签和旋转动画 -->
+                <div class="vinyl-disc" :class="{ spinning: isPlaying }">
+                  <div class="vinyl-grooves"></div>
+                  <div class="vinyl-label">
+                    <img :src="currentCover" class="label-cover" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Transition>
-        </div>
-
-        <!-- 下半部分：信息与控制 -->
-        <div class="player-bottom">
-          <!-- 歌曲信息居中 -->
-          <div class="song-info">
-            <h3>{{ currentName || '未选择' }}</h3>
-            <p>{{ currentArtist }}</p>
+            </Transition>
           </div>
 
-          <!-- 进度条 -->
-          <div class="progress-bar">
-            <div class="bg-gray-200 h-1 rounded-full overflow-hidden">
-              <div class="bg-gray-800 h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
-            </div>
-            <div class="flex justify-between text-xs text-gray-400 mt-1">
-              <span>{{ formatTime(currentTime) }}</span>
-              <span>{{ formatTime(duration) }}</span>
-            </div>
-          </div>
-
-          <!-- 控制栏和音量放在同一行 -->
-          <div class="controls-area">
-            <div class="controls">
-              <!-- 模式切换：直接用三元表达式映射图标 -->
-              <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
-                <Icon :icon="playMode === 'list' ? 'lucide:repeat' : playMode === 'single' ? 'lucide:repeat-1' : 'lucide:shuffle'" class="w-5 h-5" />
-              </button>
-              <button @click="prevTrack" class="ctrl-btn" title="上一首">
-                <Icon icon="lucide:skip-back" class="w-5 h-5" />
-              </button>
-              <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
-                <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-6 h-6" />
-              </button>
-              <button @click="nextTrack" class="ctrl-btn" title="下一首">
-                <Icon icon="lucide:skip-forward" class="w-5 h-5" />
-              </button>
-              <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">
-                <Icon icon="lucide:refresh-cw" class="w-5 h-5" />
-              </button>
+          <!-- 下半部分：信息与控制 -->
+          <div class="player-bottom">
+            <!-- 歌曲信息居中 -->
+            <div class="song-info">
+              <h3>{{ currentName || '未选择' }}</h3>
+              <p>{{ currentArtist }}</p>
             </div>
 
-            <div class="volume-control">
-              <Icon icon="lucide:volume-2" class="text-sm mr-2" />
-              <input type="range" min="0" max="1" step="0.01"
-                     v-model="sliderValue"
-                     @input="onSliderChange"
-                     class="volume-slider" />
+            <!-- 进度条 -->
+            <div class="progress-bar">
+              <div class="bg-[var(--input-border)] h-1 rounded-full overflow-hidden">
+                <div class="bg-[var(--text-primary)] h-1 rounded-full transition-all duration-200" :style="{ width: progress + '%' }"></div>
+              </div>
+              <div class="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                <span>{{ formatTime(currentTime) }}</span>
+                <span>{{ formatTime(duration) }}</span>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- 歌词形态 -->
-      <div v-else-if="currentView === 'lyric'" class="lyric-container">
-        <div class="lyric-top">
-          <img :src="currentCover" class="lyric-cover" />
-          <div class="lyric-song-info">
-            <p class="lyric-song-name">{{ currentName || '未选择' }}</p>
-            <p class="lyric-song-artist">{{ currentArtist }}</p>
-          </div>
-          <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
-        </div>
+            <!-- 控制栏和音量放在同一行 -->
+            <div class="controls-area">
+              <div class="controls">
+                <!-- 模式切换：直接用三元表达式映射图标 -->
+                <button @click="changeMode" class="ctrl-btn mode-btn" :title="modeTitle">
+                  <Icon :icon="playMode === 'list' ? 'lucide:repeat' : playMode === 'single' ? 'lucide:repeat-1' : 'lucide:shuffle'" class="w-5 h-5" />
+                </button>
+                <button @click="prevTrack" class="ctrl-btn" title="上一首">
+                  <Icon icon="lucide:skip-back" class="w-5 h-5" />
+                </button>
+                <button @click="togglePlay" class="ctrl-btn play-btn" :title="isPlaying ? '暂停' : '播放'">
+                  <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-6 h-6" />
+                </button>
+                <button @click="nextTrack" class="ctrl-btn" title="下一首">
+                  <Icon icon="lucide:skip-forward" class="w-5 h-5" />
+                </button>
+                <button @click="refreshPlaylist" class="ctrl-btn" title="刷新歌单">
+                  <Icon icon="lucide:refresh-cw" class="w-5 h-5" />
+                </button>
+              </div>
 
-        <div class="lyric-scroll" ref="lyricScrollRef" @scroll="onLyricScroll">
-          <p v-if="!lyricLines.length" class="lyric-empty">暂无歌词</p>
-          <div
-              v-for="(line, index) in lyricLines"
-              :key="index"
-              class="lyric-line"
-              :class="{ active: index === currentLyricIndex }"
-          >
-            <p class="lyric-main">{{ line.text }}</p>
-            <p v-if="line.translation" class="lyric-trans">{{ line.translation }}</p>
+              <div class="volume-control">
+                <Icon icon="lucide:volume-2" class="text-sm mr-2" />
+                <input type="range" min="0" max="1" step="0.01"
+                       v-model="sliderValue"
+                       @input="onSliderChange"
+                       class="volume-slider" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="lyric-bottom">
-          <button @click="prevTrack" class="mini-ctrl">
-            <Icon icon="lucide:skip-back" class="w-5 h-5" />
-          </button>
-          <button @click="togglePlay" class="mini-ctrl">
-            <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-5 h-5" />
-          </button>
-          <button @click="nextTrack" class="mini-ctrl">
-            <Icon icon="lucide:skip-forward" class="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      <!-- 歌单形态 -->
-      <div v-else-if="currentView === 'playlist'" class="playlist-view">
-        <div class="playlist-view-top">
-          <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
-          <span class="playlist-title">歌单</span>
-          <span class="playlist-count">{{ playlistSongs.length }} 首</span>
-        </div>
-
-        <div class="playlist-view-list">
-          <div
-              v-for="(song, index) in playlistSongs"
-              :key="index"
-              class="playlist-view-item"
-              :class="{ active: index === currentIndex }"
-              @click="playSong(index)"
-          >
-            <img :src="song.cover || defaultCover" class="playlist-view-cover" />
-            <div class="playlist-view-info">
-              <p class="playlist-view-name">{{ song.name }}</p>
-              <p class="playlist-view-artist">{{ song.artist }}</p>
+        <!-- 歌词形态 -->
+        <div v-else-if="currentView === 'lyric'" class="lyric-container">
+          <div class="lyric-top">
+            <img :src="currentCover" class="lyric-cover" />
+            <div class="lyric-song-info">
+              <p class="lyric-song-name">{{ currentName || '未选择' }}</p>
+              <p class="lyric-song-artist">{{ currentArtist }}</p>
             </div>
-            <span v-if="index === currentIndex" class="playlist-playing-icon">
+            <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
+          </div>
+
+          <div class="lyric-scroll" ref="lyricScrollRef" @scroll="onLyricScroll">
+            <p v-if="!lyricLines.length" class="lyric-empty">暂无歌词</p>
+            <div
+                v-for="(line, index) in lyricLines"
+                :key="index"
+                class="lyric-line"
+                :class="{ active: index === currentLyricIndex }"
+            >
+              <p class="lyric-main">{{ line.text }}</p>
+              <p v-if="line.translation" class="lyric-trans">{{ line.translation }}</p>
+            </div>
+          </div>
+
+          <div class="lyric-bottom">
+            <button @click="prevTrack" class="mini-ctrl">
+              <Icon icon="lucide:skip-back" class="w-5 h-5" />
+            </button>
+            <button @click="togglePlay" class="mini-ctrl">
+              <Icon :icon="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-5 h-5" />
+            </button>
+            <button @click="nextTrack" class="mini-ctrl">
+              <Icon icon="lucide:skip-forward" class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- 歌单形态 -->
+        <div v-else-if="currentView === 'playlist'" class="playlist-view">
+          <div class="playlist-view-top">
+            <button @click="currentView = 'player'" class="lyric-back-btn">← 返回</button>
+            <span class="playlist-title">歌单</span>
+            <span class="playlist-count">{{ playlistSongs.length }} 首</span>
+          </div>
+
+          <div class="playlist-view-list">
+            <div
+                v-for="(song, index) in playlistSongs"
+                :key="index"
+                class="playlist-view-item"
+                :class="{ active: index === currentIndex }"
+                @click="playSong(index)"
+            >
+              <img :src="song.cover || defaultCover" class="playlist-view-cover" />
+              <div class="playlist-view-info">
+                <p class="playlist-view-name">{{ song.name }}</p>
+                <p class="playlist-view-artist">{{ song.artist }}</p>
+              </div>
+              <span v-if="index === currentIndex" class="playlist-playing-icon">
               <Icon icon="lucide:play" class="w-4 h-4" />
             </span>
+            </div>
           </div>
         </div>
-      </div>
       </Transition>
     </div>
   </div>
@@ -166,7 +166,7 @@
     <img :src="currentCover" class="w-10 h-10 rounded" />
     <div class="flex-1 min-w-0">
       <p class="text-sm font-medium truncate">{{ currentName }}</p>
-      <p class="text-xs text-gray-400 truncate">{{ currentArtist }}</p>
+      <p class="text-xs text-[var(--text-muted)] truncate">{{ currentArtist }}</p>
     </div>
     <div class="flex items-center gap-2">
       <button @click="prevTrack" class="mini-ctrl">
@@ -618,17 +618,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-   /* ========== 全屏模式 ========== */
- .full-mode {
-   width: 100%;
-   height: 100%;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   padding: 0;
-   overflow: hidden;
-   position: relative;
- }
+/* ========== 全屏模式 ========== */
+.full-mode {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
 
 .record-player {
   width: 100%;
@@ -639,7 +639,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  background: var(--card-bg);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 1.25rem;
@@ -675,14 +675,14 @@ onBeforeUnmount(() => {
   font-size: 1.25rem;
   z-index: 25;
   transition: color 0.2s, transform 0.2s;
-  color: #6b7280;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .top-left { left: 0.75rem; }
 .top-right { right: 0.75rem; }
-.view-switch-btn:hover { color: #111827; transform: scale(1.1); }
+.view-switch-btn:hover { color: var(--text-primary); transform: scale(1.1); }
 
 .turntable {
   position: relative;
@@ -823,7 +823,7 @@ onBeforeUnmount(() => {
   font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
   font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+  background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -834,7 +834,7 @@ onBeforeUnmount(() => {
 }
 .song-info p {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-top: 0.3rem;
   letter-spacing: 0.03em;
   font-style: italic;
@@ -863,15 +863,15 @@ onBeforeUnmount(() => {
   border: none;
   cursor: pointer;
   font-size: 1.3rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   transition: color 0.2s, transform 0.2s;
   padding: 0.25rem;
 }
-.ctrl-btn:hover { color: #111827; transform: scale(1.15); }
+.ctrl-btn:hover { color: var(--text-primary); transform: scale(1.15); }
 .play-btn {
   font-size: 1.8rem;
-  color: #111827;
-  background: rgba(255, 255, 255, 0.7);
+  color: var(--text-primary);
+  background: var(--input-bg);
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -883,10 +883,10 @@ onBeforeUnmount(() => {
   -webkit-backdrop-filter: blur(8px);
 }
 .play-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--btn-primary-hover-bg);
   transform: scale(1.1);
 }
-.mode-btn { font-size: 1.2rem; color: #6b7280; }
+.mode-btn { font-size: 1.2rem; color: var(--text-secondary); }
 
 .volume-control {
   display: flex;
@@ -900,7 +900,7 @@ onBeforeUnmount(() => {
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: #e5e7eb;
+  background: var(--input-border);
   border-radius: 3px;
   outline: none;
   cursor: pointer;
@@ -911,26 +911,26 @@ onBeforeUnmount(() => {
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #374151;
+  background: var(--text-primary);
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   transition: background 0.2s, transform 0.2s;
 }
 .volume-slider::-webkit-slider-thumb:hover {
-  background: #111827;
+  background: var(--text-heading);
   transform: scale(1.15);
 }
 .volume-slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: #374151;
+  background: var(--text-primary);
   border-radius: 50%;
   border: none;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 .volume-slider::-moz-range-track {
   height: 6px;
-  background: #e5e7eb;
+  background: var(--input-border);
   border-radius: 3px;
 }
 
@@ -942,7 +942,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   padding: 1rem 0.75rem;
   box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  background: var(--card-bg);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 1.25rem;
@@ -953,7 +953,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid var(--card-border);
 }
 .lyric-cover {
   width: 36px;
@@ -966,14 +966,14 @@ onBeforeUnmount(() => {
 .lyric-song-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .lyric-song-artist {
   font-size: 0.7rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -983,12 +983,12 @@ onBeforeUnmount(() => {
   background: none;
   border: none;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.lyric-back-btn:hover { color: #111827; }
+.lyric-back-btn:hover { color: var(--text-primary); }
 .lyric-scroll {
   flex: 1;
   overflow-y: auto;
@@ -1000,7 +1000,7 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
 }
 .lyric-scroll::-webkit-scrollbar { display: none; }
-.lyric-empty { color: #9ca3af; font-size: 0.8rem; margin-top: 2rem; }
+.lyric-empty { color: var(--text-muted); font-size: 0.8rem; margin-top: 2rem; }
 .lyric-line { padding: 0.5rem 0; transition: all 0.25s; }
 .lyric-main,
 .lyric-trans {
@@ -1013,21 +1013,21 @@ onBeforeUnmount(() => {
 }
 .lyric-main {
   font-size: 0.9rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   transition: color 0.3s, font-weight 0.3s;
 }
 .lyric-trans {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-top: 0.25rem;
   transition: color 0.3s;
 }
 .lyric-line.active .lyric-main {
-  color: #111827;
+  color: var(--text-primary);
   font-weight: bold;
   transform: scale(1.08);
 }
-.lyric-line.active .lyric-trans { color: #4b5563; }
+.lyric-line.active .lyric-trans { color: var(--text-secondary); }
 .lyric-bottom {
   display: flex;
   justify-content: center;
@@ -1045,7 +1045,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   padding: 1rem 0.75rem;
   box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(252, 228, 236, 0.7), rgba(232, 234, 246, 0.7), rgba(237, 231, 246, 0.7));
+  background: var(--card-bg);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 1.25rem;
@@ -1056,16 +1056,16 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid var(--card-border);
 }
 .playlist-title {
   font-size: 0.9rem;
   font-weight: bold;
-  color: #111827;
+  color: var(--text-primary);
   flex: 1;
   text-align: left;
 }
-.playlist-count { font-size: 0.8rem; color: #6b7280; }
+.playlist-count { font-size: 0.8rem; color: var(--text-secondary); }
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
@@ -1079,12 +1079,12 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid var(--card-border);
   cursor: pointer;
   transition: background 0.2s;
 }
-.playlist-view-item:hover { background: rgba(255, 255, 255, 0.4); }
-.playlist-view-item.active { background: rgba(255, 255, 255, 0.6); }
+.playlist-view-item:hover { background: var(--input-bg); }
+.playlist-view-item.active { background: var(--btn-primary-hover-bg); }
 .playlist-view-cover {
   width: 40px;
   height: 40px;
@@ -1095,35 +1095,37 @@ onBeforeUnmount(() => {
 .playlist-view-info { flex: 1; min-width: 0; }
 .playlist-view-name {
   font-size: 0.85rem;
-  color: #111827;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .playlist-view-artist {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .playlist-playing-icon {
   font-size: 0.9rem;
-  color: #111827;
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
 /* 迷你模式 */
 .mini-bar {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--card-gradient-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--card-border);
   border-radius: 0.5rem;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--text-primary);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .mini-bar img { object-fit: cover; }
 .mini-ctrl {
@@ -1131,9 +1133,10 @@ onBeforeUnmount(() => {
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
-.mini-ctrl:hover { color: #111827; }
+.mini-ctrl:hover { color: var(--text-primary); }
 
 /* 视图切换淡入淡出 */
 .fade-enter-active,

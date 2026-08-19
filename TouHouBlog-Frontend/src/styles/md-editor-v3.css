@@ -1,29 +1,23 @@
 /* ========== md-editor-v3 毛玻璃主题适配 ========== */
-
-/* 根容器：透明背景 + 毛玻璃，让外层 .editor-wrapper 的渐变透出 */
 .md-editor {
     height: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
     overflow: hidden;
-    background: linear-gradient(
-            135deg,
-            rgba(252, 228, 236, 0.75),
-            rgba(232, 234, 246, 0.75),
-            rgba(237, 231, 246, 0.75)
-    );
+    background: var(--card-bg);
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
     box-shadow: 0 4px 20px rgba(31, 38, 135, 0.08);
+    color: var(--text-primary);
 }
 
 /* 工具栏区域 */
 .md-editor-toolbar-wrapper {
-    background: rgba(255, 255, 255, 0.55) !important;
+    background: var(--navbar-bg) !important;
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-bottom: 1px solid var(--card-border) !important;
     padding: 6px 8px;
     min-height: 44px;
     display: flex;
@@ -35,7 +29,7 @@
 /* 工具栏按钮 */
 .md-editor-toolbar-item {
     font-size: 16px;
-    color: #6b7280;
+    color: var(--text-secondary);
     border-radius: 6px;
     width: 32px;
     height: 32px;
@@ -44,17 +38,71 @@
     justify-content: center;
     cursor: pointer;
     transition: color 0.2s, background 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
 }
 
 .md-editor-toolbar-item:hover {
-    background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-    color: #6b4b6b;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     transform: translateY(-1px);
 }
 
 .md-editor-toolbar-item.active {
-    background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-    color: #6b4b6b;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+}
+
+/* 按钮光晕扫过效果 */
+.md-editor-toolbar-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+.md-editor-toolbar-item:active::after {
+    width: 60px;
+    height: 60px;
+    opacity: 1;
+    transition: 0s;
+}
+
+/* 工具栏分隔符 */
+.md-editor-toolbar-wrapper .md-editor-toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background: linear-gradient(180deg, transparent, rgba(124, 58, 237, 0.2), rgba(236, 72, 153, 0.2), transparent);
+    margin: 0 4px;
+}
+
+/* 下拉菜单容器 */
+.md-editor-toolbar-wrapper .md-editor-toolbar-dropdown {
+    background: var(--input-bg);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(31, 38, 135, 0.12);
+    padding: 4px;
+}
+
+.md-editor-toolbar-wrapper .md-editor-toolbar-dropdown-item {
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+.md-editor-toolbar-wrapper .md-editor-toolbar-dropdown-item:hover {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
 }
 
 /* 内容区 */
@@ -73,11 +121,11 @@
     padding: 1rem 1.25rem;
     line-height: 1.7;
     font-size: 15px;
-    color: #1f2937;
-    background: rgba(255, 255, 255, 0.6) !important;
+    color: var(--text-primary);
+    background: var(--input-bg) !important;
     backdrop-filter: blur(8px) saturate(140%);
     -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border-right: 1px solid rgba(255, 255, 255, 0.5);
+    border-right: 1px solid var(--card-border);
     box-sizing: border-box;
 }
 
@@ -90,8 +138,8 @@
     padding: 1rem 1.25rem;
     line-height: 1.7;
     font-size: 15px;
-    color: #1f2937;
-    background: rgba(255, 255, 255, 0.75) !important;
+    color: var(--text-primary);
+    background: var(--article-card-bg) !important;
     backdrop-filter: blur(8px) saturate(140%);
     -webkit-backdrop-filter: blur(8px) saturate(140%);
     box-sizing: border-box;
@@ -103,17 +151,17 @@
     max-width: none;
     line-height: 1.7;
     font-size: 15px;
-    color: #1f2937;
+    color: var(--text-primary);
     padding: 0;
 }
 
 /* 底部状态栏 */
 .md-editor-footer {
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--navbar-bg);
     backdrop-filter: blur(8px) saturate(140%);
     -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border-top: 1px solid rgba(255, 255, 255, 0.6);
-    color: #9ca3af;
+    border-top: 1px solid var(--card-border);
+    color: var(--text-secondary);
     font-size: 0.75rem;
     height: 30px;
     padding: 0 1rem;
@@ -128,126 +176,163 @@
     width: 6px;
     height: 6px;
 }
-
 .md-editor-input-wrapper::-webkit-scrollbar-thumb,
 .md-editor-preview-wrapper::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
 }
-
 .md-editor-input-wrapper::-webkit-scrollbar-thumb:hover,
 .md-editor-preview-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    background: var(--scrollbar-thumb-hover);
 }
 
 /* 文本选中背景 */
 .md-editor-input ::selection,
 .md-editor-preview ::selection {
-    background: rgba(216, 180, 232, 0.4);
-    color: #111827;
+    background: var(--selection-bg);
+    color: var(--text-primary);
 }
 
-/* ========== 预览区 Markdown 排版（与 .prose 一致，但不重复三点） ========== */
+/* 编辑区文字 */
+.md-editor-input {
+    caret-color: #7c3aed;
+    font-size: 15.5px;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+}
+
+/* 编辑区占位符 */
+.md-editor-input .md-editor-input-placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* 预览区 Markdown 排版（与 .prose 一致） */
 .md-editor-preview {
     max-width: none;
     line-height: 1.7;
     font-size: 15px;
-    color: #1f2937;
+    color: var(--text-primary);
 }
-
 .md-editor-preview h1,
 .md-editor-preview h2,
 .md-editor-preview h3,
 .md-editor-preview h4,
 .md-editor-preview h5,
 .md-editor-preview h6 {
-    color: #111827;
+    color: var(--text-heading);
     font-weight: 600;
     line-height: 1.4;
     margin: 1.2em 0 0.6em;
 }
-
-.md-editor-preview h1 { font-size: 2em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
-.md-editor-preview h2 { font-size: 1.5em; border-bottom: 1px solid #f0f0f0; padding-bottom: 0.25em; }
+.md-editor-preview h1 { font-size: 2em; border-bottom: 1px solid var(--table-border); padding-bottom: 0.3em; }
+.md-editor-preview h2 { font-size: 1.5em; border-bottom: 1px solid var(--table-border); padding-bottom: 0.25em; }
 .md-editor-preview h3 { font-size: 1.25em; }
-
 .md-editor-preview p { margin: 0.8em 0; }
-
-.md-editor-preview a {
-    color: #2563eb;
-    text-decoration: none;
-}
+.md-editor-preview a { color: var(--btn-gradient-bg); text-decoration: none; }
 .md-editor-preview a:hover { text-decoration: underline; }
-
-/* 行内代码 */
 .md-editor-preview :not(pre) > code {
-    background: #f3f4f6;
+    background: var(--code-bg);
     border-radius: 4px;
     padding: 2px 5px;
     font-size: 0.9em;
-    color: #be185d;
+    color: var(--code-text);
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
-
-/* 代码块 */
 .md-editor-preview pre {
-    background: #f6f8fa;
-    border: 1px solid #e5e7eb;
+    background: var(--pre-bg);
+    border: 1px solid var(--pre-border);
     border-radius: 6px;
     padding: 12px 16px;
     overflow-x: auto;
     font-size: 0.9em;
     line-height: 1.6;
     margin: 1em 0;
-    /* 不再添加自定义三点，使用编辑器自带三点 */
 }
-
 .md-editor-preview pre code {
     background: transparent;
-    color: #111827;
+    color: var(--text-primary);
     padding: 0;
     font-size: inherit;
     font-family: inherit;
 }
-
-/* 引用块 */
 .md-editor-preview blockquote {
-    border-left: 4px solid #d1d5db;
-    color: #6b7280;
+    border-left: 4px solid var(--blockquote-border);
+    color: var(--text-secondary);
     padding: 0.5em 1em;
     margin: 1em 0;
-    background: #f9fafb;
+    background: var(--code-bg);
     border-radius: 0 6px 6px 0;
 }
-
-/* 表格 */
 .md-editor-preview table {
     border-collapse: collapse;
     width: 100%;
     margin: 1em 0;
 }
-
 .md-editor-preview th,
 .md-editor-preview td {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--table-border);
     padding: 8px 12px;
     text-align: left;
 }
-
 .md-editor-preview th {
-    background: #f3f4f6;
+    background: var(--btn-primary-bg);
+    color: var(--text-heading);
     font-weight: 600;
 }
-
-/* 图片 */
 .md-editor-preview img {
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
-
-/* 分割线 */
 .md-editor-preview hr {
     border: none;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--table-border);
     margin: 1.5em 0;
+}
+
+/* 全屏模式 */
+.md-editor.is-fullscreen .md-editor-toolbar-wrapper {
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+.md-editor.is-fullscreen .md-editor-content {
+    height: calc(100vh - 44px);
+}
+
+/* 弹窗 */
+.md-editor-modal {
+    background: var(--input-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 12px 32px rgba(31, 38, 135, 0.15);
+}
+
+/* 移动端 */
+@media (max-width: 768px) {
+    .md-editor-toolbar-wrapper {
+        padding: 4px 6px;
+        min-height: 40px;
+        gap: 1px;
+    }
+    .md-editor-toolbar-item {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    .md-editor-input-wrapper,
+    .md-editor-preview-wrapper {
+        padding: 0.75rem 1rem;
+        font-size: 14px;
+    }
+    .md-editor-content {
+        flex-direction: column;
+    }
+    .md-editor-input-wrapper,
+    .md-editor-preview-wrapper {
+        height: auto;
+        flex: none;
+    }
 }

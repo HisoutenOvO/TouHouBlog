@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="loading" class="text-gray-500">加载中...</div>
+    <div v-if="loading" class="text-[var(--text-secondary)]">加载中...</div>
     <TransitionGroup
         v-else-if="articles.length"
         name="article-list"
@@ -19,50 +19,50 @@
             :style="{ transitionDelay: `${index * 80}ms` }"
         >
           <!-- 左侧封面 -->
-          <div class="w-1/2 bg-gray-100 rounded-l-lg flex items-center justify-center overflow-hidden relative">
+          <div class="w-1/2 bg-[var(--input-bg)] rounded-l-lg flex items-center justify-center overflow-hidden relative">
             <img
                 v-if="article.coverUrl"
                 :src="article.coverUrl"
                 class="absolute inset-0 w-full h-full object-cover rounded-l-lg"
             />
-            <span v-else class="text-gray-400 text-lg">封面占位</span>
+            <span v-else class="text-[var(--text-muted)] text-lg">封面占位</span>
           </div>
           <!-- 右侧文字 -->
           <div class="w-1/2 p-5 flex flex-col justify-between">
             <div>
-              <h3 class="text-lg font-bold text-gray-900 mb-1">{{ article.title }}</h3>
-              <div class="text-sm text-gray-400">
+              <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">{{ article.title }}</h3>
+              <div class="text-sm text-[var(--text-muted)]">
                 {{ article.categoryName }} · {{ article.createTime }}
               </div>
             </div>
-            <p class="text-sm text-gray-600 leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
+            <p class="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2 my-2">{{ article.content }}</p>
             <div class="flex flex-wrap gap-1.5">
-        <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
-          {{ tag.name }}
-        </span>
+              <span v-for="tag in article.tags" :key="tag.id" class="tag-chip-list">
+                {{ tag.name }}
+              </span>
             </div>
           </div>
         </a>
       </RevealOnScroll>
     </TransitionGroup>
-    <div v-else class="text-gray-500">暂无文章。</div>
+    <div v-else class="text-[var(--text-secondary)]">暂无文章。</div>
 
     <!-- 分页 -->
-    <div v-if="total > pageSize" class="flex justify-center gap-2 mt-6">
+    <div v-if="total > pageSize" class="flex justify-center items-center gap-3 mt-8">
       <button
           @click="changePage(pageNum - 1)"
           :disabled="pageNum === 1"
-          class="px-3 py-1 text-sm rounded border border-gray-200 bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+          class="pagination-btn"
       >
         上一页
       </button>
-      <span class="px-3 py-1 text-sm text-gray-500">
+      <span class="pagination-info">
         {{ pageNum }} / {{ totalPages }}
       </span>
       <button
           @click="changePage(pageNum + 1)"
           :disabled="pageNum === totalPages"
-          class="px-3 py-1 text-sm rounded border border-gray-200 bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+          class="pagination-btn"
       >
         下一页
       </button>
@@ -142,33 +142,49 @@ onMounted(() => {
 .article-list-leave-to {
   opacity: 0;
 }
+
 /* 文章卡片悬停特效 */
 .article-card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .article-card-hover:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 32px rgba(124, 58, 237, 0.18), 0 6px 12px rgba(0, 0, 0, 0.06);
 }
-.tag-chip-list {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
+
+/* 分页按钮专用样式，亮暗模式都清晰 */
+.pagination-btn {
+  padding: 0.4rem 1.2rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: background 0.2s, transform 0.2s;
+  border: 1px solid var(--card-border);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.pagination-btn:hover:not(:disabled) {
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-.tag-chip-list:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
-  transform: translateY(-1px);
+.pagination-info {
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 </style>

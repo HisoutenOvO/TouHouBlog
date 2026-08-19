@@ -151,3 +151,29 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
         initArchivePage();
         document.addEventListener('astro:page-load', initArchivePage);
 </script>
+<style>
+    .archive-search-input {
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-primary);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .archive-search-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    /* 暗色模式下，placeholder 更亮，接近白色 */
+    :global([data-theme="dark"]) .archive-search-input::placeholder {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .archive-search-input:focus {
+        border-color: var(--input-focus-border);
+        background: var(--input-bg);
+        box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
+        outline: none;
+    }
+</style>

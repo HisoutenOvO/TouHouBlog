@@ -2,10 +2,10 @@
   <div class="glass-card p-4">
     <div class="flex justify-between items-center mb-3">
       <h3 class="latest-talk-title">最近的杂谈～</h3>
-      <a href="/talks" class="text-sm text-gray-400 hover:text-gray-600 no-underline">查看全部 →</a>
+      <a href="/talks" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] no-underline">查看全部 →</a>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center h-32 text-gray-500">
+    <div v-if="loading" class="flex items-center justify-center h-32 text-[var(--text-secondary)]">
       加载中...
     </div>
 
@@ -13,19 +13,19 @@
       <div
           v-for="talk in talks"
           :key="talk.id"
-          class="rounded-lg p-3 bg-white/50 hover:bg-white/70 transition-colors cursor-pointer"
+          class="rounded-lg p-3 bg-[var(--input-bg)] hover:bg-[var(--btn-primary-hover-bg)] transition-colors cursor-pointer"
           @click="goTalk(talk.id)"
       >
-        <p class="text-sm text-gray-700 leading-relaxed line-clamp-2">
+        <p class="text-sm text-[var(--text-primary)] leading-relaxed line-clamp-2">
           {{ talk.content }}
         </p>
-        <div class="text-xs text-gray-400 mt-1">
+        <div class="text-xs text-[var(--text-muted)] mt-1">
           {{ talk.createTime }}
         </div>
       </div>
     </div>
 
-    <div v-else class="flex items-center justify-center h-32 text-gray-500">
+    <div v-else class="flex items-center justify-center h-32 text-[var(--text-secondary)]">
       暂无杂谈。
     </div>
   </div>
@@ -60,7 +60,7 @@ onMounted(async () => {
   font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #6b4b6b;
+  color: var(--text-primary);
   letter-spacing: 0.02em;
 }
 </style>

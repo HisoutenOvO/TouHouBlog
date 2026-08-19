@@ -11,7 +11,11 @@
           @click="goAbout"
           title="前往关于页"
       >
-        <Icon icon="lucide:user" class="w-10 h-10 text-gray-600" />
+        <img
+            src="/images/head.jpg"
+            alt="Hisouten"
+            class="w-full h-full object-cover rounded-full"
+        />
       </div>
 
       <!-- 渐变名字 -->
@@ -62,6 +66,7 @@ const goAbout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden; /* 让图片被圆形裁剪 */
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 

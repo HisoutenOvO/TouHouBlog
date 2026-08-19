@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="text-center text-gray-500 py-20">暂无图片</div>
+    <div v-else class="text-center text-gray-500 py-20">少女祈祷中……</div>
 
     <!-- 灯箱 -->
     <Transition name="lightbox">

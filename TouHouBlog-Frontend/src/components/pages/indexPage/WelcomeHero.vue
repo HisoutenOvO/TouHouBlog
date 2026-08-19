@@ -5,121 +5,210 @@
     <div class="glow-circle absolute -bottom-10 -right-10 w-40 h-40 bg-violet-200/30 rounded-full blur-2xl pointer-events-none"></div>
 
     <div class="relative z-10 h-full flex flex-col justify-center items-center text-center p-6">
-      <!-- 标题区（始终显示） -->
-      <h1 class="welcome-title">
-        <span
-            v-for="(char, index) in welcomeChars"
-            :key="index"
-            class="welcome-char"
-            :class="{ 'animate-char': animationStarted }"
-            :style="{ animationDelay: `${index * 0.15}s` }"
-        >{{ char }}</span>
-      </h1>
-      <p class="welcome-blog-name mt-2" :class="{ 'animate-blog': animationStarted }">TouHouBlog</p>
+      <!-- ========== 站长模式 ========== -->
+      <template v-if="isAdmin">
+        <h1 class="welcome-title">
+    <span
+        v-for="(char, index) in adminChars"
+        :key="index"
+        class="welcome-char"
+        :class="{ 'animate-char': animationStarted }"
+        :style="{ animationDelay: `${index * 0.15}s` }"
+    >{{ char }}</span>
+        </h1>
+        <p class="welcome-blog-name mt-2" :class="{ 'animate-blog': animationStarted }">Hisouten站长</p>
 
-      <div class="welcome-divider my-3" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.4s;"></div>
+        <div class="welcome-divider my-3" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.4s;"></div>
 
-      <!-- 内容区：根据当前 tab 切换 -->
-      <div class="welcome-content flex-1 w-full flex items-center justify-center">
-        <Transition name="fade" mode="out-in">
-          <!-- 默认概览 -->
-          <div v-if="activeTab === 'overview'" key="overview" class="overview-content">
+        <!-- 站长模式的小字：与你指定的文案一致 -->
+        <div class="welcome-content flex-1 w-full flex items-center justify-center">
+          <div class="overview-content">
             <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.6s;">
-              👋 你好，我是 <span class="font-semibold intro-highlight">Hisouten👋</span><br/>
-              欢迎来到我的幻想世界～
-            </p>
-            <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.9s;">
-              这里致力于收集幻想乡的旋律与景色，并记录日常生活～
+              👋 欢迎回到 <span class="font-semibold intro-highlight">TouHouBlog👋</span><br/>
+              这里永远是独属于您的避风港～
             </p>
             <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.2s;">
-              本站若有不完善的地方请多多包涵～
+              今天也请继续收集属于您与幻想乡的故事与日常生活吧～
             </p>
-            <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.5s;">
-              点击下方图标，探索各个模块
+            <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.5s;">
+              幻想乡与您同在，尽情向前迈步吧～
             </p>
-          </div>
-
-          <!-- 音乐介绍 -->
-          <div v-else-if="activeTab === 'music'" key="music" class="module-content">
-            <h3 class="module-title">🎵 关于音乐</h3>
-            <p class="module-desc">
-              这里是我的音乐小站，收藏了东方原曲与同人曲的各种精品～～
-              左侧的黑胶唱片播放器，左上角查看歌词，右上角查看歌单～～
-              下方最左侧可切换播放模式，中间可抓取最新歌单，右侧可调节音量，尽情享受来自幻想乡的旋律吧，都是值得一听的精品哦～
+            <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.8s;">
+              点击下方图标，书写您的华章
             </p>
           </div>
+        </div>
 
-          <!-- 文章介绍 -->
-          <div v-else-if="activeTab === 'articles'" key="articles" class="module-content">
-            <h3 class="module-title">📝 关于文章</h3>
-            <p class="module-desc">
-              归档页收录了我的学习笔记、技术总结和东方杂谈。
-              你可以搜索、按分类标签筛选，或切换到时间线浏览。
-            </p>
-          </div>
+        <!-- 站长快捷按钮区：延迟调整为 3.2s 起 -->
+        <div class="welcome-nav flex gap-4 mt-4">
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted }"
+              style="animation-delay: 3.2s;"
+              @click="go('/write')"
+              title="写文章"
+          >
+            <Icon icon="lucide:pencil" class="w-5 h-5" />
+            <span class="nav-label">写写文章</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted }"
+              style="animation-delay: 3.4s;"
+              @click="go('/talks')"
+              title="发杂谈"
+          >
+            <Icon icon="lucide:message-circle" class="w-5 h-5" />
+            <span class="nav-label">聊聊杂谈</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted }"
+              style="animation-delay: 3.6s;"
+              @click="go('/picture')"
+              title="上传图集"
+          >
+            <Icon icon="lucide:image" class="w-5 h-5" />
+            <span class="nav-label">发发图集</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted }"
+              style="animation-delay: 3.8s;"
+              @click="go('/version')"
+              title="开发者日志"
+          >
+            <Icon icon="lucide:file-code" class="w-5 h-5" />
+            <span class="nav-label">记录日志</span>
+          </button>
+        </div>
+      </template>
 
-          <!-- 图集介绍 -->
-          <div v-else-if="activeTab === 'gallery'" key="gallery" class="module-content">
-            <h3 class="module-title">🖼️ 关于图集</h3>
-            <p class="module-desc">
-              图集页展示我收藏的东方Project插画与摄影。
-              点击任意图片可以放大欣赏，后续还会支持多图浏览。
-            </p>
-          </div>
-        </Transition>
-      </div>
+      <!-- ========== 游客模式（保持原有内容） ========== -->
+      <template v-else>
+        <h1 class="welcome-title">
+          <span
+              v-for="(char, index) in welcomeChars"
+              :key="index"
+              class="welcome-char"
+              :class="{ 'animate-char': animationStarted }"
+              :style="{ animationDelay: `${index * 0.15}s` }"
+          >{{ char }}</span>
+        </h1>
+        <p class="welcome-blog-name mt-2" :class="{ 'animate-blog': animationStarted }">TouHouBlog</p>
 
-      <!-- 底部三个图标按钮 -->
-      <div class="welcome-nav flex gap-4 mt-4">
-        <button
-            class="nav-icon-btn"
-            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'music' }"
-            @click="activeTab = 'music'"
-            title="关于音乐"
-            style="animation-delay: 2.8s;"
-        >
-          <Icon icon="lucide:music" class="w-5 h-5" />
-          <span class="nav-label">音乐</span>
-        </button>
-        <button
-            class="nav-icon-btn"
-            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'articles' }"
-            @click="activeTab = 'articles'"
-            title="关于文章"
-            style="animation-delay: 3.0s;"
-        >
-          <Icon icon="lucide:file-text" class="w-5 h-5" />
-          <span class="nav-label">文章</span>
-        </button>
-        <button
-            class="nav-icon-btn"
-            :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'gallery' }"
-            @click="activeTab = 'gallery'"
-            title="关于图集"
-            style="animation-delay: 3.2s;"
-        >
-          <Icon icon="lucide:image" class="w-5 h-5" />
-          <span class="nav-label">图集</span>
-        </button>
-      </div>
+        <div class="welcome-divider my-3" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.4s;"></div>
+
+        <div class="welcome-content flex-1 w-full flex items-center justify-center">
+          <Transition name="fade" mode="out-in">
+            <!-- 默认概览 -->
+            <div v-if="activeTab === 'overview'" key="overview" class="overview-content">
+              <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.6s;">
+                👋 你好，我是 <span class="font-semibold intro-highlight">Hisouten👋</span><br/>
+                欢迎来到我的幻想世界～
+              </p>
+              <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.9s;">
+                这里致力于收集幻想乡的旋律与景色，并记录日常生活～
+              </p>
+              <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.2s;">
+                本站若有不完善的地方请多多包涵～
+              </p>
+              <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.5s;">
+                点击下方图标，探索各个模块
+              </p>
+            </div>
+
+            <!-- 音乐介绍 -->
+            <div v-else-if="activeTab === 'music'" key="music" class="module-content">
+              <h3 class="module-title">🎵 关于音乐</h3>
+              <p class="module-desc">
+                这里是我的音乐小站，收藏了东方原曲与同人曲的各种精品～～
+                左侧的黑胶唱片播放器，左上角查看歌词，右上角查看歌单～～
+                下方最左侧可切换播放模式，中间可抓取最新歌单，右侧可调节音量，尽情享受来自幻想乡的旋律吧，都是值得一听的精品哦～
+              </p>
+            </div>
+
+            <!-- 文章介绍 -->
+            <div v-else-if="activeTab === 'articles'" key="articles" class="module-content">
+              <h3 class="module-title">📝 关于文章</h3>
+              <p class="module-desc">
+                归档页收录了我的学习笔记、技术总结和东方杂谈。
+                你可以搜索、按分类标签筛选，或切换到时间线浏览。
+              </p>
+            </div>
+
+            <!-- 图集介绍 -->
+            <div v-else-if="activeTab === 'gallery'" key="gallery" class="module-content">
+              <h3 class="module-title">🖼️ 关于图集</h3>
+              <p class="module-desc">
+                图集页展示我收藏的东方Project插画与摄影。
+                点击任意图片可以放大欣赏，后续还会支持多图浏览。
+              </p>
+            </div>
+          </Transition>
+        </div>
+
+        <div class="welcome-nav flex gap-4 mt-4">
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'music' }"
+              @click="activeTab = 'music'"
+              title="关于音乐"
+              style="animation-delay: 2.8s;"
+          >
+            <Icon icon="lucide:music" class="w-5 h-5" />
+            <span class="nav-label">音乐</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'articles' }"
+              @click="activeTab = 'articles'"
+              title="关于文章"
+              style="animation-delay: 3.0s;"
+          >
+            <Icon icon="lucide:file-text" class="w-5 h-5" />
+            <span class="nav-label">文章</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted, active: activeTab === 'gallery' }"
+              @click="activeTab = 'gallery'"
+              title="关于图集"
+              style="animation-delay: 3.2s;"
+          >
+            <Icon icon="lucide:image" class="w-5 h-5" />
+            <span class="nav-label">图集</span>
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Icon } from '@iconify/vue'
+import { getUserFromToken } from '../../../utils/auth'
+import { navigate } from 'astro:transitions/client'
 
 const welcomeChars = ['欢', '迎', '来', '到']
+const adminChars = ['欢', '迎', '回', '家']  // 站长模式大字：欢迎回到
 const activeTab = ref('overview')
 const animationStarted = ref(false)
+
+const user = ref(null)
+const isAdmin = computed(() => user.value?.role === 1)
 
 const startAnimation = () => {
   animationStarted.value = true
 }
 
+const go = (path) => {
+  navigate(path)
+}
+
 onMounted(() => {
-  // 如果开屏已经结束（例如刷新后开屏可能不再出现），立即播放
+  user.value = getUserFromToken()
   if (window.__splashDone) {
     startAnimation()
   } else {

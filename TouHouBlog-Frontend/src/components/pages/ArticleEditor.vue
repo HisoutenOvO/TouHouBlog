@@ -23,7 +23,8 @@
               :onUploadImg="uploadImages"
               :toolbars="toolbars"
               :footers="[]"
-              preview-theme="github"
+              :theme="isDark ? 'dark' : 'light'"
+              preview-theme="default"
               @onSave="saveArticle"
           />
         </div>
@@ -121,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { getUserFromToken } from '../../utils/auth'
@@ -133,6 +134,15 @@ import { Icon } from '@iconify/vue'
 const props = defineProps({
   articleId: { type: String, default: '' }
 })
+
+// 主题响应式处理
+const theme = ref(
+    typeof document !== 'undefined'
+        ? document.documentElement.getAttribute('data-theme') || 'light'
+        : 'light'
+)
+let themeObserver = null
+const isDark = computed(() => theme.value === 'dark')
 
 const isAdmin = ref(false)
 const title = ref('')
@@ -394,6 +404,14 @@ const publishArticle = async () => {
 }
 
 onMounted(async () => {
+  themeObserver = new MutationObserver(() => {
+    theme.value = document.documentElement.getAttribute('data-theme') || 'light'
+  })
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  })
+
   const user = getUserFromToken()
   if (user && user.role === 1) {
     isAdmin.value = true
@@ -401,6 +419,12 @@ onMounted(async () => {
     await loadTags()
     await loadArticle()
     await checkDraft()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (themeObserver) {
+    themeObserver.disconnect()
   }
 })
 </script>
@@ -726,6 +750,127 @@ onMounted(async () => {
 
 .fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* ========== 暗色模式适配（仅编辑页面外部样式） ========== */
+[data-theme="dark"] .edit-page-container {
+  background: linear-gradient(135deg, #1a1025 0%, #2a1a35 40%, #1e1430 100%);
+}
+
+[data-theme="dark"] .edit-page-container::before {
+  background: url('/images/bgn1.jpg') center/cover no-repeat;
+  filter: blur(6px);
+  opacity: 0.6;
+}
+
+[data-theme="dark"] .title-input {
+  background: var(--input-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .title-input:focus {
+  border-color: var(--input-focus-border);
+  background: var(--input-bg);
+}
+
+[data-theme="dark"] .editor-wrapper {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .edit-settings {
+  background: var(--card-bg);
+  border-left-color: var(--card-border);
+}
+
+[data-theme="dark"] .setting-label {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .setting-select,
+[data-theme="dark"] .setting-input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .setting-select:focus,
+[data-theme="dark"] .setting-input:focus {
+  border-color: var(--input-focus-border);
+}
+
+[data-theme="dark"] .setting-add-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .setting-add-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .setting-confirm-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .setting-confirm-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .setting-cancel-btn {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--table-border);
+}
+
+[data-theme="dark"] .cover-upload {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+[data-theme="dark"] .cover-upload:hover {
+  background: var(--btn-primary-hover-bg);
+  border-color: var(--input-focus-border);
+}
+
+[data-theme="dark"] .cover-placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .tag-item {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .tag-item:hover {
+  background: var(--btn-primary-hover-bg);
+}
+[data-theme="dark"] .tag-item.active {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .publish-btn {
+  background: var(--btn-gradient-bg);
+  color: white;
+}
+
+[data-theme="dark"] .draft-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .draft-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .cancel-btn {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--table-border);
+}
+[data-theme="dark"] .cancel-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
 }
 </style>
 

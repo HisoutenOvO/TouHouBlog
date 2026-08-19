@@ -1,54 +1,165 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import LoginBrand from '../components/pages/LoginBrand.vue'
 import LoginButtons from '../components/pages/LoginButtons.vue'
 ---
 
 <Layout>
-    <div class="flex items-center justify-center min-h-[70vh] px-4">
-        <div class="login-card glass-card">
-            <div class="text-5xl mb-4">🎵</div>
-            <h1 class="login-title">登录 TouHouBlog</h1>
-            <p class="login-subtitle">选择一种方式，进入幻想世界</p>
+    <div class="login-page">
+        <div class="login-card">
+            <!-- 装饰光晕 -->
+            <div class="glow glow-1"></div>
+            <div class="glow glow-2"></div>
+            <div class="glow glow-3"></div>
 
-            <LoginButtons client:load />
+            <div class="login-grid">
+                <!-- 左侧品牌展示区（Vue 组件，client:load 确保图标渲染） -->
+                <LoginBrand client:load />
 
-            <p class="login-footer">登录后可以发表评论、点赞，博主还会获得特殊标识哦</p>
+                <div class="login-divider-vertical"></div>
+
+                <!-- 右侧登录按钮区 -->
+                <div class="login-right">
+                    <LoginButtons client:load />
+                    <p class="login-footer mt-6">登录后可以发表评论、点赞<br/>博主还会获得特殊标识哦</p>
+                </div>
+            </div>
         </div>
     </div>
 </Layout>
 
-<style>
+<style is:inline>
+    .login-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
     .login-card {
-        max-width: 380px;
+        max-width: 900px;
         width: 100%;
-        padding: 2.5rem 2rem;
-        text-align: center;
+        background: linear-gradient(
+                135deg,
+                rgba(252, 228, 236, 0.7),
+                rgba(232, 234, 246, 0.7),
+                rgba(237, 231, 246, 0.7)
+        );
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 2rem;
+        box-shadow: 0 20px 60px rgba(31, 38, 135, 0.15);
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    .login-title {
-        font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        margin-bottom: 0.5rem;
+    .login-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 1px 1fr;
+        gap: 2.5rem;
+        align-items: center;
     }
 
-    .login-subtitle {
-        font-style: italic;
-        color: #6b7280;
-        font-size: 0.95rem;
-        letter-spacing: 0.03em;
-        margin-bottom: 1.75rem;
+    .login-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-divider-vertical {
+        width: 1px;
+        height: 100%;
+        background: linear-gradient(
+                180deg,
+                transparent,
+                rgba(124, 58, 237, 0.4),
+                rgba(236, 72, 153, 0.4),
+                transparent
+        );
     }
 
     .login-footer {
-        margin-top: 1.5rem;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: #9ca3af;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    /* 装饰光晕 */
+    .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        pointer-events: none;
+    }
+    .glow-1 {
+        width: 250px;
+        height: 250px;
+        top: -80px;
+        left: -80px;
+        background: rgba(249, 168, 212, 0.4);
+    }
+    .glow-2 {
+        width: 250px;
+        height: 250px;
+        bottom: -80px;
+        right: -80px;
+        background: rgba(192, 132, 252, 0.4);
+    }
+    .glow-3 {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        left: 50%;
+        background: rgba(96, 165, 250, 0.3);
+        transform: translate(-50%, -50%);
+    }
+
+    /* 暗色模式 */
+    [data-theme="dark"] .login-card {
+        background: linear-gradient(
+                135deg,
+                rgba(30, 20, 50, 0.9),
+                rgba(40, 25, 60, 0.9),
+                rgba(50, 20, 45, 0.9)
+        );
+        backdrop-filter: blur(24px) saturate(140%);
+        -webkit-backdrop-filter: blur(24px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    [data-theme="dark"] .login-footer {
+        color: #9ca3af;
+    }
+
+    /* 移动端 */
+    @media (max-width: 768px) {
+        .login-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .login-divider-vertical {
+            display: none;
+        }
+        .login-grid::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(124, 58, 237, 0.4),
+                    rgba(236, 72, 153, 0.4),
+                    transparent
+            );
+            margin: 0 auto;
+        }
     }
 </style>

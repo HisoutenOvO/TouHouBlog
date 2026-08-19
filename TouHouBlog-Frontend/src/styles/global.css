@@ -41,7 +41,7 @@
 
 [data-theme="dark"] {
     --bg-base: #1a1025;
-    --bg-image: linear-gradient(135deg, rgba(60, 30, 55, 0.2), rgba(60, 30, 55, 0.9));
+    --bg-image: linear-gradient(135deg, rgba(60, 30, 55, 0.2), rgba(60, 30, 55, 0.999));
     --text-primary: #e5e7eb;
     --text-secondary: #9ca3af;
     --text-heading: #f3f4f6;
@@ -560,8 +560,9 @@ body {
 
 /* ========== 自定义樱花鼠标光标 ========== */
 :root {
-    --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg fill='%23f9a8d4' stroke='%23f0abfc' stroke-width='0.7'%3E%3Cellipse cx='14' cy='7' rx='3.4' ry='5.2' transform='rotate(0 14 14)'/%3E%3Cellipse cx='14' cy='7' rx='3.4' ry='5.2' transform='rotate(72 14 14)'/%3E%3Cellipse cx='14' cy='7' rx='3.4' ry='5.2' transform='rotate(144 14 14)'/%3E%3Cellipse cx='14' cy='7' rx='3.4' ry='5.2' transform='rotate(216 14 14)'/%3E%3Cellipse cx='14' cy='7' rx='3.4' ry='5.2' transform='rotate(288 14 14)'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='2.8' fill='%23f472b6'/%3E%3Ccircle cx='14' cy='14' r='1.2' fill='%23fbcfe8'/%3E%3C/svg%3E") 14 14, auto;
-    --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cg fill='%23e8d5f5' stroke='%23c084fc' stroke-width='0.8'%3E%3Cellipse cx='17' cy='8' rx='4' ry='6.2' transform='rotate(0 17 17)'/%3E%3Cellipse cx='17' cy='8' rx='4' ry='6.2' transform='rotate(72 17 17)'/%3E%3Cellipse cx='17' cy='8' rx='4' ry='6.2' transform='rotate(144 17 17)'/%3E%3Cellipse cx='17' cy='8' rx='4' ry='6.2' transform='rotate(216 17 17)'/%3E%3Cellipse cx='17' cy='8' rx='4' ry='6.2' transform='rotate(288 17 17)'/%3E%3C/g%3E%3Ccircle cx='17' cy='17' r='3.2' fill='%23f9a8d4'/%3E%3Ccircle cx='17' cy='17' r='1.5' fill='%23fce7f3'/%3E%3C/svg%3E") 17 17, pointer;
+    --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff8ac2'/%3E%3Cstop offset='100%25' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23p)' stroke='white' stroke-width='0.5'%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(0 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(72 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(144 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(216 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(288 15 15)'/%3E%3C/g%3E%3Ccircle cx='15' cy='15' r='2.5' fill='%23fbbf24'/%3E%3Ccircle cx='15' cy='15' r='1.2' fill='%23fff7ed'/%3E%3C/svg%3E") 15 15, auto;
+
+    --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23fdf2f8' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23f9a8d4' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff8ac2'/%3E%3Cstop offset='100%25' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='18' cy='18' r='15' fill='url(%23g)'/%3E%3Cg fill='url(%23p)' stroke='white' stroke-width='0.8'%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(0 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(72 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(144 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(216 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(288 18 18)'/%3E%3C/g%3E%3Ccircle cx='18' cy='18' r='3' fill='%23fbbf24'/%3E%3Ccircle cx='18' cy='18' r='1.5' fill='%23fff7ed'/%3E%3C/svg%3E") 18 18, pointer;
 }
 
 body {
@@ -862,4 +863,17 @@ a, button, [role="button"],
 [data-theme="dark"] .border-gray-200,
 [data-theme="dark"] .border-gray-300 {
     border-color: var(--table-border) !important;
+}
+/* ========== 暗色模式文章详情卡片优化 ========== */
+[data-theme="dark"] .article-content-card {
+    background: rgba(30, 20, 50, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 可选：让正文文字更亮 */
+[data-theme="dark"] .article-content-card .prose {
+    color: #f3f4f6 !important;
 }

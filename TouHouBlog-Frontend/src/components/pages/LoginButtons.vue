@@ -30,6 +30,7 @@ import { Icon } from '@iconify/vue'
   width: 100%;
 }
 
+/* 通用按钮样式：毛玻璃 + 渐变边框 */
 .login-btn {
   display: inline-flex;
   align-items: center;
@@ -44,26 +45,47 @@ import { Icon } from '@iconify/vue'
   border: 1px solid rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
 }
 
+/* GitHub 按钮：深色毛玻璃 */
 .github-btn {
   background: rgba(30, 30, 30, 0.75);
   color: #fff;
 }
 .github-btn:hover {
   background: rgba(30, 30, 30, 0.9);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
 }
 
+/* Gitee 按钮：红色毛玻璃 */
 .gitee-btn {
   background: rgba(201, 62, 62, 0.75);
   color: #fff;
 }
 .gitee-btn:hover {
   background: rgba(201, 62, 62, 0.9);
-  box-shadow: 0 4px 14px rgba(201, 62, 62, 0.25);
+  box-shadow: 0 6px 20px rgba(201, 62, 62, 0.3);
   transform: translateY(-2px);
+}
+
+/* 暗色模式按钮适配 */
+[data-theme="dark"] .github-btn {
+  background: rgba(30, 30, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .github-btn:hover {
+  background: rgba(30, 30, 30, 0.8);
+}
+
+[data-theme="dark"] .gitee-btn {
+  background: rgba(201, 62, 62, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .gitee-btn:hover {
+  background: rgba(201, 62, 62, 0.8);
 }
 </style>

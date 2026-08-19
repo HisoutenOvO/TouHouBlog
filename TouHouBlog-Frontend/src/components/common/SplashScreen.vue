@@ -28,33 +28,39 @@
         ></div>
       </div>
 
+      <!-- 标题文字：站长与游客不同 -->
       <h1 class="splash-welcome">
         <span
-            v-for="(char, index) in welcomeChars"
+            v-for="(char, index) in (isAdmin ? adminChars : welcomeChars)"
             :key="index"
             class="char"
             :style="{ animationDelay: `${index * 0.3}s` }"
         >{{ char }}</span>
       </h1>
-      <p class="splash-blog-name">TouHouBlog</p>
-      <p class="splash-desc">只属于你我的幻想世界</p>
+      <p class="splash-blog-name">{{ isAdmin ? 'Hisouten 站长～' : 'TouHouBlog' }}</p>
+      <p class="splash-desc">{{ isAdmin ? '今天也请继续书写属于您与幻想乡的故事吧～' : '只属于你我的幻想世界' }}</p>
       <p class="splash-hint">点击任意处进入</p>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { getUserFromToken } from '../../utils/auth'
 
 const visible = ref(false)
 const canDismiss = ref(false)
 const welcomeChars = ['欢', '迎', '来', '到']
+const adminChars = ['欢', '迎', '回', '家']
 const petals = ref([])
 const particles = ref([])
 const sakuraLayer = ref(null)
 let dismissTimer = null
 let mouseX = 0
 let mouseY = 0
+
+const user = ref(null)
+const isAdmin = computed(() => user.value?.role === 1)
 
 // 创建樱花花瓣
 const createPetals = () => {
@@ -118,7 +124,6 @@ const handleMouseMove = (e) => {
     sakuraLayer.value.style.transform = `translate(${mouseX * 15}px, ${mouseY * 15}px)`
   }
 
-  // 魔法阵轻微跟随
   const circles = document.querySelectorAll('.magic-circle')
   circles.forEach((circle, index) => {
     const factor = index === 0 ? 10 : 20
@@ -145,6 +150,8 @@ const showSplash = () => {
   if (window.location.pathname === '/') {
     visible.value = true
     canDismiss.value = false
+    // 重置开屏完成标志，防止欢迎组件提前播放动画
+    window.__splashDone = false
     if (dismissTimer) clearTimeout(dismissTimer)
     dismissTimer = setTimeout(() => {
       canDismiss.value = true
@@ -159,6 +166,7 @@ const handleRoute = () => {
 }
 
 onMounted(() => {
+  user.value = getUserFromToken()
   createPetals()
   createParticles()
   showSplash()

@@ -391,9 +391,11 @@ const syncUI = () => {
     if (newIndex !== currentLyricIndex.value) {
       currentLyricIndex.value = newIndex
       if (!lyricScrollLock && lyricScrollRef.value) {
-        const activeEl = lyricScrollRef.value.querySelector('.lyric-line.active')
+        const container = lyricScrollRef.value
+        const activeEl = container.querySelector('.lyric-line.active')
         if (activeEl) {
-          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          const targetScrollTop = activeEl.offsetTop - (container.clientHeight / 2) + (activeEl.offsetHeight / 2)
+          container.scrollTo({ top: targetScrollTop, behavior: 'smooth' })
         }
       }
     }
@@ -1014,18 +1016,24 @@ onBeforeUnmount(() => {
 .lyric-main {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  transition: color 0.3s, font-weight 0.3s;
+  transition: color 0.3s, font-weight 0.3s, transform 0.3s;
+}
+
+.lyric-line.active .lyric-main {
+  background: var(--title-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-weight: bold;
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.6));
 }
 .lyric-trans {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.25rem;
   transition: color 0.3s;
-}
-.lyric-line.active .lyric-main {
-  color: var(--text-primary);
-  font-weight: bold;
-  transform: scale(1.08);
 }
 .lyric-line.active .lyric-trans { color: var(--text-secondary); }
 .lyric-bottom {

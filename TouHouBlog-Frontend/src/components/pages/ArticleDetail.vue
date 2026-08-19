@@ -28,7 +28,8 @@
                   :onUploadImg="uploadImages"
                   :toolbars="toolbars"
                   :footers="[]"
-                  preview-theme="github"
+                  :theme="isDark ? 'dark' : 'light'"
+                  preview-theme="default"
                   @onSave="saveArticle"
               />
             </div>
@@ -223,6 +224,8 @@ import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
 import { Icon } from '@iconify/vue'
 import { navigate } from 'astro:transitions/client'
+
+const isDark = computed(() => document.documentElement.getAttribute('data-theme') === 'dark')
 
 const props = defineProps({ articleId: String })
 
@@ -909,6 +912,126 @@ onMounted(fetchArticle)
   color: #523b52;
   box-shadow: 0 3px 8px rgba(0,0,0,0.08);
   transform: translateY(-1px);
+}
+/* ========== 暗色模式适配（仅编辑页面外部样式） ========== */
+[data-theme="dark"] .edit-page-container {
+  background: linear-gradient(135deg, #1a1025 0%, #2a1a35 40%, #1e1430 100%);
+}
+
+[data-theme="dark"] .edit-page-container::before {
+  background: url('/images/bgn1.jpg') center/cover no-repeat;
+  filter: blur(6px);
+  opacity: 0.6;
+}
+
+[data-theme="dark"] .title-input {
+  background: var(--input-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .title-input:focus {
+  border-color: var(--input-focus-border);
+  background: var(--input-bg);
+}
+
+[data-theme="dark"] .editor-wrapper {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .edit-settings {
+  background: var(--card-bg);
+  border-left-color: var(--card-border);
+}
+
+[data-theme="dark"] .setting-label {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .setting-select,
+[data-theme="dark"] .setting-input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .setting-select:focus,
+[data-theme="dark"] .setting-input:focus {
+  border-color: var(--input-focus-border);
+}
+
+[data-theme="dark"] .setting-add-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .setting-add-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .setting-confirm-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .setting-confirm-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .setting-cancel-btn {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--table-border);
+}
+
+[data-theme="dark"] .cover-upload {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+[data-theme="dark"] .cover-upload:hover {
+  background: var(--btn-primary-hover-bg);
+  border-color: var(--input-focus-border);
+}
+
+[data-theme="dark"] .cover-placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .tag-item {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .tag-item:hover {
+  background: var(--btn-primary-hover-bg);
+}
+[data-theme="dark"] .tag-item.active {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .publish-btn {
+  background: var(--btn-gradient-bg);
+  color: white;
+}
+
+[data-theme="dark"] .draft-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .draft-btn:hover {
+  background: var(--btn-primary-hover-bg);
+}
+
+[data-theme="dark"] .cancel-btn {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--table-border);
+}
+[data-theme="dark"] .cancel-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
 }
 </style>
 

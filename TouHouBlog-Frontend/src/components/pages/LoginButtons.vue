@@ -1,7 +1,7 @@
 <template>
   <div class="login-buttons">
     <a
-        href="http://localhost:8080/oauth2/authorization/github"
+        href="/oauth2/authorization/github"
         class="login-btn github-btn"
     >
       <Icon icon="simple-icons:github" class="w-5 h-5" />
@@ -9,7 +9,7 @@
     </a>
 
     <a
-        href="http://localhost:8080/oauth2/authorization/gitee"
+        href="/oauth2/authorization/gitee"
         class="login-btn gitee-btn"
     >
       <Icon icon="simple-icons:gitee" class="w-5 h-5" />

@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^11.1.4",
     "@astrojs/vue": "^7.0.1",
     "@bytemd/plugin-gfm": "^1.22.0",
     "@bytemd/vue-next": "^1.22.0",

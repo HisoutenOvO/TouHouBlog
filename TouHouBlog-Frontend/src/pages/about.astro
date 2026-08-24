@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import AboutPage from '../components/pages/AboutPage.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
     <AboutPage client:load />
+    <MusicPlayer client:load transition:persist mode="hidden" />
 </Layout>

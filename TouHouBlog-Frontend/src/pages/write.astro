@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import ArticleEditor from '../components/pages/ArticleEditor.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 <Layout>
     <ArticleEditor client:only="vue" articleId="" />
-</Layout>
+    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>

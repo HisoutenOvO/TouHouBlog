@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import TalkDetail from '../../components/pages/TalkDetail.vue'
+import MusicPlayer from '../../components/pages/MusicPlayer.vue'
 export const prerender = false
 
 const { id } = Astro.params
@@ -8,4 +9,5 @@ const { id } = Astro.params
 
 <Layout>
     <TalkDetail client:load talkId={id} />
+    <MusicPlayer client:load transition:persist mode="hidden" />
 </Layout>

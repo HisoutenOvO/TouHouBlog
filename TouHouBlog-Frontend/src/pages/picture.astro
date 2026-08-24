@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import PictureGrid from '../components/pages/PictureGrid.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
@@ -11,4 +12,4 @@ import PictureGrid from '../components/pages/PictureGrid.vue'
         </div>
         <PictureGrid client:load />
     </div>
-</Layout>
+    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>

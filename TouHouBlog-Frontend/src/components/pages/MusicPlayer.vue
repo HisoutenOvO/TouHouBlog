@@ -189,32 +189,29 @@ import { Icon } from '@iconify/vue'
 
 let wasPlayingBeforeSwitch = false
 const onDiscEnter = () => {
-  // 唱片归位，放下唱针
   isSwitching.value = false
-
-  // 如果切歌前正在播放，则继续播放
   if (wasPlayingBeforeSwitch && ap) {
     ap.play()
     wasPlayingBeforeSwitch = false
   }
-
-  // 清除过渡名，避免后续非切歌触发动画
   discTransitionName.value = ''
 }
+
 const props = defineProps({
   mode: { type: String, default: 'mini' }
 })
-const discDirection = ref('next') // 'next' 或 'prev'
+
+const discDirection = ref('next')
 const isSwitching = ref(false)
 
 const apContainer = ref(null)
 let ap = null
 let APlayerClass = null
-const discTransitionName = ref('')   // 初始为空，无动画
-let switchTimer = null               // 唱针动作定时器
+const discTransitionName = ref('')
+let switchTimer = null
 
-
-const currentMode = ref(props.mode)
+// 当前模式：初始值 'mini'，onMounted 后根据路径更新
+const currentMode = ref(props.mode === 'hidden' ? 'hidden' : 'mini')
 
 const currentName = ref('')
 const currentArtist = ref('')
@@ -227,18 +224,19 @@ const progress = computed(() => duration.value ? (currentTime.value / duration.v
 // 播放模式
 const PLAYLIST_MODE_KEY = 'music_play_mode'
 const getStoredMode = () => {
+  if (typeof window === 'undefined') return 'list'
   const mode = localStorage.getItem(PLAYLIST_MODE_KEY)
   return (mode === 'single' || mode === 'random') ? mode : 'list'
 }
-const playMode = ref(getStoredMode())
+const playMode = ref('list') // 初始值，onMounted 后获取真实值
 
 const showPlaylist = ref(false)
 const playlistSongs = ref([])
 const currentIndex = ref(0)
-const defaultCover = 'https://picsum.photos/200?random=music'
+const defaultCover = '/images/default-cover.jpg'
 
 // 歌词相关
-const currentView = ref('player')           // 'player' | 'lyric'
+const currentView = ref('player')
 const lyricLines = ref([])
 const currentLyricIndex = ref(-1)
 const lyricScrollRef = ref(null)
@@ -260,6 +258,15 @@ const modeTitle = computed(() => {
   }
 })
 
+// 统一处理封面为相对路径或绝对路径
+const normalizeCover = (cover) => {
+  if (!cover || cover.startsWith('/api/music/cover')) {
+    return defaultCover
+  }
+  if (cover.startsWith('http')) return cover
+  return cover
+}
+
 const refreshPlaylist = async () => {
   localStorage.removeItem(PLAYLIST_CACHE_KEY)
   try {
@@ -273,7 +280,7 @@ const refreshPlaylist = async () => {
         name: s.name || '未知歌曲',
         artist: s.artist || '未知歌手',
         url: s.url,
-        cover: s.cover || '',
+        cover: normalizeCover(s.cover),
         id: s.id || ''
       })))
       ap.list.switch(0)
@@ -284,7 +291,6 @@ const refreshPlaylist = async () => {
   }
 }
 
-// 音量
 const sliderValue = ref(0.5)
 const actualVolume = computed(() => {
   const val = sliderValue.value
@@ -322,10 +328,10 @@ const prevTrack = () => {
   if (!ap) return
   if (switchTimer) clearTimeout(switchTimer)
   wasPlayingBeforeSwitch = !ap.audio.paused
-  ap.pause()                       // 先暂停，等动画完成再播放
+  ap.pause()
   discTransitionName.value = 'disc-prev'
-  isSwitching.value = true         // 立即抬起唱针
-  ap.skipBack()                    // 触发唱片切换动画
+  isSwitching.value = true
+  ap.skipBack()
 }
 
 const nextTrack = () => {
@@ -338,8 +344,6 @@ const nextTrack = () => {
   ap.skipForward()
 }
 
-
-// 加载歌词
 const loadLyric = async (songId) => {
   if (!songId || songId === currentSongId.value) return
   currentSongId.value = songId
@@ -366,7 +370,7 @@ const syncUI = () => {
     if (track) {
       currentName.value = track.name || '未知歌曲'
       currentArtist.value = track.artist || '未知歌手'
-      currentCover.value = track.cover || defaultCover
+      currentCover.value = track.cover ? normalizeCover(track.cover) : defaultCover
       if (track.id && track.id !== currentSongId.value) {
         loadLyric(track.id)
       }
@@ -374,11 +378,10 @@ const syncUI = () => {
     playlistSongs.value = ap.list.audios.map(s => ({
       name: s.name,
       artist: s.artist,
-      cover: s.cover || defaultCover
+      cover: s.cover ? normalizeCover(s.cover) : defaultCover
     }))
   }
 
-  // 歌词高亮
   if (lyricLines.value.length) {
     let newIndex = -1
     for (let i = 0; i < lyricLines.value.length; i++) {
@@ -450,7 +453,7 @@ const changeMode = () => {
       name: s.name,
       artist: s.artist,
       url: s.url,
-      cover: s.cover || '',
+      cover: s.cover || defaultCover,
       id: s.id || ''
     }))
 
@@ -495,16 +498,27 @@ const changeMode = () => {
 }
 
 const updateMode = () => {
-  currentMode.value = window.location.pathname === '/' ? 'full' : 'mini'
+  if (typeof window === 'undefined') return
+  if (props.mode === 'hidden') {
+    currentMode.value = 'hidden'
+  } else {
+    currentMode.value = window.location.pathname === '/' ? 'full' : 'mini'
+  }
 }
 
 onMounted(() => {
+  // 初始化播放模式
+  playMode.value = getStoredMode()
+  // 更新显示模式
   updateMode()
-  document.addEventListener('astro:page-load', updateMode)
+  // 监听路由变化
+  window.addEventListener('astro:page-load', updateMode)
+  window.addEventListener('popstate', updateMode)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('astro:page-load', updateMode)
+  window.removeEventListener('astro:page-load', updateMode)
+  window.removeEventListener('popstate', updateMode)
 })
 
 let uiTimer = null
@@ -514,7 +528,7 @@ onMounted(async () => {
   if (window[INSTANCE_KEY]) {
     ap = window[INSTANCE_KEY]
     console.log('[Player] 复用已有实例')
-    APlayerClass = window.__APlayerClass || null   // 从全局恢复
+    APlayerClass = window.__APlayerClass || null
     const savedMode = getStoredMode()
     playMode.value = savedMode
     syncUI()
@@ -534,7 +548,7 @@ onMounted(async () => {
     ])
     const APlayer = APlayerModule.default
     APlayerClass = APlayer
-    window.__APlayerClass = APlayer   // 新增：保存到全局，防止页面切换后丢失
+    window.__APlayerClass = APlayer
 
     let songs = []
     const cached = localStorage.getItem(PLAYLIST_CACHE_KEY)
@@ -581,7 +595,7 @@ onMounted(async () => {
         name: s.name || '未知歌曲',
         artist: s.artist || '未知歌手',
         url: s.url,
-        cover: s.cover || '',
+        cover: normalizeCover(s.cover),
         id: s.id || ''
       }))
     })

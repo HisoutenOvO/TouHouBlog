@@ -30,6 +30,10 @@ const lightImages = [
   '/images/bg4.jpg',
   '/images/bg5.jpg',
   '/images/bg6.jpg',
+  '/images/bg7.jpg',
+  '/images/bg8.jpg',
+  '/images/bg9.jpg',
+  '/images/bg10.jpg',
 ]
 
 // 暗色模式图片列表
@@ -39,6 +43,10 @@ const darkImages = [
   '/images/bgn3.jpg',
   '/images/bgn4.jpg',
   '/images/bgn1.jpg',
+  '/images/bgn6.jpg',
+  '/images/bgn7.jpg',
+  '/images/bgn8.jpg',
+  '/images/bgn9.jpg',
 ]
 
 const currentTheme = ref('light')

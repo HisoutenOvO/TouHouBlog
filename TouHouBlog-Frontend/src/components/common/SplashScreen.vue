@@ -133,18 +133,30 @@ const handleMouseMove = (e) => {
 
 
 const showSplash = () => {
-  if (window.location.pathname === '/' && !visible.value) {
-    visible.value = true;
-    canDismiss.value = false;
-    window.__splashDone = false;   // 关键：每次显示前重置
-    if (dismissTimer) clearTimeout(dismissTimer);
-    dismissTimer = setTimeout(() => {
-      canDismiss.value = true;
-    }, 3800);
-  } else if (window.location.pathname !== '/') {
-    visible.value = false;
+  // 同一会话内只播放一次（刷新或新开标签会重置）
+  if (sessionStorage.getItem('splash_shown') === 'true') {
+    visible.value = false
+    // 确保欢迎组件能收到事件
+    if (!window.__splashDone) {
+      window.dispatchEvent(new CustomEvent('splash-finished'))
+      window.__splashDone = true
+    }
+    return
   }
-};
+
+  if (window.location.pathname === '/') {
+    visible.value = true
+    // 记录本次会话已播放
+    sessionStorage.setItem('splash_shown', 'true')
+    canDismiss.value = false
+    if (dismissTimer) clearTimeout(dismissTimer)
+    dismissTimer = setTimeout(() => {
+      canDismiss.value = true
+    }, 3800)
+  } else {
+    visible.value = false
+  }
+}
 
 const dismiss = () => {
   if (!canDismiss.value) return;
@@ -163,14 +175,18 @@ const handleRoute = () => {
   showSplash()
 }
 onMounted(() => {
+  window.addEventListener('beforeunload', clearSplashSession)
   user.value = getUserFromToken()
   createPetals()
   createParticles()
   showSplash()
   window.addEventListener('mousemove', handleMouseMove)
 })
-
+const clearSplashSession = () => {
+  sessionStorage.removeItem('splash_shown')
+}
 onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', clearSplashSession)
   document.removeEventListener('astro:page-load', handleRoute)
   window.removeEventListener('mousemove', handleMouseMove)
   if (dismissTimer) clearTimeout(dismissTimer)
@@ -203,7 +219,7 @@ onBeforeUnmount(() => {
   bottom: 0;
   background-image:
       linear-gradient(135deg, rgba(252, 228, 236, 0.8), rgba(232, 234, 246, 0.8), rgba(237, 231, 246, 0.8)),
-      url('/images/bg.jpg');
+      url('/images/splash.jpg');
   background-size: cover, 100% 100%;
   background-position: center;
   z-index: -2;

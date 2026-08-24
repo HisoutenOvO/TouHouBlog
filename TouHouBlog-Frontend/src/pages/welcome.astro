@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import SplashScreen from '../components/common/SplashScreen.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
     <SplashScreen client:load />
-</Layout>
+    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>

@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro'
 import LoginBrand from '../components/pages/LoginBrand.vue'
 import LoginButtons from '../components/pages/LoginButtons.vue'
+import MusicPlayer from '../components/pages/MusicPlayer.vue'
 ---
 
 <Layout>
@@ -26,7 +27,7 @@ import LoginButtons from '../components/pages/LoginButtons.vue'
             </div>
         </div>
     </div>
-</Layout>
+    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>
 
 <style is:inline>
     .login-page {

@@ -14,7 +14,9 @@
       </button>
     </div>
 
-    <div v-if="loading" class="text-sm text-gray-500">加载中...</div>
+    <div v-if="loading" class="text-sm text-gray-500">
+      <LoadingSkeleton />
+    </div>
     <template v-else>
       <!-- 管理状态 -->
       <div v-if="showManager" class="space-y-2">
@@ -72,6 +74,7 @@ import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import { getUserFromToken } from '../../utils/auth'
 import { navigate } from 'astro:transitions/client'
+import LoadingSkeleton from "../common/LoadingSkeleton.vue";
 
 const tags = ref([])
 const loading = ref(true)

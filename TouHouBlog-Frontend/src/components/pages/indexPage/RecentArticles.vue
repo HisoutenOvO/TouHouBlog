@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div v-if="loading" class="text-[var(--text-secondary)]">加载中...</div>
+    <div v-if="loading" class="text-[var(--text-secondary)]">
+      <LoadingSkeleton />
+    </div>
     <TransitionGroup
         v-else-if="articles.length"
         name="article-list"
@@ -75,6 +77,7 @@
 import { ref, watch, onMounted } from 'vue'
 import request from '../../../utils/request'
 import RevealOnScroll from "../../common/RevealOnScroll.vue";
+import LoadingSkeleton from "../../common/LoadingSkeleton.vue";
 
 const props = defineProps({
   pageSize: { type: Number, default: 5 },

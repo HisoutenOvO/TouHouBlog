@@ -1,6 +1,8 @@
 <template>
   <!-- 加载状态 -->
-  <div v-if="loading" class="text-center py-20 text-gray-500">加载中...</div>
+  <div v-if="loading" class="text-center py-20 text-gray-500">
+    <LoadingSkeleton />
+  </div>
 
   <!-- 编辑/查看模式切换过渡 -->
   <div v-else>
@@ -224,6 +226,7 @@ import MusicPlayer from './MusicPlayer.vue'
 import { getUserFromToken } from '../../utils/auth.js'
 import { Icon } from '@iconify/vue'
 import { navigate } from 'astro:transitions/client'
+import LoadingSkeleton from "../common/LoadingSkeleton.vue";
 
 const isDark = computed(() => document.documentElement.getAttribute('data-theme') === 'dark')
 

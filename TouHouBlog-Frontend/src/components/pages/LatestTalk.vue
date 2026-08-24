@@ -6,7 +6,7 @@
     </div>
 
     <div v-if="loading" class="flex items-center justify-center h-32 text-[var(--text-secondary)]">
-      加载中...
+      <LoadingSkeleton />
     </div>
 
     <div v-else-if="talks.length" class="space-y-2">
@@ -35,6 +35,7 @@
 import { ref, onMounted } from 'vue'
 import request from '../../utils/request'
 import { navigate } from 'astro:transitions/client'
+import LoadingSkeleton from "../common/LoadingSkeleton.vue";
 
 const talks = ref([])
 const loading = ref(true)

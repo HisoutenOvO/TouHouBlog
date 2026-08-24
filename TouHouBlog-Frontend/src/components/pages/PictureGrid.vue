@@ -54,7 +54,9 @@
         </div>
       </div>
     </div>
-    <div v-else class="text-center text-gray-500 py-20">少女祈祷中……</div>
+    <div v-else class="text-center text-gray-500 py-20">
+      <LoadingSkeleton />
+    </div>
 
     <!-- 灯箱 -->
     <Transition name="lightbox">
@@ -74,6 +76,7 @@ import { Icon } from '@iconify/vue'
 import request from '../../utils/request'
 import OSS from 'ali-oss'
 import { getUserFromToken } from '../../utils/auth'
+import LoadingSkeleton from "../common/LoadingSkeleton.vue";
 
 const galleryContainer = ref(null)
 const columns = ref([])

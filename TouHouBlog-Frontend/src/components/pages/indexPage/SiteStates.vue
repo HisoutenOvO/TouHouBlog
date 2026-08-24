@@ -46,7 +46,7 @@ onMounted(async () => {
     console.error('获取统计数据失败', e);
   }
 
-  const startDate = new Date('2026-07-01');
+  const startDate = new Date('2026-09-01');
   const today = new Date();
   stats.value.runningDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 });

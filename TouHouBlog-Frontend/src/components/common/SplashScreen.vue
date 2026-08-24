@@ -131,47 +131,43 @@ const handleMouseMove = (e) => {
   })
 }
 
+
+const showSplash = () => {
+  if (window.location.pathname === '/' && !visible.value) {
+    visible.value = true;
+    canDismiss.value = false;
+    window.__splashDone = false;   // 关键：每次显示前重置
+    if (dismissTimer) clearTimeout(dismissTimer);
+    dismissTimer = setTimeout(() => {
+      canDismiss.value = true;
+    }, 3800);
+  } else if (window.location.pathname !== '/') {
+    visible.value = false;
+  }
+};
+
 const dismiss = () => {
   if (!canDismiss.value) return;
   visible.value = false;
-
   setTimeout(() => {
     window.dispatchEvent(new CustomEvent('splash-finished'));
-    window.__splashDone = true;
+    window.__splashDone = true;    // 开屏结束后才标记完成
   }, 500);
-
   const ap = window.__MUSIC_PLAYER_INSTANCE__;
   if (ap && ap.audio && ap.audio.paused) {
     ap.play();
   }
-}
-
-const showSplash = () => {
-  if (window.location.pathname === '/') {
-    visible.value = true
-    canDismiss.value = false
-    // 重置开屏完成标志，防止欢迎组件提前播放动画
-    window.__splashDone = false
-    if (dismissTimer) clearTimeout(dismissTimer)
-    dismissTimer = setTimeout(() => {
-      canDismiss.value = true
-    }, 3800)
-  } else {
-    visible.value = false
-  }
-}
+};
 
 const handleRoute = () => {
   showSplash()
 }
-
 onMounted(() => {
   user.value = getUserFromToken()
   createPetals()
   createParticles()
   showSplash()
   window.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('astro:page-load', handleRoute)
 })
 
 onBeforeUnmount(() => {

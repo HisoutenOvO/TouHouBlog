@@ -120,7 +120,7 @@
       </div>
 
       <!-- 查看模式 -->
-      <div v-else-if="article" key="viewer" class="max-w-7xl mx-auto px-4 py-8">
+      <div v-else-if="article" key="viewer" class="max-w-7xl mx-auto px-4 py-8 fade-in-simple">
         <div class="flex gap-6">
           <!-- 左侧内容区 -->
           <div class="flex-1 min-w-0">

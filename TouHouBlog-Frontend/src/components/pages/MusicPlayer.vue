@@ -494,15 +494,18 @@ const changeMode = () => {
   }
 }
 
-if (typeof window !== 'undefined') {
-  watch(
-      () => window.location.pathname,
-      (newPath) => {
-        currentMode.value = newPath === '/' ? 'full' : 'mini'
-      },
-      { immediate: true }
-  )
+const updateMode = () => {
+  currentMode.value = window.location.pathname === '/' ? 'full' : 'mini'
 }
+
+onMounted(() => {
+  updateMode()
+  document.addEventListener('astro:page-load', updateMode)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('astro:page-load', updateMode)
+})
 
 let uiTimer = null
 let saveTimer = null

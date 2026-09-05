@@ -1,24 +1,25 @@
 <template>
   <div class="glass-card p-4">
-    <!-- 标题 -->
     <h3 class="toc-title mb-3 flex items-center gap-1.5">
       <Icon icon="lucide:list" class="w-4 h-4" />
       目录
     </h3>
 
-    <!-- 空状态 -->
     <div v-if="!headings.length" class="text-sm text-[var(--text-muted)]">
       暂无目录
     </div>
 
-    <!-- 目录列表 -->
     <nav v-else class="toc-nav">
       <a
           v-for="(heading, index) in headings"
           :key="index"
           :href="`#${heading.id}`"
           class="toc-item"
-          :class="`toc-level-${heading.level}`"
+          :class="[
+          `toc-level-${heading.level}`,
+          { active: activeId === heading.id }
+        ]"
+          @click="handleItemClick(heading.id)"
       >
         <span class="toc-dot"></span>
         <span class="toc-text">{{ heading.text }}</span>
@@ -28,18 +29,78 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Icon } from '@iconify/vue'
 
-defineProps({
+const props = defineProps({
   headings: {
     type: Array,
     default: () => []
   }
 })
+
+const activeId = ref('')
+let observer = null
+let clickLock = false
+
+const handleItemClick = (id) => {
+  activeId.value = id
+  clickLock = true
+  setTimeout(() => {
+    clickLock = false
+  }, 1000)
+}
+
+const setupObserver = () => {
+  if (observer) observer.disconnect()
+
+  const contentEl = document.querySelector('.article-content-card')
+  if (!contentEl) return
+
+  const headingEls = contentEl.querySelectorAll('h1, h2, h3')
+  if (!headingEls.length) return
+
+  observer = new IntersectionObserver(
+      (entries) => {
+        if (clickLock) return
+
+        let topMostId = ''
+        let minTop = Infinity
+
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const top = entry.boundingClientRect.top
+            if (top < minTop) {
+              minTop = top
+              topMostId = entry.target.id || ''
+            }
+          }
+        })
+
+        if (topMostId) {
+          activeId.value = topMostId
+        }
+      },
+      {
+        rootMargin: '-80px 0px -55% 0px',
+        threshold: 0
+      }
+  )
+
+  headingEls.forEach(el => observer.observe(el))
+}
+
+onMounted(() => {
+  setTimeout(setupObserver, 300)
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <style scoped>
-/* 标题 */
+/* 原有样式保留 */
 .toc-title {
   font-family: "STKaiti", "KaiTi", "楷体", "华文楷体", serif;
   font-size: 1.1rem;
@@ -52,7 +113,6 @@ defineProps({
   position: relative;
 }
 
-/* 目录项通用样式 */
 .toc-item {
   display: flex;
   align-items: center;
@@ -63,9 +123,9 @@ defineProps({
   font-size: 0.85rem;
   transition: all 0.2s ease;
   line-height: 1.4;
+  cursor: pointer;
 }
 
-/* 层级缩进：增加左内边距，圆点跟随移动 */
 .toc-level-1 {
   font-weight: 600;
   font-size: 0.9rem;
@@ -82,7 +142,6 @@ defineProps({
   font-size: 0.8rem;
 }
 
-/* 圆点样式：作为 flex 子元素，间距固定 */
 .toc-dot {
   width: 6px;
   height: 6px;
@@ -106,6 +165,22 @@ defineProps({
   background: var(--text-muted);
 }
 
+/* 激活状态 */
+.toc-item.active {
+  background: var(--btn-primary-hover-bg) !important;
+  color: #7c3aed !important;
+  font-weight: 600;
+}
+
+.toc-item.active .toc-text {
+  color: #7c3aed !important;
+}
+
+.toc-item.active .toc-dot {
+  background: #7c3aed !important;
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.8) !important;
+}
+
 /* 悬停效果 */
 .toc-item:hover {
   background: var(--btn-primary-hover-bg);
@@ -117,7 +192,6 @@ defineProps({
   background: var(--btn-primary-text);
 }
 
-/* 文字截断 */
 .toc-text {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -127,7 +201,7 @@ defineProps({
   flex: 1;
 }
 
-/* 暗色模式额外增强层次 */
+/* 暗色模式 */
 [data-theme="dark"] .toc-item {
   color: var(--text-secondary);
 }
@@ -139,5 +213,13 @@ defineProps({
 [data-theme="dark"] .toc-item:hover {
   background: rgba(139, 92, 246, 0.25);
   color: #ffffff;
+}
+
+[data-theme="dark"] .toc-item.active {
+  background: rgba(139, 92, 246, 0.35) !important;
+}
+
+[data-theme="dark"] .toc-item.active .toc-text {
+  color: #ffffff !important;
 }
 </style>

@@ -34,7 +34,7 @@
               幻想乡与您同在，尽情向前迈步吧～
             </p>
             <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.8s;">
-              点击下方图标，书写您的华章
+              请您开始书写属于您的华章吧～
             </p>
           </div>
         </div>

@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             User user = (User) authentication.getPrincipal();
                             String token = jwtUtils.generateToken(user);
-                            response.sendRedirect("http://8.154.46.31/login-success?token=" + token);
+                            response.sendRedirect("https://touhoublog.top/login-success?token=" + token);
                         })
                 )
                 .csrf(csrf -> csrf.disable());

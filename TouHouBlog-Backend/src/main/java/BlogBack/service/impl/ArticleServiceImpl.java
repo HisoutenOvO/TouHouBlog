@@ -3,12 +3,14 @@ package BlogBack.service.impl;
 import BlogBack.common.exception.ArticleNotExistException;
 import BlogBack.common.result.PageResult;
 import BlogBack.mapper.ArticleMapper;
+import BlogBack.mapper.CommentMapper;
 import BlogBack.mapper.LikeRecordMapper;
 import BlogBack.mapper.TagMapper;
 import BlogBack.pojo.dto.ArticleAddDTO;
 import BlogBack.pojo.dto.ArticlePageQueryDTO;
 import BlogBack.pojo.dto.ArticleUpdateDTO;
 import BlogBack.pojo.entity.Article;
+import BlogBack.pojo.entity.Comment;
 import BlogBack.pojo.entity.LikeRecord;
 import BlogBack.pojo.vo.ArticleVO;
 import BlogBack.pojo.vo.LikeVO;
@@ -39,6 +41,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleMapper articleMapper;
     private final TagMapper tagMapper;
     private final LikeRecordMapper likeRecordMapper;
+    private final CommentMapper commentMapper;
 
     /**
      * 文章的分页条件查询
@@ -131,13 +134,19 @@ public class ArticleServiceImpl implements ArticleService {
      * @param id
      */
     @Override
+    @Transactional
     public void delete(Long id) {
-        //先删除文章
+        // 删除文章
         articleMapper.deleteById(id);
-        //再删除相关联的标签
+        // 删除文章关联的标签
         tagMapper.deleteBatch(id);
+        // 删除文章关联的评论
+        commentMapper.delete(new LambdaQueryWrapper<Comment>()
+                .eq(Comment::getArticleId, id));
+        // 删除文章关联的点赞记录
+        likeRecordMapper.delete(new LambdaQueryWrapper<LikeRecord>()
+                .eq(LikeRecord::getArticleId, id));
     }
-
     /**
      * 点赞/取消点赞
      * @param articleId

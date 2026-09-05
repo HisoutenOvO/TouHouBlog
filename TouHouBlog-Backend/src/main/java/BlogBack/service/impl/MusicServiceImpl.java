@@ -21,49 +21,29 @@ public class MusicServiceImpl implements MusicService {
 
     @Override
     public List<Map<String, String>> getPlaylistSongs(String playlistId) throws Exception {
-        String apiUrl = "https://api.i-meto.com/meting/api?server=netease&type=playlist&id=" + playlistId;
-
-        Request request = new Request.Builder()
-                .url(apiUrl)
-                .header("User-Agent", "Mozilla/5.0")
-                .build();
+        // 从本地文件读取歌单，不再请求外部 API
+        java.nio.file.Path filePath = java.nio.file.Paths.get("/opt/touhoublog/playlist.json");
+        byte[] bytes = java.nio.file.Files.readAllBytes(filePath);
+        JsonNode root = mapper.readTree(bytes);
 
         List<Map<String, String>> songs = new ArrayList<>();
+        for (JsonNode track : root) {
+            String songId = track.path("id").asText("");
+            String title = track.path("name").asText("");
+            String artist = track.path("artist").asText("");
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful() || response.body() == null) {
-                throw new Exception("歌单接口返回失败");
-            }
-            String body = response.body().string();
-            JsonNode root = mapper.readTree(body);
+            if (songId.isEmpty()) continue;
 
-            for (JsonNode track : root) {
-                String title = track.path("title").asText("");
-                String author = track.path("author").asText("");
+            String playUrl = "https://music.163.com/song/media/outer/url?id=" + songId + ".mp3";
+            String coverUrl = "/images/default-cover.jpg";
 
-                // 提取歌曲ID
-                String songId = track.has("id") ? String.valueOf(track.path("id").asLong()) : "";
-                if (songId.isEmpty()) {
-                    String metingUrl = track.path("url").asText("");
-                    songId = extractIdFromUrl(metingUrl);
-                }
-                if (songId.isEmpty()) continue;
-
-                // 播放地址：统一使用网易云官方外链
-                String playUrl = "https://music.163.com/song/media/outer/url?id=" + songId + ".mp3";
-
-                // 封面地址：统一使用服务器本地图片（或OSS，二选一，此处使用本地相对路径）
-                String coverUrl = "/images/default-cover.jpg";
-
-                Map<String, String> song = new HashMap<>();
-                song.put("id", songId);
-                song.put("name", title.isEmpty() ? "未知歌曲" : title);
-                song.put("artist", author.isEmpty() ? "未知歌手" : author);
-                song.put("cover", coverUrl);
-                song.put("url", playUrl);
-
-                songs.add(song);
-            }
+            Map<String, String> song = new HashMap<>();
+            song.put("id", songId);
+            song.put("name", title.isEmpty() ? "未知歌曲" : title);
+            song.put("artist", artist.isEmpty() ? "未知歌手" : artist);
+            song.put("cover", coverUrl);
+            song.put("url", playUrl);
+            songs.add(song);
         }
         return songs;
     }

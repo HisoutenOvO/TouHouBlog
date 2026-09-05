@@ -24,6 +24,7 @@
                 <Icon :icon="isFullscreen ? 'lucide:minimize-2' : 'lucide:maximize-2'" class="w-4 h-4" />
               </button>
             </div>
+
             <div class="editor-wrapper">
               <MdEditor
                   v-model="editContent"
@@ -193,13 +194,8 @@
 
           <!-- 右侧侧边栏 -->
           <aside class="w-72 flex-shrink-0 space-y-4">
-            <!-- 个人简介：不粘性，正常滚动 -->
             <HomeIntro />
-
-            <!-- 音乐播放器：不粘性，正常滚动 -->
             <MusicPlayer />
-
-            <!-- 目录：独立粘性，固定在顶部，内部可滚动 -->
             <div class="sticky top-24">
               <TableOfContents :headings="headings" />
             </div>
@@ -271,6 +267,83 @@ const triggerCoverInput = () => coverInputRef.value?.click()
 
 let ossClient = null
 
+// 初始化 OSS 客户端
+const initOssClient = async () => {
+  if (!ossClient) {
+    const res = await request.get('/api/oss/signature')
+    const data = res.data.data
+    ossClient = new OSS({
+      region: data.region,
+      endpoint: data.endpoint,
+      accessKeyId: data.accessKeyId,
+      accessKeySecret: data.accessKeySecret,
+      bucket: data.bucket,
+    })
+  }
+  return ossClient
+}
+
+// 上传封面
+const uploadCover = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  try {
+    const client = await initOssClient()
+    const key = `blog-covers/${Date.now()}_${file.name}`
+    const result = await client.put(key, file)
+    editCoverUrl.value = result.url
+  } catch (err) {
+    console.error('封面上传失败', err)
+    await window.$alert('封面上传失败，请重试')
+  }
+}
+
+// md-editor-v3 图片上传回调
+const uploadImages = async (files, callback) => {
+  try {
+    const client = await initOssClient()
+    const urls = []
+    for (const file of files) {
+      const key = `blog-images/${Date.now()}_${file.name || 'image.png'}`
+      const result = await client.put(key, file)
+      let url = result.url
+      if (url && !url.startsWith('http')) {
+        url = 'https://' + url
+      }
+      urls.push(url)
+    }
+    callback(urls)
+  } catch (err) {
+    console.error('图片上传失败', err)
+    await window.$alert('图片上传失败，请重试')
+  }
+}
+
+const toolbars = [
+  'bold',
+  'underline',
+  'italic',
+  'strikeThrough',
+  'sub',
+  'sup',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  'codeRow',
+  'code',
+  'link',
+  'image',
+  'table',
+  'revoke',
+  'next',
+  'save',
+  'preview',
+  'htmlPreview',
+  'catalog',
+  'github'
+]
+
 const md = new MarkdownIt({
   html: false, breaks: true, linkify: true,
   highlight: function (str, lang) {
@@ -314,71 +387,6 @@ const updateHeadings = () => {
     headings.value = extractHeadings(renderedContent.value)
   }
 }
-
-const uploadCover = async (e) => {
-  const file = e.target.files[0]
-  if (!file) return
-  if (!ossClient) {
-    const res = await request.get('/api/oss/signature')
-    const data = res.data.data
-    ossClient = new OSS({
-      region: data.region,
-      endpoint: data.endpoint,
-      accessKeyId: data.accessKeyId,
-      accessKeySecret: data.accessKeySecret,
-      bucket: data.bucket,
-    })
-  }
-  const key = `blog-covers/${Date.now()}_${file.name}`
-  const result = await ossClient.put(key, file)
-  editCoverUrl.value = result.url
-}
-
-const uploadImages = async (files) => {
-  if (!ossClient) {
-    const res = await request.get('/api/oss/signature')
-    const data = res.data.data
-    ossClient = new OSS({
-      region: data.region,
-      endpoint: data.endpoint,
-      accessKeyId: data.accessKeyId,
-      accessKeySecret: data.accessKeySecret,
-      bucket: data.bucket,
-    })
-  }
-  const urls = []
-  for (const file of files) {
-    const key = `blog-images/${Date.now()}_${file.name}`
-    const result = await ossClient.put(key, file)
-    urls.push(result.url)
-  }
-  return urls
-}
-
-const toolbars = [
-  'bold',
-  'underline',
-  'italic',
-  'strikeThrough',
-  'sub',
-  'sup',
-  'quote',
-  'unorderedList',
-  'orderedList',
-  'task',
-  'codeRow',
-  'code',
-  'link',
-  'image',
-  'table',
-  'revoke',
-  'next',
-  'save',
-  'preview',
-  'htmlPreview',
-  'catalog',
-  'github'
-]
 
 const loadCategories = async () => {
   const res = await request.get('/api/categories/list?page=1&pageSize=999')

@@ -11,7 +11,6 @@
               placeholder="文章标题"
               class="title-input"
           />
-          <!-- 全屏切换按钮 -->
           <button class="setting-add-btn" @click="toggleFullscreen" :title="isFullscreen ? '退出全屏' : '全屏编辑'">
             <Icon :icon="isFullscreen ? 'lucide:minimize-2' : 'lucide:maximize-2'" class="w-4 h-4" />
           </button>
@@ -176,44 +175,56 @@ const triggerCoverInput = () => coverInputRef.value?.click()
 
 let ossClient = null
 
+// 初始化 OSS 客户端
+const initOssClient = async () => {
+  if (!ossClient) {
+    const res = await request.get('/api/oss/signature')
+    const data = res.data.data
+    ossClient = new OSS({
+      region: data.region,
+      endpoint: data.endpoint,
+      accessKeyId: data.accessKeyId,
+      accessKeySecret: data.accessKeySecret,
+      bucket: data.bucket,
+    })
+  }
+  return ossClient
+}
+
+// 上传封面
 const uploadCover = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (!ossClient) {
-    const res = await request.get('/api/oss/signature')
-    const data = res.data.data
-    ossClient = new OSS({
-      region: data.region,
-      endpoint: data.endpoint,
-      accessKeyId: data.accessKeyId,
-      accessKeySecret: data.accessKeySecret,
-      bucket: data.bucket,
-    })
+  try {
+    const client = await initOssClient()
+    const key = `blog-covers/${Date.now()}_${file.name}`
+    const result = await client.put(key, file)
+    editCoverUrl.value = result.url
+  } catch (err) {
+    console.error('封面上传失败', err)
+    await window.$alert('封面上传失败，请重试')
   }
-  const key = `blog-covers/${Date.now()}_${file.name}`
-  const result = await ossClient.put(key, file)
-  editCoverUrl.value = result.url
 }
 
-const uploadImages = async (files) => {
-  if (!ossClient) {
-    const res = await request.get('/api/oss/signature')
-    const data = res.data.data
-    ossClient = new OSS({
-      region: data.region,
-      endpoint: data.endpoint,
-      accessKeyId: data.accessKeyId,
-      accessKeySecret: data.accessKeySecret,
-      bucket: data.bucket,
-    })
+// md-editor-v3 图片上传回调
+const uploadImages = async (files, callback) => {
+  try {
+    const client = await initOssClient()
+    const urls = []
+    for (const file of files) {
+      const key = `blog-images/${Date.now()}_${file.name || 'image.png'}`
+      const result = await client.put(key, file)
+      let url = result.url
+      if (url && !url.startsWith('http')) {
+        url = 'https://' + url
+      }
+      urls.push(url)
+    }
+    callback(urls)
+  } catch (err) {
+    console.error('图片上传失败', err)
+    await window.$alert('图片上传失败，请重试')
   }
-  const urls = []
-  for (const file of files) {
-    const key = `blog-images/${Date.now()}_${file.name}`
-    const result = await ossClient.put(key, file)
-    urls.push(result.url)
-  }
-  return urls
 }
 
 const toolbars = [
@@ -368,6 +379,10 @@ const saveDraft = async () => {
   } catch (e) {}
 }
 
+const saveArticle = () => {
+  saveDraft()
+}
+
 const publishArticle = async () => {
   if (!title.value.trim()) {
     await window.$alert('请输入文章标题')
@@ -428,7 +443,6 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
 <style scoped>
 .edit-page-container {
   position: fixed;

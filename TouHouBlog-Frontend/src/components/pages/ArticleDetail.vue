@@ -193,9 +193,14 @@
 
           <!-- 右侧侧边栏 -->
           <aside class="w-72 flex-shrink-0 space-y-4">
-            <div class="sticky top-24 space-y-4">
-              <HomeIntro />
-              <MusicPlayer />
+            <!-- 个人简介：不粘性，正常滚动 -->
+            <HomeIntro />
+
+            <!-- 音乐播放器：不粘性，正常滚动 -->
+            <MusicPlayer />
+
+            <!-- 目录：独立粘性，固定在顶部，内部可滚动 -->
+            <div class="sticky top-24">
               <TableOfContents :headings="headings" />
             </div>
           </aside>

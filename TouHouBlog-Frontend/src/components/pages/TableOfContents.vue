@@ -51,51 +51,65 @@ const handleItemClick = (id) => {
   }, 1000)
 }
 
-const setupObserver = () => {
-  if (observer) observer.disconnect()
-
+const setupScrollListener = () => {
   const contentEl = document.querySelector('.article-content-card')
   if (!contentEl) return
 
   const headingEls = contentEl.querySelectorAll('h1, h2, h3')
   if (!headingEls.length) return
 
-  observer = new IntersectionObserver(
-      (entries) => {
-        if (clickLock) return
+  let ticking = false
 
-        let topMostId = ''
-        let minTop = Infinity
+  const updateActive = () => {
+    ticking = false
+    const scrollTop = window.scrollY || document.documentElement.scrollTop
+    let currentId = ''
+    let minDistance = Infinity
 
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const top = entry.boundingClientRect.top
-            if (top < minTop) {
-              minTop = top
-              topMostId = entry.target.id || ''
-            }
-          }
-        })
-
-        if (topMostId) {
-          activeId.value = topMostId
-        }
-      },
-      {
-        rootMargin: '-80px 0px -55% 0px',
-        threshold: 0
+    headingEls.forEach(el => {
+      const top = el.getBoundingClientRect().top
+      // 只考虑位于滚动区域上方或接近顶部的标题
+      if (top <= 120 && (120 - top) < minDistance) {
+        minDistance = 120 - top
+        currentId = el.id || ''
       }
-  )
+    })
 
-  headingEls.forEach(el => observer.observe(el))
+    if (currentId) {
+      activeId.value = currentId
+    } else {
+      // 如果所有标题都在顶部以下，高亮第一个
+      activeId.value = headingEls[0].id || ''
+    }
+  }
+
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateActive()
+        ticking = false
+      })
+      ticking = true
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true })
+  updateActive()
+
+  // 保存清理函数
+  cleanupFns.push(() => {
+    window.removeEventListener('scroll', onScroll)
+  })
 }
 
+const cleanupFns = []
+
 onMounted(() => {
-  setTimeout(setupObserver, 300)
+  setTimeout(setupScrollListener, 300)
 })
 
 onBeforeUnmount(() => {
-  if (observer) observer.disconnect()
+  cleanupFns.forEach(fn => fn())
 })
 </script>
 
@@ -121,9 +135,9 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.85rem;
-  transition: all 0.2s ease;
   line-height: 1.4;
   cursor: pointer;
+  /* transition: all 0.2s ease;  删除或改为 none */
 }
 
 .toc-level-1 {
@@ -170,6 +184,7 @@ onBeforeUnmount(() => {
   background: var(--btn-primary-hover-bg) !important;
   color: #7c3aed !important;
   font-weight: 600;
+  /* transition: none; */
 }
 
 .toc-item.active .toc-text {
@@ -221,5 +236,25 @@ onBeforeUnmount(() => {
 
 [data-theme="dark"] .toc-item.active .toc-text {
   color: #ffffff !important;
+}
+.toc-nav {
+  position: relative;
+  max-height: calc(100vh - 192px);  /* 顶部和底部都留 96px */
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  /* 可以移除之前设置的 padding-bottom，或保留一个很小值 */
+}
+
+.toc-nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.toc-nav::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.5);
+  border-radius: 3px;
+}
+
+.toc-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.7);
 }
 </style>

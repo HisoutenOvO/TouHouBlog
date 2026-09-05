@@ -26,7 +26,7 @@
 
       <!-- 简介文字 -->
       <p class="intro-desc text-sm text-gray-500 leading-relaxed">
-        后端开发练习生<br/>
+        全栈开发练习生<br/>
         东方Project爱好者
       </p>
 

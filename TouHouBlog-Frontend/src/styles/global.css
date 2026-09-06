@@ -863,33 +863,23 @@ a, button, [role="button"],
     display: none;
 }
 
-/* 有序列表：无背景纯数字 */
+/* 有序列表：使用原生数字，支持 start，仅美化颜色 */
 .prose ol,
 .md-editor-preview ol {
-    list-style: none;
-    padding-left: 0;
+    list-style: decimal;
+    padding-left: 2em;
     margin: 1.2em 0;
-    counter-reset: item;
 }
 
 .prose ol > li,
 .md-editor-preview ol > li {
-    position: relative;
-    padding-left: 2em;
     margin: 0.6em 0;
-    counter-increment: item;
 }
 
-.prose ol > li::before,
-.md-editor-preview ol > li::before {
-    content: counter(item) ".";
-    position: absolute;
-    left: 0;
-    top: 0.1em;
+.prose ol > li::marker,
+.md-editor-preview ol > li::marker {
     color: #f472b6;
     font-weight: 700;
-    font-size: 1em;
-    line-height: 1.4;
 }
 
 /* 任务列表复选框配色 */
@@ -979,7 +969,7 @@ a, button, [role="button"],
     box-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
 }
 
-[data-theme="dark"] .prose ol > li::before,
-[data-theme="dark"] .md-editor-preview ol > li::before {
+[data-theme="dark"] .prose ol > li::marker,
+[data-theme="dark"] .md-editor-preview ol > li::marker {
     color: #f9a8d4;
 }

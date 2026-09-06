@@ -215,6 +215,10 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import request from '../../utils/request'
 import MarkdownIt from 'markdown-it'
 import markdownItAnchor from 'markdown-it-anchor'
+import markdownItSub from 'markdown-it-sub'
+import markdownItSup from 'markdown-it-sup'
+import markdownItTaskLists from 'markdown-it-task-lists'
+import markdownItUnderline from 'markdown-it-underline'
 import hljs from 'highlight.js'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -344,8 +348,11 @@ const toolbars = [
   'github'
 ]
 
+// 创建 Markdown 渲染实例，开启 HTML（允许 <br>），并启用所有需要的插件
 const md = new MarkdownIt({
-  html: false, breaks: true, linkify: true,
+  html: true,          // 允许原始 HTML，这样 <br> 会被解析为换行
+  breaks: true,
+  linkify: true,
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
@@ -354,10 +361,15 @@ const md = new MarkdownIt({
     }
     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
   }
-}).use(markdownItAnchor, {
-  level: [1,2,3],
-  slugify: s => s.toLowerCase().replace(/[\s,，。？！：；""''（）—《》【】]+/g, '-').replace(/^-+|-+$/g, '')
 })
+    .use(markdownItAnchor, {
+      level: [1,2,3],
+      slugify: s => s.toLowerCase().replace(/[\s,，。？！：；""''（）—《》【】]+/g, '-').replace(/^-+|-+$/g, '')
+    })
+    .use(markdownItSub)
+    .use(markdownItSup)
+    .use(markdownItTaskLists)
+    .use(markdownItUnderline)
 
 const renderedContent = computed(() => {
   const raw = isEditing.value ? editContent.value : (article.value?.content || '')

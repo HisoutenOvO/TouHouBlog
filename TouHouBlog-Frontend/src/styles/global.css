@@ -577,12 +577,14 @@ a, button, [role="button"],
 /* ========== Markdown 内容深度美化（作用于 .prose 与 .md-editor-preview） ========== */
 .prose,
 .md-editor-preview {
+    max-width: none;
     color: var(--text-primary);
     font-size: 15.5px;
     line-height: 1.75;
     word-break: break-word;
 }
 
+/* 标题 */
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6,
 .md-editor-preview h1, .md-editor-preview h2, .md-editor-preview h3,
 .md-editor-preview h4, .md-editor-preview h5, .md-editor-preview h6 {
@@ -632,8 +634,11 @@ a, button, [role="button"],
     color: var(--text-primary);
 }
 
+/* 段落与链接 */
 .prose p,
-.md-editor-preview p { margin: 0.9em 0; }
+.md-editor-preview p {
+    margin: 0.9em 0;
+}
 
 .prose a,
 .md-editor-preview a {
@@ -646,12 +651,14 @@ a, button, [role="button"],
     transition: background-size 0.3s ease, color 0.3s ease;
     padding-bottom: 1px;
 }
+
 .prose a:hover,
 .md-editor-preview a:hover {
     background-size: 100% 2px;
     color: #ec4899;
 }
 
+/* 行内代码 */
 .prose :not(pre) > code,
 .md-editor-preview :not(pre) > code {
     background: var(--code-bg);
@@ -664,10 +671,12 @@ a, button, [role="button"],
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: background 0.2s;
 }
+
 .prose :not(pre) > code:hover,
 .md-editor-preview :not(pre) > code:hover {
     background: var(--input-bg);
 }
+
 .archive-search-input {
     padding: 0.5rem 1.2rem;
     border-radius: 9999px;
@@ -689,6 +698,8 @@ a, button, [role="button"],
 .archive-search-input::placeholder {
     color: var(--text-muted);
 }
+
+/* 代码块 */
 .prose pre,
 .md-editor-preview pre {
     background: var(--pre-bg);
@@ -719,7 +730,9 @@ a, button, [role="button"],
 }
 
 .prose pre,
-.md-editor-preview pre { padding-top: 44px !important; }
+.md-editor-preview pre {
+    padding-top: 44px !important;
+}
 
 .prose pre code,
 .md-editor-preview pre code {
@@ -732,20 +745,7 @@ a, button, [role="button"],
     display: block;
 }
 
-.prose pre[class*="language-"]::after,
-.md-editor-preview pre[class*="language-"]::after {
-    content: attr(class);
-    position: absolute;
-    top: 6px;
-    right: 12px;
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    background: var(--input-bg);
-    padding: 2px 8px;
-    border-radius: 999px;
-    backdrop-filter: blur(4px);
-}
-
+/* 引用块 */
 .prose blockquote,
 .md-editor-preview blockquote {
     border-left: 4px solid transparent;
@@ -759,6 +759,7 @@ a, button, [role="button"],
     box-shadow: 0 2px 8px rgba(31, 38, 135, 0.04);
 }
 
+/* 表格 */
 .prose table,
 .md-editor-preview table {
     border-collapse: separate;
@@ -792,6 +793,7 @@ a, button, [role="button"],
 .prose tbody tr:hover,
 .md-editor-preview tbody tr:hover { background: var(--input-bg); }
 
+/* 图片 */
 .prose img,
 .md-editor-preview img {
     border-radius: 12px;
@@ -805,6 +807,7 @@ a, button, [role="button"],
     box-shadow: 0 8px 24px rgba(31, 38, 135, 0.15);
 }
 
+/* 分割线 */
 .prose hr,
 .md-editor-preview hr {
     border: none;
@@ -813,27 +816,107 @@ a, button, [role="button"],
     margin: 2em 0;
 }
 
-.prose ul, .prose ol,
-.md-editor-preview ul, .md-editor-preview ol {
-    padding-left: 1.5em;
-    margin: 0.8em 0;
-}
-.prose li,
-.md-editor-preview li { margin: 0.3em 0; }
-.prose li::marker,
-.md-editor-preview li::marker { color: var(--input-focus-border); }
+/* 列表：统一、无冲突的最终样式 */
 
+/* 无序列表：粉紫圆点 */
+.prose ul:not(.contains-task-list),
+.md-editor-preview ul:not(.contains-task-list) {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.2em 0;
+}
+
+.prose ul:not(.contains-task-list) > li,
+.md-editor-preview ul:not(.contains-task-list) > li {
+    position: relative;
+    padding-left: 1.8em;
+    margin: 0.6em 0;
+}
+
+.prose ul:not(.contains-task-list) > li::before,
+.md-editor-preview ul:not(.contains-task-list) > li::before {
+    content: '';
+    position: absolute;
+    left: 0.2em;
+    top: 0.55em;
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f9a8d4, #c084fc);
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.7);
+}
+
+/* 嵌套无序列表二级：空心圆环 */
+.prose ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before,
+.md-editor-preview ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before {
+    background: transparent;
+    border: 2px solid #d8b4e8;
+    width: 0.5em;
+    height: 0.5em;
+    box-shadow: none;
+}
+
+/* 嵌套无序列表三级：小方块 */
+.prose ul:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before,
+.md-editor-preview ul:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before {
+    background: #e8d5f5;
+    border: none;
+    border-radius: 2px;
+    width: 0.5em;
+    height: 0.5em;
+    box-shadow: none;
+}
+
+/* 有序列表：只显示数字，无背景，樱花色 */
+.prose ol,
+.md-editor-preview ol {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.2em 0;
+    counter-reset: item;
+}
+
+.prose ol > li,
+.md-editor-preview ol > li {
+    position: relative;
+    padding-left: 2em;
+    margin: 0.6em 0;
+    counter-increment: item;
+}
+
+.prose ol > li::before,
+.md-editor-preview ol > li::before {
+    content: counter(item) ".";
+    position: absolute;
+    left: 0;
+    top: 0.1em;
+    color: #f472b6;
+    font-weight: 700;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+/* 嵌套有序列表数字：浅紫 */
+.prose ol ol > li::before,
+.md-editor-preview ol ol > li::before {
+    color: #c084fc;
+}
+
+/* 任务列表复选框：樱花粉 */
 .prose input[type="checkbox"],
 .md-editor-preview input[type="checkbox"] {
-    accent-color: #7c3aed;
-    margin-right: 0.4em;
+    accent-color: #f472b6 !important;
+    margin-right: 0.5em;
+    pointer-events: none;
 }
 
+/* 选中文本 */
 .prose ::selection,
 .md-editor-preview ::selection {
     background: var(--selection-bg);
     color: var(--text-primary);
 }
+
 /* ========== 夜间模式 Tailwind 硬编码颜色覆盖 ========== */
 [data-theme="dark"] .text-gray-900,
 [data-theme="dark"] .text-gray-800,
@@ -864,6 +947,7 @@ a, button, [role="button"],
 [data-theme="dark"] .border-gray-300 {
     border-color: var(--table-border) !important;
 }
+
 /* ========== 暗色模式文章详情卡片优化 ========== */
 [data-theme="dark"] .article-content-card {
     background: rgba(30, 20, 50, 0.85) !important;
@@ -873,10 +957,10 @@ a, button, [role="button"],
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* 可选：让正文文字更亮 */
 [data-theme="dark"] .article-content-card .prose {
     color: #f3f4f6 !important;
 }
+
 /* ========== 暗色模式归档视图切换优化 ========== */
 [data-theme="dark"] .archive-view-switch {
     background: rgba(20, 15, 35, 0.8);
@@ -896,4 +980,21 @@ a, button, [role="button"],
 [data-theme="dark"] .archive-view-btn.active {
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 暗色模式列表微调 */
+[data-theme="dark"] .prose ul:not(.contains-task-list) > li::before,
+[data-theme="dark"] .md-editor-preview ul:not(.contains-task-list) > li::before {
+    background: linear-gradient(135deg, #f472b6, #c084fc);
+    box-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
+}
+
+[data-theme="dark"] .prose ol > li::before,
+[data-theme="dark"] .md-editor-preview ol > li::before {
+    color: #f9a8d4;
+}
+
+[data-theme="dark"] .prose ol ol > li::before,
+[data-theme="dark"] .md-editor-preview ol ol > li::before {
+    color: #c084fc;
 }

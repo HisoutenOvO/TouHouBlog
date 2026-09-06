@@ -354,6 +354,10 @@ const md = new MarkdownIt({
   breaks: true,
   linkify: true,
   highlight: function (str, lang) {
+    // Vue 语言用 xml/html 高亮兜底
+    if (lang === 'vue') {
+      lang = hljs.getLanguage('xml') ? 'xml' : 'html'
+    }
     if (lang && hljs.getLanguage(lang)) {
       try {
         return '<pre class="hljs"><code>' + hljs.highlight(str, { language: lang, ignoreIllegals: true }).value + '</code></pre>'

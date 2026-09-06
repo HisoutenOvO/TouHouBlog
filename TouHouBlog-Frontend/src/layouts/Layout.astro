@@ -18,7 +18,6 @@ import '../styles/md-editor-v3.css';
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{siteTitle}</title>
     <ClientRouter />
-    <!-- 主题初始化：独立脚本，尽早执行防止闪烁 -->
     <script>
         (function() {
             const saved = localStorage.getItem('touhou_theme');
@@ -33,7 +32,7 @@ import '../styles/md-editor-v3.css';
 </head>
 <body>
 <BackgroundCarousel client:load transition:persist />
-<SplashScreen client:load  />
+<SplashScreen client:load />
 <SakuraPetals client:load transition:persist/>
 <ParticleBackground client:load transition:persist />
 <header class="glass-navbar p-4 fixed top-0 w-full z-50">
@@ -45,9 +44,10 @@ import '../styles/md-editor-v3.css';
             <a href="/picture" class="nav-link">图集</a>
             <a href="/talks" class="nav-link">杂谈</a>
             <a href="/about" class="nav-link">关于</a>
+            <span id="todo-link" style="display:none;"></span>
             <a href="/version" class="nav-link">开发者日志</a>
-            <button onclick="toggleTheme()" class="nav-link" style="background:none;border:none;cursor:pointer;" title="切换主题">
-                <span id="theme-icon">🌙</span>
+            <button onclick="toggleTheme()" class="nav-link theme-toggle-btn" title="切换主题">
+                <span id="theme-icon"></span>
             </button>
             <span id="user-area"></span>
         </div>
@@ -56,103 +56,127 @@ import '../styles/md-editor-v3.css';
 <ClickRipple client:load transition:persist />
 <LoadingBar client:load transition:persist />
 <main class="p-6 pt-20"><slot /></main>
-
-<!-- 全局弹窗组件 -->
 <GlobalModal client:load />
 
 <script>
     // @ts-nocheck
-        // 将所有函数挂载到 window，避免全局作用域问题，同时保持可调用
-        window.decodeJwtPayload = function(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-                atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join('')
-                );
-            return JSON.parse(jsonPayload);
-            };
+    window.decodeJwtPayload = function(token) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')
+        );
+        return JSON.parse(jsonPayload);
+    };
 
-        window.applyTheme = function() {
-            const saved = localStorage.getItem('touhou_theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = saved || (prefersDark ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-            };
+    window.applyTheme = function() {
+        const saved = localStorage.getItem('touhou_theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+    };
 
-        window.toggleTheme = function() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('touhou_theme', next);
-            window.updateThemeIcon();
-            };
+    window.toggleTheme = function() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('touhou_theme', next);
+        window.updateThemeIcon();
+    };
 
-        window.updateThemeIcon = function() {
-            const theme = document.documentElement.getAttribute('data-theme');
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.textContent = theme === 'dark' ?  '🌙':'☀️';
-                // 设置图标颜色，暗色下为浅色，亮色下为深色
-                icon.style.color = theme === 'dark' ? '#fbbf24' : '#6b7280';
-                }
-            };
+    window.updateThemeIcon = function() {
+        const theme = document.documentElement.getAttribute('data-theme');
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+            const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+            icon.innerHTML = theme === 'dark' ? sunSvg : moonSvg;
+            icon.style.color = theme === 'dark' ? '#fbbf24' : '#6b7280';
+            icon.style.display = 'flex';
+            icon.style.alignItems = 'center';
+            icon.style.justifyContent = 'center';
+            icon.style.height = '100%';
+        }
+    };
 
-        window.$alert = (msg) => {
-            return new Promise((resolve) => {
-                window.dispatchEvent(new CustomEvent('global-alert', {
-                    detail: { message: msg, resolve }
-                    }));
-                });
-            };
+    window.$alert = (msg) => {
+        return new Promise((resolve) => {
+            window.dispatchEvent(new CustomEvent('global-alert', {
+                detail: { message: msg, resolve }
+            }));
+        });
+    };
 
-        window.$confirm = (msg) => {
-            return new Promise((resolve) => {
-                window.dispatchEvent(new CustomEvent('global-confirm', {
-                    detail: { message: msg, resolve }
-                    }));
-                });
-            };
+    window.$confirm = (msg) => {
+        return new Promise((resolve) => {
+            window.dispatchEvent(new CustomEvent('global-confirm', {
+                detail: { message: msg, resolve }
+            }));
+        });
+    };
 
-        window.updateUserArea = function() {
-            const token = localStorage.getItem('touhou_token');
-            const userArea = document.getElementById('user-area');
-            if (!userArea) return;
-            if (token) {
-                try {
-                    const payload = window.decodeJwtPayload(token);
-                    const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
-                    userArea.innerHTML = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
-                    const avatarEl = document.getElementById('user-avatar');
-                    if (avatarEl) {
-                        avatarEl.addEventListener('click', async function() {
-                            const confirmed = await window.$confirm('确定退出登录吗？');
-                            if (confirmed) {
-                                localStorage.removeItem('touhou_token');
-                                window.location.reload();
-                                }
-                            });
-                        }
-                    } catch(e) {
-                    userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
+    window.updateUserArea = function() {
+        const token = localStorage.getItem('touhou_token');
+        const userArea = document.getElementById('user-area');
+        const todoLink = document.getElementById('todo-link');
+
+        if (!userArea) return;
+
+        if (token) {
+            try {
+                const payload = window.decodeJwtPayload(token);
+                const avatar = payload.avatarUrl || 'https://picsum.photos/32?random=default';
+
+                // 站长显示待办入口，非站长隐藏
+                if (todoLink) {
+                    if (payload.role === 1) {
+                        todoLink.innerHTML = '<a href="/todo" class="nav-link">待办</a>';
+                        todoLink.style.display = 'inline-flex';
+                    } else {
+                        todoLink.innerHTML = '';
+                        todoLink.style.display = 'none';
                     }
-                } else {
-                userArea.innerHTML = `<a href="/manage" class="text-gray-600 hover:text-gray-900 no-underline">登录</a>`;
                 }
-            };
 
-        // 初始化
+                userArea.innerHTML = `<img src="${avatar}" class="w-[32px] h-[32px] rounded-full cursor-pointer object-cover border-2 border-transparent hover:border-gray-300 transition-colors" id="user-avatar" title="点击退出" />`;
+
+                const avatarEl = document.getElementById('user-avatar');
+                if (avatarEl) {
+                    avatarEl.addEventListener('click', async function() {
+                        const confirmed = await window.$confirm('确定退出登录吗？');
+                        if (confirmed) {
+                            localStorage.removeItem('touhou_token');
+                            window.location.reload();
+                        }
+                    });
+                }
+            } catch(e) {
+                if (todoLink) {
+                    todoLink.innerHTML = '';
+                    todoLink.style.display = 'none';
+                }
+                userArea.innerHTML = `<a href="/manage" class="login-nav-btn">登录</a>`;
+            }
+        } else {
+            if (todoLink) {
+                todoLink.innerHTML = '';
+                todoLink.style.display = 'none';
+            }
+            userArea.innerHTML = `<a href="/manage" class="login-nav-btn">登录</a>`;
+        }
+    };
+
+    window.applyTheme();
+    window.updateUserArea();
+    window.updateThemeIcon();
+
+    document.addEventListener('astro:page-load', () => {
         window.applyTheme();
         window.updateUserArea();
         window.updateThemeIcon();
-
-        // 页面切换后重新应用
-        document.addEventListener('astro:page-load', () => {
-            window.applyTheme();
-            window.updateUserArea();
-            window.updateThemeIcon();
-            });
+    });
 </script>
 </body>
 </html>

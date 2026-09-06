@@ -8,19 +8,19 @@
       <!-- ========== 站长模式 ========== -->
       <template v-if="isAdmin">
         <h1 class="welcome-title">
-    <span
-        v-for="(char, index) in adminChars"
-        :key="index"
-        class="welcome-char"
-        :class="{ 'animate-char': animationStarted }"
-        :style="{ animationDelay: `${index * 0.15}s` }"
-    >{{ char }}</span>
+          <span
+              v-for="(char, index) in adminChars"
+              :key="index"
+              class="welcome-char"
+              :class="{ 'animate-char': animationStarted }"
+              :style="{ animationDelay: `${index * 0.15}s` }"
+          >{{ char }}</span>
         </h1>
         <p class="welcome-blog-name mt-2" :class="{ 'animate-blog': animationStarted }">Hisouten站长</p>
 
         <div class="welcome-divider my-3" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.4s;"></div>
 
-        <!-- 站长模式的小字：与你指定的文案一致 -->
+        <!-- 站长模式的小字 -->
         <div class="welcome-content flex-1 w-full flex items-center justify-center">
           <div class="overview-content">
             <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 1.6s;">
@@ -31,20 +31,30 @@
               今天也请继续收集属于您与幻想乡的故事与日常生活吧～
             </p>
             <p class="welcome-intro" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.5s;">
-              幻想乡与您同在，尽情向前迈步吧～
+              幻想乡与您同在，尽管向前迈步吧～
             </p>
             <p class="overview-hint text-sm mt-2" :class="{ 'animate-fade-up': animationStarted }" style="animation-delay: 2.8s;">
-              请您开始书写属于您的华章吧～
+              尽情书写属于您的华章吧～
             </p>
           </div>
         </div>
 
-        <!-- 站长快捷按钮区：延迟调整为 3.2s 起 -->
+        <!-- 站长快捷按钮区 -->
         <div class="welcome-nav flex gap-4 mt-4">
           <button
               class="nav-icon-btn"
               :class="{ 'animate-fade-up': animationStarted }"
               style="animation-delay: 3.2s;"
+              @click="go('/todo')"
+              title="清理待办"
+          >
+            <Icon icon="lucide:list-todo" class="w-5 h-5" />
+            <span class="nav-label">清理待办</span>
+          </button>
+          <button
+              class="nav-icon-btn"
+              :class="{ 'animate-fade-up': animationStarted }"
+              style="animation-delay: 3.4s;"
               @click="go('/write')"
               title="写文章"
           >
@@ -54,7 +64,7 @@
           <button
               class="nav-icon-btn"
               :class="{ 'animate-fade-up': animationStarted }"
-              style="animation-delay: 3.4s;"
+              style="animation-delay: 3.6s;"
               @click="go('/talks')"
               title="发杂谈"
           >
@@ -64,22 +74,12 @@
           <button
               class="nav-icon-btn"
               :class="{ 'animate-fade-up': animationStarted }"
-              style="animation-delay: 3.6s;"
+              style="animation-delay: 3.8s;"
               @click="go('/picture')"
-              title="上传图集"
+              title="看图集"
           >
             <Icon icon="lucide:image" class="w-5 h-5" />
-            <span class="nav-label">发发图集</span>
-          </button>
-          <button
-              class="nav-icon-btn"
-              :class="{ 'animate-fade-up': animationStarted }"
-              style="animation-delay: 3.8s;"
-              @click="go('/version')"
-              title="开发者日志"
-          >
-            <Icon icon="lucide:file-code" class="w-5 h-5" />
-            <span class="nav-label">记录日志</span>
+            <span class="nav-label">看看图集</span>
           </button>
         </div>
       </template>
@@ -122,7 +122,7 @@
             <div v-else-if="activeTab === 'music'" key="music" class="module-content">
               <h3 class="module-title">🎵 关于音乐</h3>
               <p class="module-desc">
-                这里是我的音乐小站，收藏了东方原曲与同人曲的各种精品～～
+                温馨提示：音乐调节非常敏感，想提高音量要非常轻的滑动哦～
                 左侧的黑胶唱片播放器，左上角查看歌词，右上角查看歌单～～
                 下方最左侧可切换播放模式，中间可抓取最新歌单，右侧可调节音量，尽情享受来自幻想乡的旋律吧，都是值得一听的精品哦～
               </p>
@@ -192,7 +192,7 @@ import { getUserFromToken } from '../../../utils/auth'
 import { navigate } from 'astro:transitions/client'
 
 const welcomeChars = ['欢', '迎', '来', '到']
-const adminChars = ['欢', '迎', '回', '家']  // 站长模式大字：欢迎回到
+const adminChars = ['欢', '迎', '回', '家']
 const activeTab = ref('overview')
 const animationStarted = ref(false)
 

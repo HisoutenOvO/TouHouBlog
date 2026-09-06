@@ -23,7 +23,7 @@
     "astro": "^7.1.3",
     "axios": "^1.18.1",
     "bytemd": "^1.22.0",
-    "highlight.js": "^11.11.1",
+    "highlight.js": "^11.12.0",
     "markdown-it": "^15.0.0",
     "markdown-it-anchor": "^9.2.1",
     "markdown-it-sub": "^2.0.0",

@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro'
+import TodoPage from '../components/pages/TodoPage.vue'
+---
+
+<Layout>
+    <TodoPage client:only="vue" />
+</Layout>

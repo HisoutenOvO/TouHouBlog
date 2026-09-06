@@ -106,7 +106,8 @@ body {
 }
 
 /* ========== 文章详情页 Markdown 内容样式（与编辑器预览区统一） ========== */
-.prose {
+.prose,
+.md-editor-preview {
     max-width: none;
     line-height: 1.7;
     font-size: 15px;
@@ -118,7 +119,13 @@ body {
 .prose h3,
 .prose h4,
 .prose h5,
-.prose h6 {
+.prose h6,
+.md-editor-preview h1,
+.md-editor-preview h2,
+.md-editor-preview h3,
+.md-editor-preview h4,
+.md-editor-preview h5,
+.md-editor-preview h6 {
     color: var(--text-heading);
     font-weight: 600;
     line-height: 1.4;
@@ -577,7 +584,6 @@ a, button, [role="button"],
 /* ========== Markdown 内容深度美化（作用于 .prose 与 .md-editor-preview） ========== */
 .prose,
 .md-editor-preview {
-    max-width: none;
     color: var(--text-primary);
     font-size: 15.5px;
     line-height: 1.75;
@@ -651,7 +657,6 @@ a, button, [role="button"],
     transition: background-size 0.3s ease, color 0.3s ease;
     padding-bottom: 1px;
 }
-
 .prose a:hover,
 .md-editor-preview a:hover {
     background-size: 100% 2px;
@@ -671,7 +676,6 @@ a, button, [role="button"],
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: background 0.2s;
 }
-
 .prose :not(pre) > code:hover,
 .md-editor-preview :not(pre) > code:hover {
     background: var(--input-bg);
@@ -816,25 +820,27 @@ a, button, [role="button"],
     margin: 2em 0;
 }
 
-/* 列表：统一、无冲突的最终样式 */
+/* ========== 列表最终样式（简单无冲突） ========== */
 
-/* 无序列表：粉紫圆点 */
-.prose ul:not(.contains-task-list),
-.md-editor-preview ul:not(.contains-task-list) {
+/* 所有 ul 重置默认样式 */
+.prose ul,
+.md-editor-preview ul {
     list-style: none;
     padding-left: 0;
     margin: 1.2em 0;
 }
 
-.prose ul:not(.contains-task-list) > li,
-.md-editor-preview ul:not(.contains-task-list) > li {
+/* 所有 ul 的直接 li */
+.prose ul > li,
+.md-editor-preview ul > li {
     position: relative;
     padding-left: 1.8em;
     margin: 0.6em 0;
 }
 
-.prose ul:not(.contains-task-list) > li::before,
-.md-editor-preview ul:not(.contains-task-list) > li::before {
+/* 普通 li 显示粉紫圆点 */
+.prose ul > li:not(.task-list-item)::before,
+.md-editor-preview ul > li:not(.task-list-item)::before {
     content: '';
     position: absolute;
     left: 0.2em;
@@ -846,28 +852,18 @@ a, button, [role="button"],
     box-shadow: 0 0 8px rgba(192, 132, 252, 0.7);
 }
 
-/* 嵌套无序列表二级：空心圆环 */
-.prose ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before,
-.md-editor-preview ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before {
-    background: transparent;
-    border: 2px solid #d8b4e8;
-    width: 0.5em;
-    height: 0.5em;
-    box-shadow: none;
+/* 任务列表项不显示圆点 */
+.prose ul > li.task-list-item,
+.md-editor-preview ul > li.task-list-item {
+    padding-left: 0.5em;
 }
 
-/* 嵌套无序列表三级：小方块 */
-.prose ul:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before,
-.md-editor-preview ul:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) > li::before {
-    background: #e8d5f5;
-    border: none;
-    border-radius: 2px;
-    width: 0.5em;
-    height: 0.5em;
-    box-shadow: none;
+.prose ul > li.task-list-item::before,
+.md-editor-preview ul > li.task-list-item::before {
+    display: none;
 }
 
-/* 有序列表：只显示数字，无背景，樱花色 */
+/* 有序列表：无背景纯数字 */
 .prose ol,
 .md-editor-preview ol {
     list-style: none;
@@ -896,13 +892,7 @@ a, button, [role="button"],
     line-height: 1.4;
 }
 
-/* 嵌套有序列表数字：浅紫 */
-.prose ol ol > li::before,
-.md-editor-preview ol ol > li::before {
-    color: #c084fc;
-}
-
-/* 任务列表复选框：樱花粉 */
+/* 任务列表复选框配色 */
 .prose input[type="checkbox"],
 .md-editor-preview input[type="checkbox"] {
     accent-color: #f472b6 !important;
@@ -983,8 +973,8 @@ a, button, [role="button"],
 }
 
 /* 暗色模式列表微调 */
-[data-theme="dark"] .prose ul:not(.contains-task-list) > li::before,
-[data-theme="dark"] .md-editor-preview ul:not(.contains-task-list) > li::before {
+[data-theme="dark"] .prose ul > li:not(.task-list-item)::before,
+[data-theme="dark"] .md-editor-preview ul > li:not(.task-list-item)::before {
     background: linear-gradient(135deg, #f472b6, #c084fc);
     box-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
 }
@@ -992,9 +982,4 @@ a, button, [role="button"],
 [data-theme="dark"] .prose ol > li::before,
 [data-theme="dark"] .md-editor-preview ol > li::before {
     color: #f9a8d4;
-}
-
-[data-theme="dark"] .prose ol ol > li::before,
-[data-theme="dark"] .md-editor-preview ol ol > li::before {
-    color: #c084fc;
 }

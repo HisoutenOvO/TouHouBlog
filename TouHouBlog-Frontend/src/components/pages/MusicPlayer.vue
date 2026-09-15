@@ -321,27 +321,28 @@ const switchToIndex = (index) => {
   let target = index
   if (target < 0) target = total - 1
   if (target >= total) target = 0
+  const shouldResume = !ap.audio.paused
   ap.list.switch(target)
-  ap.play()
+  if (shouldResume) ap.play()
 }
 const prevTrack = () => {
   if (!ap) return
   if (switchTimer) clearTimeout(switchTimer)
-  wasPlayingBeforeSwitch = !ap.audio.paused
-  ap.pause()
+  const shouldResume = !ap.audio.paused
   discTransitionName.value = 'disc-prev'
   isSwitching.value = true
   ap.skipBack()
+  if (shouldResume) ap.play()
 }
 
 const nextTrack = () => {
   if (!ap) return
   if (switchTimer) clearTimeout(switchTimer)
-  wasPlayingBeforeSwitch = !ap.audio.paused
-  ap.pause()
+  const shouldResume = !ap.audio.paused
   discTransitionName.value = 'disc-next'
   isSwitching.value = true
   ap.skipForward()
+  if (shouldResume) ap.play()
 }
 
 const loadLyric = async (songId) => {
@@ -420,11 +421,11 @@ const togglePlaylist = () => { showPlaylist.value = !showPlaylist.value }
 const playSong = (index) => {
   if (!ap) return
   if (switchTimer) clearTimeout(switchTimer)
-  wasPlayingBeforeSwitch = !ap.audio.paused
-  ap.pause()
+  const shouldResume = !ap.audio.paused
   discTransitionName.value = index > currentIndex.value ? 'disc-next' : 'disc-prev'
   isSwitching.value = true
   switchToIndex(index)
+  if (shouldResume) ap.play()
   showPlaylist.value = false
   currentView.value = 'player'
 }
@@ -442,59 +443,28 @@ const changeMode = () => {
 
   localStorage.setItem(PLAYLIST_MODE_KEY, nextMode)
   playMode.value = nextMode
-  const APlayerCtor = APlayerClass || window.__APlayerClass
-  if (APlayerClass && ap) {
-    const oldIndex = ap.list.index
-    const oldTime = ap.audio.currentTime
-    const oldVolume = ap.audio.volume
-    const wasPlaying = !ap.audio.paused
 
-    const songs = ap.list.audios.map(s => ({
-      name: s.name,
-      artist: s.artist,
-      url: s.url,
-      cover: s.cover || defaultCover,
-      id: s.id || ''
-    }))
+  if (!ap) return
 
-    ap.destroy()
-
-    let newLoop, newOrder
-    if (nextMode === 'single') {
-      newLoop = 'one'
-      newOrder = 'list'
-    } else if (nextMode === 'random') {
-      newLoop = 'all'
-      newOrder = 'random'
-    } else {
-      newLoop = 'all'
-      newOrder = 'list'
-    }
-
-    ap = new APlayerClass({
-      container: apContainer.value,
-      fixed: false,
-      mini: false,
-      autoplay: false,
-      theme: '#b7b7b7',
-      loop: newLoop,
-      order: newOrder,
-      preload: 'auto',
-      volume: oldVolume,
-      audio: songs
-    })
-
-    if (songs.length > 0) {
-      const newIndex = (oldIndex >= 0 && oldIndex < songs.length) ? oldIndex : 0
-      ap.list.switch(newIndex)
-      if (oldTime) ap.seek(oldTime)
-      if (wasPlaying) ap.play()
-    }
-
-    window[INSTANCE_KEY] = ap
-    syncUI()
-    console.log('[Player] 实例重建完成，新模式:', nextMode, 'loop:', newLoop, 'order:', newOrder)
+  let newLoop, newOrder
+  if (nextMode === 'single') {
+    newLoop = 'one'
+    newOrder = 'list'
+  } else if (nextMode === 'random') {
+    newLoop = 'all'
+    newOrder = 'random'
+  } else {
+    newLoop = 'all'
+    newOrder = 'list'
   }
+
+  ap.options.loop = newLoop
+  ap.options.order = newOrder
+  if (!ap.audio.paused) {
+    ap.play()
+  }
+
+  syncUI()
 }
 
 const updateMode = () => {

@@ -12,4 +12,4 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
         </div>
         <PictureGrid client:load />
     </div>
-    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>
+    <MusicPlayer key={Astro.url.pathname} client:only="vue" mode="hidden" /></Layout>

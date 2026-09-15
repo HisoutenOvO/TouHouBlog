@@ -6,4 +6,4 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
 
 <Layout>
     <SplashScreen client:load />
-    <MusicPlayer client:only="vue" transition:persist mode="hidden" /></Layout>
+    <MusicPlayer key={Astro.url.pathname} client:only="vue" mode="hidden" /></Layout>

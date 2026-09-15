@@ -49,7 +49,7 @@ import MusicPlayer from '../components/pages/MusicPlayer.vue'
         <aside class="w-56 flex-shrink-0 slide-in-right">
             <div class="sticky top-24 space-y-4">
                 <TagList client:load />
-                <MusicPlayer client:only="vue" mode="mini" transition:persist />
+                <MusicPlayer key={Astro.url.pathname} client:only="vue" mode="mini" />
             </div>
         </aside>
     </div>

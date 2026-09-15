@@ -166,7 +166,7 @@ body {
     font-size: 0.95rem;
     font-weight: 500;
     letter-spacing: 0.04em;
-    color: #5b4b6b;               /* 亮色模式 */
+    color: #5b4b6b;
     text-decoration: none;
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
@@ -175,7 +175,7 @@ body {
 }
 
 [data-theme="dark"] .nav-link {
-    color: #b3a8d9;               /* 暗色模式：柔和淡紫 */
+    color: #b3a8d9;
 }
 
 .nav-link:hover {
@@ -186,7 +186,6 @@ body {
     color: #e0d4f5;
 }
 
-/* 下划线动画保留 */
 .nav-link::after {
     content: "";
     position: absolute;
@@ -446,22 +445,6 @@ body {
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* ========== 自定义樱花鼠标光标 ========== */
-:root {
-    --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff8ac2'/%3E%3Cstop offset='100%25' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23p)' stroke='white' stroke-width='0.5'%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(0 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(72 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(144 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(216 15 15)'/%3E%3Cellipse cx='15' cy='7' rx='3.5' ry='6.5' transform='rotate(288 15 15)'/%3E%3C/g%3E%3Ccircle cx='15' cy='15' r='2.5' fill='%23fbbf24'/%3E%3Ccircle cx='15' cy='15' r='1.2' fill='%23fff7ed'/%3E%3C/svg%3E") 15 15, auto;
-
-    --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23fdf2f8' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23f9a8d4' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff8ac2'/%3E%3Cstop offset='100%25' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='18' cy='18' r='15' fill='url(%23g)'/%3E%3Cg fill='url(%23p)' stroke='white' stroke-width='0.8'%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(0 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(72 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(144 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(216 18 18)'/%3E%3Cellipse cx='18' cy='8.5' rx='4.2' ry='7.8' transform='rotate(288 18 18)'/%3E%3C/g%3E%3Ccircle cx='18' cy='18' r='3' fill='%23fbbf24'/%3E%3Ccircle cx='18' cy='18' r='1.5' fill='%23fff7ed'/%3E%3C/svg%3E") 18 18, pointer;
-}
-
-body {
-    cursor: var(--cursor-default);
-}
-a, button, [role="button"],
-.archive-write-btn, .archive-search-btn, .upload-btn, .devlog-btn,
-.publish-btn, .draft-btn, .cancel-btn, .tag-chip-list, .category-chip, .archive-view-btn {
-    cursor: var(--cursor-pointer) !important;
-}
-
 /* ========== Markdown 内容深度美化（作用于 .prose 与 .md-editor-preview） ========== */
 .prose,
 .md-editor-preview {
@@ -529,7 +512,7 @@ a, button, [role="button"],
 
 .prose a,
 .md-editor-preview a {
-    color: var(--btn-gradient-bg);
+    color: #ec4899;
     text-decoration: none;
     background-image: linear-gradient(135deg, #7c3aed, #ec4899);
     background-repeat: no-repeat;
@@ -541,7 +524,6 @@ a, button, [role="button"],
 .prose a:hover,
 .md-editor-preview a:hover {
     background-size: 100% 2px;
-    color: #ec4899;
 }
 
 /* 行内代码 */
@@ -612,7 +594,6 @@ a, button, [role="button"],
     -webkit-backdrop-filter: blur(4px);
     border-bottom: 1px solid var(--card-border);
     border-radius: 12px 12px 0 0;
-    /* 三个圆点：红色、黄色、绿色 */
     background-image: radial-gradient(circle at 16px 14px, #fc625d 5px, transparent 5.5px),
     radial-gradient(circle at 36px 14px, #fdbc40 5px, transparent 5.5px),
     radial-gradient(circle at 56px 14px, #35cd4b 5px, transparent 5.5px);
@@ -991,6 +972,7 @@ a, button, [role="button"],
 [data-theme="dark"] .md-editor-preview .hljs-attr {
     color: #79c0ff;
 }
+
 /* ========== 导航栏登录按钮 ========== */
 .login-nav-btn {
     display: inline-flex;
@@ -1029,4 +1011,50 @@ a, button, [role="button"],
 [data-theme="dark"] .login-nav-btn:hover {
     background: linear-gradient(135deg, rgba(192, 132, 252, 0.25), rgba(236, 72, 153, 0.25));
     color: #ffffff;
+}
+
+/* ========== 移动端全局适配 ========== */
+@media (max-width: 768px) {
+    .glass-navbar {
+        padding: 0.5rem 1rem;
+    }
+    .nav-link {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.3rem;
+    }
+    .site-title {
+        font-size: 1.2rem;
+    }
+    .glass-card {
+        border-radius: 0.8rem;
+        padding: 0.75rem;
+    }
+    .archive-title {
+        font-size: 2.2rem;
+    }
+    .archive-subtitle {
+        font-size: 0.8rem;
+    }
+}
+
+.todo-text,
+.stage-title,
+.subtask-text,
+.edit-input {
+    min-width: 0;
+}
+
+/* ========== 文章详情页主标题：明亮粉紫蓝渐变 ========== */
+.article-hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0;
+    background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+    letter-spacing: 0.03em;
 }

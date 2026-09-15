@@ -9,5 +9,5 @@ const { id } = Astro.params
 
 <Layout>
     <ArticleDetail client:load articleId={id} />
-    <MusicPlayer client:load transition:persist mode="hidden" />
+    <MusicPlayer key={Astro.url.pathname} client:load mode="hidden" />
 </Layout>

@@ -501,10 +501,18 @@ const updateMode = () => {
   if (typeof window === 'undefined') return
   if (props.mode === 'hidden') {
     currentMode.value = 'hidden'
-  } else {
-    currentMode.value = window.location.pathname === '/' ? 'full' : 'mini'
+    return
   }
+  currentMode.value = window.location.pathname === '/' ? 'full' : 'mini'
 }
+
+watch(() => props.mode, () => {
+  updateMode()
+}, { flush: 'post' })
+
+watch(() => (typeof window !== 'undefined' ? window.location.pathname : ''), () => {
+  updateMode()
+}, { flush: 'post' })
 
 onMounted(() => {
   // 初始化播放模式

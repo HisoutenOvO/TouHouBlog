@@ -137,9 +137,8 @@
             <div class="article-content-card">
               <!-- 标题行 -->
               <div class="flex items-center gap-3 mb-2">
-                <h1 class="text-3xl font-extrabold text-gray-900">{{ article.title }}</h1>
-                <button v-if="isAdmin" @click="enterEditMode"
-                        class="admin-action-btn edit">
+                <h1 class="article-hero-title">{{ article.title }}</h1>
+                <button v-if="isAdmin" @click="enterEditMode" class="admin-action-btn edit">
                   <Icon icon="lucide:pencil" class="w-4 h-4" />
                   编辑
                 </button>

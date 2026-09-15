@@ -5,12 +5,12 @@
       <p class="archive-subtitle">记录每日任务与长期目标</p>
     </div>
 
-    <div class="flex justify-center items-center gap-4 mb-8">
+    <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
       <button class="add-btn" @click="handleAdd" title="新增">
         <Icon icon="lucide:plus" class="w-5 h-5" />
       </button>
 
-      <div class="archive-view-switch w-64">
+      <div class="archive-view-switch w-full md:w-64">
         <div
             class="archive-view-indicator"
             :style="{ transform: currentTab === 'stage' ? 'translateX(100%)' : 'translateX(0)' }"
@@ -19,9 +19,9 @@
         <button class="archive-view-btn" :class="{ active: currentTab === 'stage' }" @click="currentTab = 'stage'">阶段性任务</button>
       </div>
 
-      <button class="toggle-completed-btn" @click="showCompleted = !showCompleted">
+      <button class="toggle-completed-btn w-full md:w-auto" @click="showCompleted = !showCompleted">
         <Icon icon="lucide:list-check" class="w-4 h-4" />
-        {{ showCompleted ? '返回' : '查看已完成' }}
+        <span>{{ showCompleted ? '返回' : '查看已完成' }}</span>
       </button>
     </div>
 
@@ -375,5 +375,23 @@ onMounted(() => {
 }
 .list-move {
   transition: transform 0.3s ease;
+}
+@media (max-width: 768px) {
+  .archive-title {
+    font-size: 2.2rem;
+  }
+}
+@media (max-width: 768px) {
+  .add-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .toggle-completed-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  .todo-item, .stage-task {
+    padding: 0.6rem;
+  }
 }
 </style>

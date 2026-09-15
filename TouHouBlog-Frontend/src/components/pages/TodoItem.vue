@@ -258,4 +258,53 @@ const finishEdit = () => {
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 .check-enter-active, .check-leave-active { transition: all 0.2s ease; }
 .check-enter-from, .check-leave-to { transform: scale(0.5); opacity: 0; }
+@media (max-width: 768px) {
+  .todo-item {
+    padding: 0.35rem 0.4rem;
+    gap: 0.35rem;
+    border-radius: 0.5rem;
+  }
+
+  .todo-text,
+  .edit-input {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .check-circle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .priority-dot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .priority-picker {
+    padding: 0.15rem 0.25rem;
+    gap: 0.2rem;
+  }
+
+  .priority-option {
+    width: 9px;
+    height: 9px;
+  }
+
+  .mini-btn,
+  .save-btn,
+  .cancel-btn {
+    padding: 1px;
+    border-radius: 3px;
+  }
+
+  .mini-btn svg,
+  .save-btn svg,
+  .cancel-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+}
 </style>

@@ -16,7 +16,7 @@ const recentProps = { pageSize: 5, search: "", categoryId: null, tagId: null };
 		<!-- 顶部区域：左边图片 + 中间音乐（正方形） + 右边杂谈 -->
 		<div class="flex gap-6 mb-8 min-h-[28rem]">
 			<div class="w-[28rem] h-[28rem] flex items-center justify-center flex-shrink-0">
-				<MusicPlayer client:only="vue" mode="full" transition:persist />
+				<MusicPlayer key={Astro.url.pathname} client:only="vue" mode="full" />
 			</div>
 
 

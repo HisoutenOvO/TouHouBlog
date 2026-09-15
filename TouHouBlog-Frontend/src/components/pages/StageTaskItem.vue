@@ -349,4 +349,63 @@ const submitSubtask = () => {
 .subtask-enter-from { opacity: 0; transform: translateY(-8px); }
 .subtask-leave-to { opacity: 0; transform: translateY(8px); }
 .subtask-move { transition: transform 0.25s ease; }
+@media (max-width: 768px) {
+  .stage-task {
+    padding: 0.3rem;
+    border-radius: 0.45rem;
+  }
+
+  .stage-title,
+  .edit-input,
+  .subtask-text {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .progress-circle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mini-btn,
+  .save-btn,
+  .cancel-btn {
+    padding: 0;
+    border-radius: 2px;
+  }
+
+  .mini-btn svg,
+  .save-btn svg,
+  .cancel-btn svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .priority-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .priority-picker {
+    padding: 0.1rem 0.2rem;
+    gap: 0.15rem;
+  }
+
+  .priority-option {
+    width: 8px;
+    height: 8px;
+  }
+
+  .subtask-item {
+    gap: 0.3rem;
+    padding: 0.2rem 0;
+  }
+
+  .add-subtask-btn {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.25rem;
+  }
+}
 </style>

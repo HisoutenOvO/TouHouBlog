@@ -7,7 +7,7 @@ import Layout from '../layouts/Layout.astro'
     <div class="flex items-center justify-center min-h-[60vh]">
         <p class="text-gray-500">登录成功，正在跳转...</p>
     </div>
-    <MusicPlayer client:only="vue" transition:persist mode="hidden" />
+    <MusicPlayer key={Astro.url.pathname} client:only="vue" mode="hidden" />
 </Layout>
 
 <script>

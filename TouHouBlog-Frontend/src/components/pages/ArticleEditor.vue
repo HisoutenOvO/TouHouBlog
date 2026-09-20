@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { getUserFromToken } from '../../utils/auth'
@@ -133,6 +133,11 @@ import { Icon } from '@iconify/vue'
 const props = defineProps({
   articleId: { type: String, default: '' }
 })
+
+const AUTOSAVE_PREFIX = 'article-editor-autosave:'
+const AUTOSAVE_DELAY = 700
+let autosaveTimer = null
+let skipAutosaveOnUnmount = false
 
 // 主题响应式处理
 const theme = ref(
@@ -348,6 +353,7 @@ const checkDraft = async () => {
 const cancelEdit = async () => {
   const confirmed = await window.$confirm('确定要退出编辑吗？未保存的修改将丢失。')
   if (!confirmed) return
+  discardAutosave()
   if (currentArticleId.value) {
     navigate(`/article/${currentArticleId.value}`)
   } else {
@@ -374,6 +380,7 @@ const saveDraft = async () => {
     } else {
       await request.post('/api/articles', payload)
     }
+    discardAutosave()
     await window.$alert('草稿已保存')
     navigate('/archive')
   } catch (e) {}
@@ -407,16 +414,98 @@ const publishArticle = async () => {
   try {
     if (currentArticleId.value) {
       await request.put(`/api/articles/${currentArticleId.value}`, payload)
+      discardAutosave()
       await window.$alert('文章已发布')
       navigate(`/article/${currentArticleId.value}`)
     } else {
       const res = await request.post('/api/articles', payload)
       const newId = res.data.data
+      discardAutosave()
       await window.$alert('文章已发布')
       navigate(`/article/${newId}`)
     }
   } catch (e) {}
 }
+
+const getAutosaveKey = () => `${AUTOSAVE_PREFIX}${props.articleId || 'new'}`
+const hasLocalContent = (data) => {
+  if (!data) return false
+  return !!(
+    (data.title && data.title.trim()) ||
+    (data.content && data.content.trim()) ||
+    data.categoryId ||
+    (Array.isArray(data.selectedTags) && data.selectedTags.length) ||
+    data.editCoverUrl
+  )
+}
+const buildAutosavePayload = () => ({
+  title: title.value,
+  content: content.value,
+  categoryId: categoryId.value,
+  selectedTags: [...selectedTags.value],
+  editCoverUrl: editCoverUrl.value,
+  currentArticleId: currentArticleId.value,
+  updatedAt: Date.now()
+})
+const persistAutosaveNow = () => {
+  if (typeof window === 'undefined' || !isAdmin.value) return
+  const payload = buildAutosavePayload()
+  if (!hasLocalContent(payload)) return
+  window.localStorage.setItem(getAutosaveKey(), JSON.stringify(payload))
+}
+const scheduleAutosave = () => {
+  if (autosaveTimer) clearTimeout(autosaveTimer)
+  autosaveTimer = setTimeout(() => {
+    persistAutosaveNow()
+  }, AUTOSAVE_DELAY)
+}
+const clearAutosave = () => {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(getAutosaveKey())
+}
+const discardAutosave = () => {
+  skipAutosaveOnUnmount = true
+  clearAutosave()
+}
+const restoreAutosaveIfNeeded = async () => {
+  if (typeof window === 'undefined') return
+  const raw = window.localStorage.getItem(getAutosaveKey())
+  if (!raw) return
+
+  let cached = null
+  try {
+    cached = JSON.parse(raw)
+  } catch (_) {
+    clearAutosave()
+    return
+  }
+
+  if (!hasLocalContent(cached)) {
+    clearAutosave()
+    return
+  }
+
+  const shouldContinue = await window.$confirm('检测到本地未保存内容，是否继续编辑？')
+  if (!shouldContinue) {
+    clearAutosave()
+    return
+  }
+
+  title.value = cached.title || ''
+  content.value = cached.content || ''
+  categoryId.value = cached.categoryId || ''
+  selectedTags.value = Array.isArray(cached.selectedTags) ? cached.selectedTags : []
+  editCoverUrl.value = cached.editCoverUrl || ''
+  currentArticleId.value = cached.currentArticleId || currentArticleId.value
+}
+
+watch(
+  [title, content, categoryId, selectedTags, editCoverUrl, currentArticleId],
+  () => {
+    scheduleAutosave()
+  },
+  { deep: true }
+)
 
 onMounted(async () => {
   themeObserver = new MutationObserver(() => {
@@ -434,10 +523,18 @@ onMounted(async () => {
     await loadTags()
     await loadArticle()
     await checkDraft()
+    await restoreAutosaveIfNeeded()
   }
 })
 
 onBeforeUnmount(() => {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer)
+    autosaveTimer = null
+  }
+  if (!skipAutosaveOnUnmount) {
+    persistAutosaveNow()
+  }
   if (themeObserver) {
     themeObserver.disconnect()
   }
@@ -894,3 +991,4 @@ onBeforeUnmount(() => {
   height: 100%;
 }
 </style>
+

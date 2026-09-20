@@ -47,6 +47,15 @@ const darkImages = [
   '/images/bgn7.jpg',
   '/images/bgn8.jpg',
   '/images/bgn9.jpg',
+  '/images/bgn11.jpg',
+  '/images/bgn12.jpg',
+  '/images/bgn13.jpg',
+  '/images/bgn14.jpg',
+  '/images/bgn15.jpg',
+  '/images/bgn16.jpg',
+  '/images/bgn17.jpg',
+  '/images/bgn18.jpg',
+  '/images/bgn19.jpg',
 ]
 
 const currentTheme = ref('light')

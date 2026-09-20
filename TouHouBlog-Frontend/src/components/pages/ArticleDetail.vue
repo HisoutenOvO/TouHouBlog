@@ -210,7 +210,7 @@
 
 <script setup>
 // @ts-nocheck
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import request from '../../utils/request'
 import MarkdownIt from 'markdown-it'
 import markdownItAnchor from 'markdown-it-anchor'
@@ -235,6 +235,11 @@ import LoadingSkeleton from "../common/LoadingSkeleton.vue";
 const isDark = computed(() => document.documentElement.getAttribute('data-theme') === 'dark')
 
 const props = defineProps({ articleId: String })
+
+const AUTOSAVE_PREFIX = 'article-detail-edit-autosave:'
+const AUTOSAVE_DELAY = 700
+let autosaveTimer = null
+let skipAutosaveOnUnmount = false
 
 const article = ref(null)
 const loading = ref(true)
@@ -457,6 +462,83 @@ const addCategory = async () => {
   } catch (e) {}
 }
 
+const getAutosaveKey = () => `${AUTOSAVE_PREFIX}${props.articleId || 'unknown'}`
+
+const hasLocalContent = (data) => {
+  if (!data) return false
+  return !!(
+    (data.editTitle && data.editTitle.trim()) ||
+    (data.editContent && data.editContent.trim()) ||
+    data.editCategoryId ||
+    (Array.isArray(data.editSelectedTags) && data.editSelectedTags.length) ||
+    data.editCoverUrl
+  )
+}
+
+const buildAutosavePayload = () => ({
+  editTitle: editTitle.value,
+  editContent: editContent.value,
+  editCategoryId: editCategoryId.value,
+  editSelectedTags: [...editSelectedTags.value],
+  editCoverUrl: editCoverUrl.value,
+  updatedAt: Date.now()
+})
+
+const persistAutosaveNow = () => {
+  if (typeof window === 'undefined' || !isAdmin.value || !isEditing.value) return
+  const payload = buildAutosavePayload()
+  if (!hasLocalContent(payload)) return
+  window.localStorage.setItem(getAutosaveKey(), JSON.stringify(payload))
+}
+
+const scheduleAutosave = () => {
+  if (autosaveTimer) clearTimeout(autosaveTimer)
+  autosaveTimer = setTimeout(() => {
+    persistAutosaveNow()
+  }, AUTOSAVE_DELAY)
+}
+
+const clearAutosave = () => {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(getAutosaveKey())
+}
+
+const discardAutosave = () => {
+  skipAutosaveOnUnmount = true
+  clearAutosave()
+}
+
+const restoreAutosaveIfNeeded = async () => {
+  if (typeof window === 'undefined') return
+  const raw = window.localStorage.getItem(getAutosaveKey())
+  if (!raw) return
+
+  let cached = null
+  try {
+    cached = JSON.parse(raw)
+  } catch (_) {
+    clearAutosave()
+    return
+  }
+
+  if (!hasLocalContent(cached)) {
+    clearAutosave()
+    return
+  }
+
+  const shouldContinue = await window.$confirm('检测到本地未保存内容，是否继续编辑？')
+  if (!shouldContinue) {
+    clearAutosave()
+    return
+  }
+
+  editTitle.value = cached.editTitle || editTitle.value
+  editContent.value = cached.editContent || editContent.value
+  editCategoryId.value = cached.editCategoryId || ''
+  editSelectedTags.value = Array.isArray(cached.editSelectedTags) ? cached.editSelectedTags : []
+  editCoverUrl.value = cached.editCoverUrl || ''
+}
+
 const fetchArticle = async () => {
   try {
     const res = await request.get(`/api/articles/${props.articleId}`)
@@ -480,12 +562,16 @@ const enterEditMode = async () => {
   editCategoryId.value = article.value.categoryId || ''
   editSelectedTags.value = article.value.tags ? article.value.tags.map(t => t.id) : []
   editCoverUrl.value = article.value.coverUrl || ''
+  await restoreAutosaveIfNeeded()
   isEditing.value = true
   await nextTick()
   updateHeadings()
 }
 
-const cancelEdit = () => {
+const cancelEdit = async () => {
+  const confirmed = await window.$confirm('确定取消编辑吗？本地未保存内容将被清除。')
+  if (!confirmed) return
+  discardAutosave()
   isEditing.value = false
   const html = md.render(article.value.content)
   headings.value = extractHeadings(html)
@@ -513,6 +599,7 @@ const saveArticle = async () => {
   }
   try {
     await request.put(`/api/articles/${props.articleId}`, payload)
+    discardAutosave()
     await fetchArticle()
     isEditing.value = false
   } catch (e) {}
@@ -523,9 +610,20 @@ const deleteArticle = async () => {
   if (!confirmed) return
   try {
     await request.delete(`/api/articles/${props.articleId}`)
+    discardAutosave()
     navigate('/archive')
   } catch (e) {}
 }
+
+watch(
+  [isEditing, editTitle, editContent, editCategoryId, editSelectedTags, editCoverUrl],
+  ([editing]) => {
+    if (!editing) return
+    scheduleAutosave()
+    updateHeadings()
+  },
+  { deep: true }
+)
 
 const formatDate = (datetime) => {
   if (!datetime) return ''
@@ -533,6 +631,16 @@ const formatDate = (datetime) => {
 }
 
 onMounted(fetchArticle)
+
+onBeforeUnmount(() => {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer)
+    autosaveTimer = null
+  }
+  if (!skipAutosaveOnUnmount) {
+    persistAutosaveNow()
+  }
+})
 </script>
 
 <style scoped>

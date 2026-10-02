@@ -124,87 +124,85 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 管理按钮 */
 .manager-toggle-btn {
   padding: 0.25rem 0.8rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
+  border: 1px solid var(--card-border);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 .manager-toggle-btn:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
   box-shadow: 0 3px 8px rgba(0,0,0,0.06);
 }
 
-/* 管理状态下的小按钮 */
 .manager-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.3rem 0.6rem;
-  border: none;
+  border: 1px solid var(--card-border);
   border-radius: 0.4rem;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
-  background: rgba(255, 255, 255, 0.8);
-  color: #4b5563;
+  background: var(--input-bg);
+  color: var(--text-secondary);
 }
 .manager-btn:hover {
-  background: #e5e7eb;
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
 }
 .manager-btn.primary {
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--card-border);
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 .manager-btn.primary:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
   box-shadow: 0 3px 8px rgba(0,0,0,0.06);
 }
 
-/* 输入框 */
 .manager-input {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid #e8d5f5;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 0.4rem;
-  color: #4b5563;
+  color: var(--text-primary);
   padding: 0.35rem 0.6rem;
   font-size: 0.8rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .manager-input:focus {
-  border-color: #d8b4e8;
+  border-color: var(--input-focus-border);
   box-shadow: 0 0 0 2px rgba(216, 180, 232, 0.2);
   outline: none;
 }
 
-/* 普通标签胶囊 */
+/* 管理状态下的标签胶囊 */
 .tag-chip-list {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  border: 1px solid var(--card-border);
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   transition: background 0.2s, transform 0.2s;
 }
 .tag-chip-list:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
+  background: var(--btn-primary-hover-bg);
+  color: var(--tag-text);
   transform: translateY(-1px);
 }
 </style>

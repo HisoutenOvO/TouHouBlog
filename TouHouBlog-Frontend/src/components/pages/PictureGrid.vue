@@ -278,27 +278,29 @@ onBeforeUnmount(() => {
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #f9d5e5, #e8d5f5);
-  color: #6b4b6b;
+  border: 1px solid var(--card-border);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.25s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 .upload-btn:hover {
-  background: linear-gradient(135deg, #f8c8dc, #ddc4f2);
-  color: #523b52;
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
 .done-btn {
-  background: rgba(255, 255, 255, 0.7);
-  color: #4b5563;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
 }
 .done-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: #111827;
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
 }
 
 .gallery-masonry {
@@ -319,7 +321,7 @@ onBeforeUnmount(() => {
   position: relative;
   border-radius: 0.75rem;
   overflow: hidden;
-  cursor: var(--cursor-pointer, pointer);
+  cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   animation: galleryItemIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -344,18 +346,20 @@ onBeforeUnmount(() => {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .delete-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
 }
 

@@ -371,7 +371,7 @@ const md = new MarkdownIt({
   }
 })
     .use(markdownItAnchor, {
-      level: [1,2,3],
+      level: [1,2,3,4],
       slugify: s => s.toLowerCase().replace(/[\s,，。？！：；""''（）—《》【】]+/g, '-').replace(/^-+|-+$/g, '')
     })
     .use(markdownItSub)
@@ -387,7 +387,7 @@ const renderedContent = computed(() => {
 const extractHeadings = (html) => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
-  return Array.from(doc.querySelectorAll('h1, h2, h3')).map(el => ({
+  return Array.from(doc.querySelectorAll('h1, h2, h3, h4')).map(el => ({
     level: parseInt(el.tagName.charAt(1)),
     text: el.textContent,
     id: el.id

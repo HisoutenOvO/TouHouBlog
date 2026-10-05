@@ -155,6 +155,10 @@ onBeforeUnmount(() => {
   padding-left: 3.25rem;
   font-size: 0.8rem;
 }
+.toc-level-4 {
+  padding-left: 4.5rem;
+  font-size: 0.8rem;
+}
 
 .toc-dot {
   width: 6px;
@@ -173,7 +177,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 6px rgba(192, 132, 252, 0.5);
 }
 
-.toc-level-3 .toc-dot {
+.toc-level-4 .toc-dot {
   width: 5px;
   height: 5px;
   background: var(--text-muted);

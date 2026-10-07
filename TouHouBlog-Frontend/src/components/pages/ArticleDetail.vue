@@ -1172,6 +1172,49 @@ onBeforeUnmount(() => {
   background: var(--btn-primary-hover-bg);
   color: var(--text-primary);
 }
+/* 管理员操作按钮 */
+[data-theme="dark"] .admin-action-btn {
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .admin-action-btn.edit {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+[data-theme="dark"] .admin-action-btn.edit:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
+}
+[data-theme="dark"] .admin-action-btn.delete {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.12));
+  color: #fca5a5;
+}
+[data-theme="dark"] .admin-action-btn.delete:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.2));
+  color: #fecaca;
+}
+
+/* 分类 / 标签胶囊 */
+[data-theme="dark"] .category-chip {
+  background: var(--category-bg);
+  color: var(--category-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .category-chip:hover {
+  background: var(--category-bg);
+  color: var(--category-text);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tag-chip {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  border-color: var(--card-border);
+}
+[data-theme="dark"] .tag-chip:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--tag-text);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
 </style>
 
 <style>

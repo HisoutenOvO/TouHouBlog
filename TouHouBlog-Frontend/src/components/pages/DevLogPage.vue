@@ -337,4 +337,69 @@ onMounted(async () => {
     transform: translateY(0);
   }
 }
+/* ========== 暗色模式适配 ========== */
+[data-theme="dark"] .devlog-btn {
+  border-color: var(--card-border);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+[data-theme="dark"] .devlog-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-text);
+}
+
+[data-theme="dark"] .devlog-timeline {
+  border-left-color: var(--card-border);
+}
+
+[data-theme="dark"] .timeline-dot {
+  background: #1a1025;
+  border-color: #c084fc;
+  box-shadow: 0 0 6px rgba(192, 132, 252, 0.6);
+}
+
+[data-theme="dark"] .version-badge {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+}
+
+[data-theme="dark"] .devlog-mini-btn {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
+}
+[data-theme="dark"] .devlog-mini-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .devlog-mini-btn.danger {
+  color: #fca5a5;
+}
+[data-theme="dark"] .devlog-mini-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+}
+
+[data-theme="dark"] .cancel-btn {
+  background: var(--input-bg);
+  border-color: var(--card-border);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .cancel-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  color: var(--text-primary);
+}
+
+/* 模态框里的输入框 */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] textarea {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: var(--input-focus-border);
+  outline: none;
+}
 </style>
